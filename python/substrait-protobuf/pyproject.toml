@@ -1,0 +1,33 @@
+[project]
+name = "substrait-protobuf"
+version = "0.1.0"
+description = "Substrait Protocol Buffer definitions and utilities"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Substrait Contributors"}
+]
+dependencies = [
+    "protobuf>=3.20.0",
+]
+
+[project.urls]
+Homepage = "https://substrait.io"
+Repository = "https://github.com/substrait-io/substrait-packaging"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+substrait_protobuf = ["py.typed"]
