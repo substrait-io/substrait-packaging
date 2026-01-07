@@ -1,0 +1,16 @@
+syntax="proto3";
+
+package testprotos;
+
+// Fake "External" Protobufs utilizing substrait protos
+
+// Used to verify that external users can define their own messages using
+// Substrait message, and use them with substrait-protobuf.
+
+import "substrait/algebra.proto";
+import "substrait/type.proto";
+
+message ExternalMessage {
+  substrait.Expression.Literal literal = 1;
+  substrait.Type typ = 2;
+}
