@@ -116,10 +116,9 @@ jobs:
         working-directory: python/substrait-protobuf
         run: uv run pytest
 
-      - name: Push and Tag Generated Code
+      - name: Tag and Push Generated Code
         if: needs.prechecks.outputs.branch_exists == 'false'
         run: |
-          git push origin HEAD:$BRANCH_NAME
           git tag "python/substrait-protobuf/$SUBSTRAIT_VERSION"
           git push origin "python/substrait-protobuf/$SUBSTRAIT_VERSION"
 
