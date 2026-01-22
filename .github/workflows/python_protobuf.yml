@@ -119,8 +119,8 @@ jobs:
       - name: Tag and Push Generated Code
         if: needs.prechecks.outputs.tag_exists == 'false'
         run: |
-          git tag "python/substrait-protobuf/$SUBSTRAIT_VERSION"
-          git push origin "python/substrait-protobuf/$SUBSTRAIT_VERSION"
+          git tag -a "$TAG_NAME" -m "$TAG_NAME"
+          git push origin "$TAG_NAME"
 
   test-publish:
     runs-on: ubuntu-latest
