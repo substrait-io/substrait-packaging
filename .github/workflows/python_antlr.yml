@@ -1,0 +1,158 @@
+name: Publish Python ANTLR
+run-name: Publish Python ANTLR for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: python-antlr
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to generate ANTLR for
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to generate ANTLR for
+        required: true
+        type: string
+
+env:
+  SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
+  TAG_NAME: "python/substrait-antlr/${{ github.event.inputs.substrait_version }}"
+
+jobs:
+
+  prechecks:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_exists: ${{ steps.check-tag.outputs.exists }}
+      artifact_exists: ${{ steps.check-artifact.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check Tag Existence
+        id: check-tag
+        run: |
+          EXISTS=$(./scripts/tag_exists.sh "$TAG_NAME")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+      - name: Check Artifact Existence on PyPI
+        id: check-artifact
+        run: |
+          EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-antlr "$SUBSTRAIT_VERSION")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+
+  generate:
+    runs-on: ubuntu-latest
+    needs: prechecks
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Install ANTLR4
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y antlr4
+
+      - name: Generate GitHub App Token for Pushing Tags
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.PACKAGER_ID }}
+          private-key: ${{ secrets.PACKAGER_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure GitHub User
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
+
+      - name: Checkout substrait-antlr
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          # Pin uv version
+          version: "0.9.25"
+
+      - name: Attach and Commit substrait Repo
+        run: ./scripts/attach_subtree.sh
+
+      - name: Install Python Dependencies
+        working-directory: python/substrait-antlr
+        run: uv sync --all-extras
+
+      - name: Generate ANTLR Code
+        working-directory: python/substrait-antlr
+        run: ./generate_antlr.sh
+
+      - name: Set Version
+        working-directory: python/substrait-antlr
+        run: uv version $SUBSTRAIT_VERSION
+
+      - name: Commit Generated Code
+        run: |
+          git add python/substrait-antlr
+          git commit -m "Generated ANTLR code for Substrait version $SUBSTRAIT_VERSION"
+
+      - name: Run pytest Checks
+        working-directory: python/substrait-antlr
+        run: uv run pytest
+
+      - name: Tag and Push Generated Code
+        if: needs.prechecks.outputs.tag_exists == 'false'
+        run: |
+          git tag -a "$TAG_NAME" -m "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+  test-publish:
+    runs-on: ubuntu-latest
+    needs: [prechecks, generate]
+    if: needs.prechecks.outputs.artifact_exists == 'false'
+    environment: testpypi
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: python/substrait-antlr
+    steps:
+      - name: Checkout substrait-antlr
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TAG_NAME }}
+          fetch-depth: 0
+      - name: Install Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          # Pin uv version
+          version: "0.9.25"
+      - name: Build
+        run: uv build
+      - name: Smoke Test (wheel)
+        run: uv run --isolated --no-project --with dist/*.whl tests/test_antlr.py
+      - name: Smoke Test (source distribution)
+        run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_antlr.py
+      - name: Publish
+        run: uv publish --index testpypi
