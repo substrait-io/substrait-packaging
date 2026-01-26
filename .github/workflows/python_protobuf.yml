@@ -122,11 +122,11 @@ jobs:
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
 
-  test-publish:
+  publish:
     runs-on: ubuntu-latest
     needs: [prechecks, generate]
     if: needs.prechecks.outputs.artifact_exists == 'false'
-    environment: testpypi
+    environment: pypi
     permissions:
       id-token: write
       contents: read
@@ -155,4 +155,4 @@ jobs:
       - name: Smoke Test (source distribution)
         run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_proto.py
       - name: Publish
-        run: uv publish --index testpypi
+        run: uv publish
