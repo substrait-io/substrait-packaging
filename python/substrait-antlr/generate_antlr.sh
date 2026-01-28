@@ -8,8 +8,8 @@ ANTLR_PATH="${ANTLR_PATH:-../../antlr}"
 
 echo "Generating Python ANTLR files from $GRAMMAR_DIR"
 
-TYPES_TARGET="src/substrait_antlr/type_parser"
-FTEST_TARGET="src/substrait_antlr/test_case_parser"
+TYPES_TARGET="src/substrait_antlr/substrait_type"
+FTEST_TARGET="src/substrait_antlr/func_test_case"
 
 # Clean target directories
 rm -rf "$TYPES_TARGET/*"
