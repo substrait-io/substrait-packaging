@@ -25,7 +25,7 @@ env:
 
 jobs:
 
-  prechecks:
+  python-protobuf-prechecks:
     runs-on: ubuntu-latest
     outputs:
       tag_exists: ${{ steps.check-tag.outputs.exists }}
@@ -46,9 +46,9 @@ jobs:
           EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-protobuf "$SUBSTRAIT_VERSION")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
-  generate:
+  python-protobuf-generate:
     runs-on: ubuntu-latest
-    needs: prechecks
+    needs: python-protobuf-prechecks
     steps:
       - name: Install Python
         uses: actions/setup-python@v6
@@ -117,15 +117,15 @@ jobs:
         run: uv run pytest
 
       - name: Tag and Push Generated Code
-        if: needs.prechecks.outputs.tag_exists == 'false'
+        if: needs.python-protobuf-prechecks.outputs.tag_exists == 'false'
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
 
-  publish:
+  python-protobuf-publish:
     runs-on: ubuntu-latest
-    needs: [prechecks, generate]
-    if: needs.prechecks.outputs.artifact_exists == 'false'
+    needs: [python-protobuf-prechecks, python-protobuf-generate]
+    if: needs.python-protobuf-prechecks.outputs.artifact_exists == 'false'
     environment: pypi
     permissions:
       id-token: write
