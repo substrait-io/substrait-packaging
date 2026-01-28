@@ -18,8 +18,8 @@ cp -r "$GRAMMAR_DIR"/*.g4 tmp
 # Generate ANTLR parsers in tmp directory
 cd tmp
 ANTLR_PATH="${ANTLR_PATH:-../../../antlr}"
-. "$ANTLR_PATH/antlr.sh" -Dlanguage=Python3 -visitor SubstraitLexer.g4 SubstraitType.g4
-. "$ANTLR_PATH/antlr.sh" -Dlanguage=Python3 -visitor FuncTestCaseLexer.g4 FuncTestCaseParser.g4
+"$ANTLR_PATH/antlr.sh" -Dlanguage=Python3 -visitor SubstraitLexer.g4 SubstraitType.g4
+"$ANTLR_PATH/antlr.sh" -Dlanguage=Python3 -visitor FuncTestCaseLexer.g4 FuncTestCaseParser.g4
 cd ..
 
 # Clean target directories
