@@ -20,7 +20,12 @@ on:
         type: string
 
 jobs:
-  # TODO: invoke workflows for other artifacts (i.e ANTLR, Extensions, etc)
+  # TODO: invoke workflows for other artifacts (i.e Extensions, etc)
+  publish-python-antlr:
+    uses: ./.github/workflows/python_antlr.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ github.event.inputs.substrait_version }}
   publish-python-protobuf:
     uses: ./.github/workflows/python_protobuf.yml
     secrets: inherit
