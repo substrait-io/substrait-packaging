@@ -1,0 +1,113 @@
+name: PR Build Check
+
+on:
+  pull_request:
+jobs:
+  site:
+    name: Build Website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+          cache-dependency-path: ./site/requirements.txt
+      - run: pip install -r ./site/requirements.txt
+      - name: Generate Static Site
+        run: mkdocs build
+        working-directory: ./site
+  editorconfig-checker:
+    name: Check editorconfig
+    runs-on: ubuntu-latest
+    steps:
+      - uses: editorconfig-checker/action-editorconfig-checker@v2
+  proto-format-check:
+    name: Check Protobuf Style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: bufbuild/buf-setup-action@v1.50.0
+        with:
+          github_token: ${{ github.token }}
+      - run: buf format --diff --exit-code
+  proto:
+    name: Check Protobuf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: bufbuild/buf-setup-action@v1.50.0
+        with:
+          github_token: ${{ github.token }}
+      - uses: bufbuild/buf-lint-action@v1
+      - name: Compile protobuf
+        run: buf generate
+  yamllint:
+    name: Lint YAML extensions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run yamllint
+        run: yamllint .
+  yamlvalidate:
+    name: Validate YAML extensions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: pip install check-jsonschema
+      - run: check-jsonschema --schemafile text/simple_extensions_schema.yaml extensions/*.yaml
+      - run: check-jsonschema --schemafile text/simple_extensions_schema.yaml site/examples/**/*.yaml
+      - run: check-jsonschema --schemafile text/dialect_schema.yaml dialects/tests/*.yaml
+  dry_run_release:
+    name: Dry-run release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: bufbuild/buf-setup-action@v1.50.0
+        with:
+          github_token: ${{ github.token }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+      - run: ./ci/release/dry_run.sh
+  python-style:
+    name: Style-check and lint Python files, and run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: bufbuild/buf-setup-action@v1.50.0
+        with:
+          github_token: ${{ github.token }}
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements.txt
+      - name: Generate protobuf bindings
+        run: buf generate
+      - name: Black
+        run: python3 -m black --diff --check .
+      - name: Flake8
+        run: python3 -m flake8 .
+      - name: Run tests including test_substrait_extension_coverage
+        run: |
+          pytest
+  check-proto-prefix:
+    name: Check proto-prefix.py
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: bufbuild/buf-setup-action@v1.50.0
+        with:
+          github_token: ${{ github.token }}
+      - name: Run proto-prefix.py
+        run: tools/proto_prefix.py output test proto go_package=github.com/test/proto
+      - name: Modify buf config to build rewritten proto files
+        run: |
+          echo "version: v1" > buf.work.yaml
+          echo "directories:" >> buf.work.yaml
+          echo "  - output" >> buf.work.yaml
+      - name: Compile rewritten proto files
+        run: buf generate
