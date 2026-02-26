@@ -50,16 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: python-protobuf-prechecks
     steps:
-      - name: Install Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.x'
-
-      - name: Install Buf
-        uses: bufbuild/buf-setup-action@v1.50.0
-        with:
-          github_token: ${{ github.token }}
-
       - name: Generate GitHub App Token for Pushing Tags
         uses: actions/create-github-app-token@v2
         id: app-token
@@ -92,6 +82,9 @@ jobs:
           # Pin uv version
           version: "0.9.25"
 
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0
+
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
 
@@ -100,8 +93,7 @@ jobs:
         run: uv sync --all-extras
 
       - name: Generate Protobuf Code
-        working-directory: python/substrait-protobuf
-        run: ./generate_protobuf.sh
+        run: pixi run generate-protobuf
 
       - name: Set Version
         working-directory: python/substrait-protobuf
