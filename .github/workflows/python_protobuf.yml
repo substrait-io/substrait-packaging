@@ -93,7 +93,7 @@ jobs:
         run: uv sync --all-extras
 
       - name: Generate Protobuf Code
-        run: pixi run generate-protobuf
+        run: pixi run python-generate-protobuf
 
       - name: Set Version
         working-directory: python/substrait-protobuf

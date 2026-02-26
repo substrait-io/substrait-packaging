@@ -93,7 +93,7 @@ jobs:
         run: uv sync --all-extras
 
       - name: Generate ANTLR Code
-        run: pixi run generate-antlr
+        run: pixi run python-generate-antlr
 
       - name: Set Version
         working-directory: python/substrait-antlr
