@@ -1,6 +1,6 @@
 [project]
 name = "substrait-protobuf"
-version = "0.0.0"
+version = "0.80.0"
 description = "Generated Substrait Protocol Buffer Code"
 readme = "README.md"
 requires-python = ">=3.10"
