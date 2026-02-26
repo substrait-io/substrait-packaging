@@ -28,6 +28,11 @@ Re-usable scripts for use across these workflows can be found in `/scripts`.
 
 [Pixi](https://pixi.sh) is used to manage codegen tooling, both locally and in CI. Install it via the [official instructions](https://pixi.sh/latest/#installation).
 
+```sh
+# Install dependencies and update pixi.lock
+pixi install
+```
+
 ## Python Code Generation
 
 ```sh

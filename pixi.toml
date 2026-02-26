@@ -10,3 +10,4 @@ python-generate-protobuf = { cmd = "cd python/substrait-protobuf && ./generate_p
 [dependencies]
 antlr = ">=4.13.2,<5"
 buf = ">=1.62.1,<2"
+uv = ">=0.9.25,<1"
