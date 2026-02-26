@@ -50,17 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: python-antlr-prechecks
     steps:
-      - name: Install Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.x'
-
-      - name: Install Java for ANTLR generation
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
       - name: Generate GitHub App Token for Pushing Tags
         uses: actions/create-github-app-token@v2
         id: app-token
@@ -93,6 +82,9 @@ jobs:
           # Pin uv version
           version: "0.9.25"
 
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0
+
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
 
@@ -101,8 +93,7 @@ jobs:
         run: uv sync --all-extras
 
       - name: Generate ANTLR Code
-        working-directory: python/substrait-antlr
-        run: ./generate_antlr.sh
+        run: pixi run generate-antlr
 
       - name: Set Version
         working-directory: python/substrait-antlr

@@ -1,0 +1,10 @@
+[workspace]
+name = "substrait-packaging"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64", "linux-aarch64"]
+
+[tasks]
+generate-antlr = { cmd = "cd python/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR Python parsers" }
+
+[dependencies]
+antlr = ">=4.13.2,<5"
