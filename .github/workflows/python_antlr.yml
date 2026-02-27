@@ -1,31 +1,31 @@
-name: Publish Python Protobufs
-run-name: Publish Python Protobufs for Version ${{ inputs.substrait_version }}
+name: Publish Python ANTLR
+run-name: Publish Python ANTLR code for Version ${{ inputs.substrait_version }}
 
 concurrency:
-  group: python-protobuf
+  group: python-antlr
   cancel-in-progress: false
 
 on:
   workflow_call:
     inputs:
       substrait_version:
-        description: Substrait version to generate protobuf for
+        description: Substrait version to generate ANTLR for
         required: true
         type: string
   workflow_dispatch:
     inputs:
       substrait_version:
-        description: Substrait version to generate protobuf for
+        description: Substrait version to generate ANTLR for
         required: true
         type: string
 
 env:
   SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
-  TAG_NAME: "python/substrait-protobuf/${{ github.event.inputs.substrait_version }}"
+  TAG_NAME: "python/substrait-antlr/${{ github.event.inputs.substrait_version }}"
 
 jobs:
 
-  python-protobuf-prechecks:
+  python-antlr-prechecks:
     runs-on: ubuntu-latest
     outputs:
       tag_exists: ${{ steps.check-tag.outputs.exists }}
@@ -43,12 +43,12 @@ jobs:
       - name: Check Artifact Existence on PyPI
         id: check-artifact
         run: |
-          EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-protobuf "$SUBSTRAIT_VERSION")
+          EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-antlr "$SUBSTRAIT_VERSION")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
-  python-protobuf-generate:
+  python-antlr-generate:
     runs-on: ubuntu-latest
-    needs: python-protobuf-prechecks
+    needs: python-antlr-prechecks
     steps:
       - name: Generate GitHub App Token for Pushing Tags
         uses: actions/create-github-app-token@v2
@@ -80,49 +80,48 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.9.4
         with:
           pixi-version: v0.62.2
-
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
 
       - name: Install Python Dependencies
-        working-directory: python/substrait-protobuf
+        working-directory: python/substrait-antlr
         run: pixi run uv sync --all-extras
 
-      - name: Generate Protobuf Code
-        run: pixi run python-generate-protobuf
+      - name: Generate ANTLR Code
+        run: pixi run python-generate-antlr
 
       - name: Set Version
-        working-directory: python/substrait-protobuf
+        working-directory: python/substrait-antlr
         run: pixi run uv version $SUBSTRAIT_VERSION
 
       - name: Commit Generated Code
         run: |
-          git add python/substrait-protobuf
-          git commit -m "Generated protobuf code for Substrait version $SUBSTRAIT_VERSION"
+          git add python/substrait-antlr
+          git commit -m "Generated ANTLR code for Substrait version $SUBSTRAIT_VERSION"
 
       - name: Run pytest Checks
-        working-directory: python/substrait-protobuf
+        working-directory: python/substrait-antlr
         run: pixi run uv run pytest
 
       - name: Tag and Push Generated Code
-        if: needs.python-protobuf-prechecks.outputs.tag_exists == 'false'
+        if: needs.python-antlr-prechecks.outputs.tag_exists == 'false'
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
 
-  python-protobuf-publish:
+  python-antlr-test-publish:
     runs-on: ubuntu-latest
-    needs: [python-protobuf-prechecks, python-protobuf-generate]
-    if: needs.python-protobuf-prechecks.outputs.artifact_exists == 'false'
-    environment: pypi
+    needs: [python-antlr-prechecks, python-antlr-generate]
+    if: needs.python-antlr-prechecks.outputs.artifact_exists == 'false'
+    environment: testpypi
     permissions:
       id-token: write
       contents: read
     defaults:
       run:
-        working-directory: python/substrait-protobuf
+        working-directory: python/substrait-antlr
     steps:
-      - name: Checkout substrait-protobuf
+      - name: Checkout substrait-antlr
         uses: actions/checkout@v6
         with:
           ref: ${{ env.TAG_NAME }}
@@ -134,8 +133,8 @@ jobs:
       - name: Build
         run: pixi run uv build
       - name: Smoke Test (wheel)
-        run: pixi run uv run --isolated --no-project --with dist/*.whl tests/test_proto.py
+        run: pixi run uv run --isolated --no-project --with dist/*.whl tests/test_antlr.py
       - name: Smoke Test (source distribution)
-        run: pixi run uv run --isolated --no-project --with dist/*.tar.gz tests/test_proto.py
+        run: pixi run uv run --isolated --no-project --with dist/*.tar.gz tests/test_antlr.py
       - name: Publish
-        run: pixi run uv publish
+        run: pixi run uv publish --index testpypi
