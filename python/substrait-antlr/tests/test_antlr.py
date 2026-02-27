@@ -1,4 +1,3 @@
-
 from antlr4 import InputStream, CommonTokenStream
 from pathlib import Path
 
