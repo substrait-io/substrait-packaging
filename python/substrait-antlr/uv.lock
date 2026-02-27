@@ -88,7 +88,7 @@ wheels = [
 
 [[package]]
 name = "substrait-antlr"
-version = "0.0.0"
+version = "0.79.0"
 source = { editable = "." }
 dependencies = [
     { name = "antlr4-python3-runtime" },
