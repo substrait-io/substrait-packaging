@@ -109,11 +109,11 @@ jobs:
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
 
-  python-antlr-test-publish:
+  python-antlr-publish:
     runs-on: ubuntu-latest
     needs: [python-antlr-prechecks, python-antlr-generate]
     if: needs.python-antlr-prechecks.outputs.artifact_exists == 'false'
-    environment: testpypi
+    environment: pypi
     permissions:
       id-token: write
       contents: read
@@ -126,20 +126,15 @@ jobs:
         with:
           ref: ${{ env.TAG_NAME }}
           fetch-depth: 0
-      - name: Install Python
-        uses: actions/setup-python@v6
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.9.4
         with:
-          python-version: '3.x'
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          # Pin uv version
-          version: "0.9.25"
+          pixi-version: v0.62.2
       - name: Build
-        run: uv build
+        run: pixi run uv build
       - name: Smoke Test (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/test_antlr.py
+        run: pixi run uv run --isolated --no-project --with dist/*.whl tests/test_antlr.py
       - name: Smoke Test (source distribution)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_antlr.py
+        run: pixi run uv run --isolated --no-project --with dist/*.tar.gz tests/test_antlr.py
       - name: Publish
-        run: uv publish --index testpypi
+        run: pixi run uv publish
