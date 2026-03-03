@@ -127,20 +127,15 @@ jobs:
         with:
           ref: ${{ env.TAG_NAME }}
           fetch-depth: 0
-      - name: Install Python
-        uses: actions/setup-python@v6
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.9.4
         with:
-          python-version: '3.x'
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          # Pin uv version
-          version: "0.9.25"
+          pixi-version: v0.62.2
       - name: Build
-        run: uv build
+        run: pixi run uv build
       - name: Smoke Test (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/test_proto.py
+        run: pixi run uv run --isolated --no-project --with dist/*.whl tests/test_proto.py
       - name: Smoke Test (source distribution)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_proto.py
+        run: pixi run uv run --isolated --no-project --with dist/*.tar.gz tests/test_proto.py
       - name: Publish
-        run: uv publish
+        run: pixi run uv publish
