@@ -2,12 +2,15 @@ name: Spec Released
 
 on:
   # This workflow is triggered whenever a new version of the substrait specification is released
-  repository_dispatch:
-    types: [spec-released]
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: 'Substrait spec version to publish'
+        required: true
 
 jobs:
   handle-spec-release:
     uses: ./.github/workflows/publish_artifacts.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.client_payload.substrait_version }}
+      substrait_version: ${{ github.event.inputs.substrait_version }}
