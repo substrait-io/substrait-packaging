@@ -5,10 +5,12 @@ set -eu
 SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
+TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
 
 EXTENSIONS_TARGET="src/substrait_resources/extensions"
 SCHEMA_TARGET="src/substrait_resources/schemas"
 DATACLASSES_TARGET="src/substrait_resources/datamodel"
+TESTCASES_TARGET="src/substrait_resources/testcases"
 
 echo "Generating substrait-resources from $SUBSTRAIT_HOME"
 
@@ -48,3 +50,9 @@ datamodel-codegen \
     --target-python-version 3.10 \
     --disable-timestamp \
     --formatters ruff-format
+
+# Step 5: Copy testcase files
+rm -rf "$TESTCASES_TARGET"
+mkdir -p "$TESTCASES_TARGET"
+cp -r "$TESTCASES_DIR"/. "$TESTCASES_TARGET/"
+touch "$TESTCASES_TARGET/__init__.py"

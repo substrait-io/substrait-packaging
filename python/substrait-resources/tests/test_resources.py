@@ -20,3 +20,8 @@ def test_schema_yamls_accessible():
 
     data = files("substrait_resources.schemas").joinpath("dialect_schema.yaml").read_text()
     assert len(data) > 0
+
+
+def test_testcase_files_accessible():
+    data = files("substrait_resources.testcases").joinpath("arithmetic").joinpath("add.test").read_text()
+    assert len(data) > 0
