@@ -1,31 +1,31 @@
-name: Publish Python YAMLs
-run-name: Publish Python YAMLs for Version ${{ inputs.substrait_version }}
+name: Publish Substrait Resource Files for Python
+run-name: Publish Python Resources for Version ${{ inputs.substrait_version }}
 
 concurrency:
-  group: python-yamls
+  group: python-resources
   cancel-in-progress: false
 
 on:
   workflow_call:
     inputs:
       substrait_version:
-        description: Substrait version to generate YAMLs for
+        description: Substrait version to package resources for
         required: true
         type: string
   workflow_dispatch:
     inputs:
       substrait_version:
-        description: Substrait version to generate YAMLs for
+        description: Substrait version to package resources for
         required: true
         type: string
 
 env:
   SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
-  TAG_NAME: "python/substrait-yamls/${{ github.event.inputs.substrait_version }}"
+  TAG_NAME: "python/substrait-resources/${{ github.event.inputs.substrait_version }}"
 
 jobs:
 
-  python-yamls-prechecks:
+  python-resources-prechecks:
     runs-on: ubuntu-latest
     outputs:
       tag_exists: ${{ steps.check-tag.outputs.exists }}
@@ -43,12 +43,12 @@ jobs:
       - name: Check Artifact Existence on PyPI
         id: check-artifact
         run: |
-          EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-yamls "$SUBSTRAIT_VERSION")
+          EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-resources "$SUBSTRAIT_VERSION")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
-  python-yamls-generate:
+  python-resources-generate:
     runs-on: ubuntu-latest
-    needs: python-yamls-prechecks
+    needs: python-resources-prechecks
     steps:
       - name: Generate GitHub App Token for Pushing Tags
         uses: actions/create-github-app-token@v2
@@ -85,44 +85,44 @@ jobs:
         run: ./scripts/attach_subtree.sh
 
       - name: Install Python Dependencies
-        working-directory: python/substrait-yamls
+        working-directory: python/substrait-resources
         run: pixi run uv sync --all-extras
 
       - name: Generate YAML Code
-        run: pixi run python-generate-yamls
+        run: pixi run python-generate-resources
 
       - name: Set Version
-        working-directory: python/substrait-yamls
+        working-directory: python/substrait-resources
         run: pixi run uv version $SUBSTRAIT_VERSION
 
       - name: Commit Generated Code
         run: |
-          git add python/substrait-yamls
-          git commit -m "Generated YAML code for Substrait version $SUBSTRAIT_VERSION"
+          git add python/substrait-resources
+          git commit -m "Packaged Substrait resources for spec version $SUBSTRAIT_VERSION"
 
       - name: Run pytest Checks
-        working-directory: python/substrait-yamls
+        working-directory: python/substrait-resources
         run: pixi run uv run pytest
 
       - name: Tag and Push Generated Code
-        if: needs.python-yamls-prechecks.outputs.tag_exists == 'false'
+        if: needs.python-resources-prechecks.outputs.tag_exists == 'false'
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
 
-  python-yamls-publish:
+  python-resources-publish:
     runs-on: ubuntu-latest
-    needs: [python-yamls-prechecks, python-yamls-generate]
-    if: needs.python-yamls-prechecks.outputs.artifact_exists == 'false'
+    needs: [python-resources-prechecks, python-resources-generate]
+    if: needs.python-resources-prechecks.outputs.artifact_exists == 'false'
     environment: testpypi
     permissions:
       id-token: write
       contents: read
     defaults:
       run:
-        working-directory: python/substrait-yamls
+        working-directory: python/substrait-resources
     steps:
-      - name: Checkout substrait-yamls
+      - name: Checkout substrait-resources
         uses: actions/checkout@v6
         with:
           ref: ${{ env.TAG_NAME }}
@@ -139,8 +139,8 @@ jobs:
       - name: Build
         run: uv build
       - name: Smoke Test (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/test_yamls.py
+        run: uv run --isolated --no-project --with dist/*.whl tests/test_resources.py
       - name: Smoke Test (source distribution)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_yamls.py
+        run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_resources.py
       - name: Publish
         run: uv publish --index testpypi

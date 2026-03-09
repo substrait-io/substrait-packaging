@@ -30,8 +30,8 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ github.event.inputs.substrait_version }}
-  publish-python-yamls:
-    uses: ./.github/workflows/python_yamls.yml
+  publish-python-resources:
+    uses: ./.github/workflows/python_resources.yml
     secrets: inherit
     with:
       substrait_version: ${{ github.event.inputs.substrait_version }}

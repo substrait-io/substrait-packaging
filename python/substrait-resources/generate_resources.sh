@@ -6,11 +6,11 @@ SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
 
-EXTENSIONS_TARGET="src/substrait_yamls/extensions"
-SCHEMA_TARGET="src/substrait_yamls/schema"
-DATACLASSES_TARGET="src/substrait_yamls/dataclasses"
+EXTENSIONS_TARGET="src/substrait_resources/extensions"
+SCHEMA_TARGET="src/substrait_resources/schemas"
+DATACLASSES_TARGET="src/substrait_resources/datamodel"
 
-echo "Generating substrait-yamls from $SUBSTRAIT_HOME"
+echo "Generating substrait-resources from $SUBSTRAIT_HOME"
 
 # Step 1: Copy extension YAML files
 rm -rf "$EXTENSIONS_TARGET"
@@ -18,7 +18,7 @@ mkdir -p "$EXTENSIONS_TARGET"
 cp -r "$EXTENSIONS_DIR"/. "$EXTENSIONS_TARGET/"
 touch "$EXTENSIONS_TARGET/__init__.py"
 
-# Step 2: Copy schema YAML files
+# Step 2: Copy YAML schema files
 rm -rf "$SCHEMA_TARGET"
 mkdir -p "$SCHEMA_TARGET"
 cp "$TEXT_DIR/simple_extensions_schema.yaml" "$SCHEMA_TARGET/"

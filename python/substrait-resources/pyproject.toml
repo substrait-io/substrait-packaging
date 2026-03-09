@@ -1,7 +1,7 @@
 [project]
-name = "substrait-yamls"
+name = "substrait-resources"
 version = "0.0.0"
-description = "Generated Substrait YAML Files and Schema Code"
+description = "Packaged Resources Files and Generated Bindings"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -29,8 +29,8 @@ where = ["src"]
 namespaces = true
 
 [tool.setuptools.package-data]
-"substrait_yamls.extensions" = ["*.yaml"]
-"substrait_yamls.schema" = ["*.yaml"]
+"substrait_resources.extensions" = ["*.yaml"]
+"substrait_resources.schemas" = ["*.yaml"]
 
 [[tool.uv.index]]
 name = "testpypi"
