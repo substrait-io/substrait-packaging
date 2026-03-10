@@ -7,12 +7,12 @@ EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
 TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
 
-EXTENSIONS_TARGET="src/substrait_resources/extensions"
-SCHEMA_TARGET="src/substrait_resources/schemas"
-DATACLASSES_TARGET="src/substrait_resources/datamodel"
-TESTCASES_TARGET="src/substrait_resources/testcases"
+EXTENSIONS_TARGET="src/substrait_extensions/extensions"
+SCHEMA_TARGET="src/substrait_extensions/schemas"
+DATACLASSES_TARGET="src/substrait_extensions/datamodel"
+TESTCASES_TARGET="src/substrait_extensions/testcases"
 
-echo "Generating substrait-resources from $SUBSTRAIT_HOME"
+echo "Generating substrait-extensions from $SUBSTRAIT_HOME"
 
 # Step 1: Copy extension YAML files
 rm -rf "$EXTENSIONS_TARGET"

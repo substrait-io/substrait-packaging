@@ -78,7 +78,7 @@ wheels = [
 ]
 
 [[package]]
-name = "substrait-resources"
+name = "substrait-extensions"
 version = "0.0.0"
 source = { editable = "." }
 

@@ -1,31 +1,31 @@
-name: Publish Substrait Resource Files for Python
-run-name: Publish Python Resources for Version ${{ inputs.substrait_version }}
+name: Publish Substrait Extensions Files for Python
+run-name: Publish Python Extension for Version ${{ inputs.substrait_version }}
 
 concurrency:
-  group: python-resources
+  group: python-extensions
   cancel-in-progress: false
 
 on:
   workflow_call:
     inputs:
       substrait_version:
-        description: Substrait version to package resources for
+        description: Substrait version to package extensions for
         required: true
         type: string
   workflow_dispatch:
     inputs:
       substrait_version:
-        description: Substrait version to package resources for
+        description: Substrait version to package extensions for
         required: true
         type: string
 
 env:
   SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
-  TAG_NAME: "python/substrait-resources/${{ github.event.inputs.substrait_version }}"
+  TAG_NAME: "python/substrait-extensions/${{ github.event.inputs.substrait_version }}"
 
 jobs:
 
-  python-resources-prechecks:
+  python-extensions-prechecks:
     runs-on: ubuntu-latest
     outputs:
       tag_exists: ${{ steps.check-tag.outputs.exists }}
@@ -43,12 +43,12 @@ jobs:
       - name: Check Artifact Existence on PyPI
         id: check-artifact
         run: |
-          EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-resources "$SUBSTRAIT_VERSION")
+          EXISTS=$(./scripts/python/pypi_package_exists.sh substrait-extensions "$SUBSTRAIT_VERSION")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
-  python-resources-generate:
+  python-extensions-generate:
     runs-on: ubuntu-latest
-    needs: python-resources-prechecks
+    needs: python-extensions-prechecks
     steps:
       - name: Generate GitHub App Token for Pushing Tags
         uses: actions/create-github-app-token@v2
@@ -85,44 +85,44 @@ jobs:
         run: ./scripts/attach_subtree.sh
 
       - name: Install Python Dependencies
-        working-directory: python/substrait-resources
+        working-directory: python/substrait-extensions
         run: pixi run uv sync --all-extras
 
       - name: Generate YAML Code
-        run: pixi run python-generate-resources
+        run: pixi run python-generate-extensions
 
       - name: Set Version
-        working-directory: python/substrait-resources
+        working-directory: python/substrait-extensions
         run: pixi run uv version $SUBSTRAIT_VERSION
 
       - name: Commit Generated Code
         run: |
-          git add python/substrait-resources
-          git commit -m "Packaged Substrait resources for spec version $SUBSTRAIT_VERSION"
+          git add python/substrait-extensions
+          git commit -m "Packaged Substrait extensions for spec version $SUBSTRAIT_VERSION"
 
       - name: Run pytest Checks
-        working-directory: python/substrait-resources
+        working-directory: python/substrait-extensions
         run: pixi run uv run pytest
 
       - name: Tag and Push Generated Code
-        if: needs.python-resources-prechecks.outputs.tag_exists == 'false'
+        if: needs.python-extensions-prechecks.outputs.tag_exists == 'false'
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
 
-  python-resources-publish:
+  python-extensions-publish:
     runs-on: ubuntu-latest
-    needs: [python-resources-prechecks, python-resources-generate]
-    if: needs.python-resources-prechecks.outputs.artifact_exists == 'false'
+    needs: [python-extensions-prechecks, python-extensions-generate]
+    if: needs.python-extensions-prechecks.outputs.artifact_exists == 'false'
     environment: testpypi
     permissions:
       id-token: write
       contents: read
     defaults:
       run:
-        working-directory: python/substrait-resources
+        working-directory: python/substrait-extensions
     steps:
-      - name: Checkout substrait-resources
+      - name: Checkout substrait-extensions
         uses: actions/checkout@v6
         with:
           ref: ${{ env.TAG_NAME }}
@@ -139,8 +139,8 @@ jobs:
       - name: Build
         run: uv build
       - name: Smoke Test (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl tests/test_resources.py
+        run: uv run --isolated --no-project --with dist/*.whl tests/test_extensions.py
       - name: Smoke Test (source distribution)
-        run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_resources.py
+        run: uv run --isolated --no-project --with dist/*.tar.gz tests/test_extensions.py
       - name: Publish
         run: uv publish --index testpypi

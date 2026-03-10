@@ -1,7 +1,7 @@
 [project]
-name = "substrait-resources"
+name = "substrait-extensions"
 version = "0.0.0"
-description = "Packaged Resources Files and Generated Bindings"
+description = "Packaged Substrait Extension Files"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
@@ -29,9 +29,9 @@ where = ["src"]
 namespaces = true
 
 [tool.setuptools.package-data]
-"substrait_resources.extensions" = ["*.yaml"]
-"substrait_resources.schemas" = ["*.yaml"]
-"substrait_resources.testcases" = ["*/*.test"]
+"substrait_extensions.extensions" = ["*.yaml"]
+"substrait_extensions.schemas" = ["*.yaml"]
+"substrait_extensions.testcases" = ["*/*.test"]
 
 [[tool.uv.index]]
 name = "testpypi"
