@@ -29,8 +29,8 @@ where = ["src"]
 namespaces = true
 
 [tool.setuptools.package-data]
+"substrait_extensions.dialects" = ["*.yaml"]
 "substrait_extensions.extensions" = ["*.yaml"]
-"substrait_extensions.schemas" = ["*.yaml"]
 "substrait_extensions.testcases" = ["*/*.test"]
 
 [[tool.uv.index]]
