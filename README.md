@@ -14,7 +14,7 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
   * python_publish.yml: For releasing Python specific artifacts
     * python_antlr.yml
     * python_protobuf.yml
-    * ...
+    * python_extensions.yml
   * TODO: rust_publish.yml: For releasing Rust specific artifacts
     * ...
 
@@ -36,9 +36,12 @@ pixi install
 ## Python Code Generation
 
 ```sh
-# Generate ANTLR Python parsers
+# Generate substrait-antlr Python Package
 pixi run python-generate-antlr
 
-# Generate protobuf Python bindings
+# Generate substrait-protobuf Python Package
 pixi run python-generate-protobuf
+
+# Generate substrait-extensions Python Package
+pixi run python-generate-extensions
 ```
