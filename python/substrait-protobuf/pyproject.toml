@@ -10,7 +10,7 @@ authors = [
 ]
 
 dependencies = [
-    "protobuf >=5,<7",
+    "protobuf >=5,<8",
 ]
 
 [project.urls]
