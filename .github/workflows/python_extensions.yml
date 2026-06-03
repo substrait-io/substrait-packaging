@@ -54,7 +54,7 @@ jobs:
         uses: actions/create-github-app-token@v3
         id: app-token
         with:
-          client-id: ${{ vars.PACKAGER_CLIENT_ID }}
+          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
           private-key: ${{ secrets.PACKAGER_KEY }}
 
       - name: Get GitHub App User ID
