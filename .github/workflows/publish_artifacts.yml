@@ -25,3 +25,8 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ github.event.inputs.substrait_version }}
+  publish-java-artifacts:
+    uses: ./.github/workflows/java_publish.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ github.event.inputs.substrait_version }}

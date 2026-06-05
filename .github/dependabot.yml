@@ -9,6 +9,15 @@ updates:
         patterns:
           - "*"
 
+  - package-ecosystem: "gradle"
+    directory: "/java"
+    schedule:
+      interval: "weekly"
+    groups:
+      java-dependencies:
+        patterns:
+          - "*"
+
   - package-ecosystem: "pip"
     directory: "/python/substrait-protobuf"
     schedule:
