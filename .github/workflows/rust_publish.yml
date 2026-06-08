@@ -1,0 +1,37 @@
+name: Publish Rust Artifacts
+run-name: Publish Rust Artifacts for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: rust-publish
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+
+jobs:
+  publish-rust-antlr:
+    uses: ./.github/workflows/rust_antlr.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ github.event.inputs.substrait_version }}
+  publish-rust-prost:
+    uses: ./.github/workflows/rust_prost.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ github.event.inputs.substrait_version }}
+  publish-rust-extensions:
+    uses: ./.github/workflows/rust_extensions.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ github.event.inputs.substrait_version }}

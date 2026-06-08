@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: Apache-2.0
+[package]
+name = "substrait-extensions"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.85.1"
+description = "Packaged Substrait Extension Files"
+documentation = "https://docs.rs/substrait-extensions"
+readme = "README.md"
+homepage = "https://substrait.io"
+repository = "https://github.com/substrait-io/substrait-packaging"
+license = "Apache-2.0"
+keywords = ["substrait"]
+build = "build.rs"
+# The extension YAML files, text schemas and test cases are vendored into this
+# directory by `generate_extensions.sh` and shipped in the published crate.
+include = [
+    "build.rs",
+    "src/**/*.rs",
+    "extensions/**/*.yaml",
+    "text/**/*.yaml",
+    "testcases/**/*.test",
+]
+
+[dependencies]
+indexmap = { version = "2.7.0", features = ["serde"] }
+include_dir = { version = "0.7.4", features = ["glob"] }
+# Required by the typify-generated text types: the generated code emits
+# ::regress::Regex for `pattern` validations.
+regress = "0.10.4"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.145", features = ["preserve_order"] }
+serde_yaml = "0.9.34"
+
+[build-dependencies]
+heck = "0.5.0"
+prettyplease = "0.2.37"
+schemars = "0.8.22"
+serde_yaml = "0.9.34"
+syn = "2.0.111"
+typify = "0.5.0"
+walkdir = "2.5.0"
+
+[package.metadata.docs.rs]
+all-features = true
