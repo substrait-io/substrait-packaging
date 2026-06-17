@@ -124,4 +124,8 @@ jobs:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        run: ./gradlew publishAggregationToCentralPortal -PpublishArtifact=substrait-protobuf -Pversion=${SUBSTRAIT_VERSION#v}
+        # TODO: dry-run only while validating the release workflow end-to-end.
+        # Swap back to `publishAggregationToCentralPortal` in a follow-up to publish to
+        # Maven Central for real. `nmcpZipAggregation` builds and signs the deployment
+        # bundle locally without uploading it to the Central Portal.
+        run: ./gradlew nmcpZipAggregation -PpublishArtifact=substrait-protobuf -Pversion=${SUBSTRAIT_VERSION#v}
