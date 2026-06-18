@@ -15,8 +15,10 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
     * python_antlr.yml
     * python_protobuf.yml
     * python_extensions.yml
-  * TODO: rust_publish.yml: For releasing Rust specific artifacts
-    * ...
+  * rust_publish.yml: For releasing Rust specific artifacts
+    * rust_antlr.yml
+    * rust_protobuf.yml
+    * rust_extensions.yml
 
 Each of these workflows consumes a required substrait_version input. They are intended to be invoked by their parent workflow, but can be also be invoked directly to release specific artifacts.
 
@@ -45,3 +47,22 @@ pixi run python-generate-protobuf
 # Generate substrait-extensions Python Package
 pixi run python-generate-extensions
 ```
+
+## Rust Code Generation
+
+```sh
+# Generate substrait-antlr Rust crate (requires java; downloads a forked ANTLR JAR)
+pixi run rust-generate-antlr
+
+# Vendor protobuf definitions for the substrait-prost Rust crate
+pixi run rust-generate-prost
+
+# Package Substrait extensions files for the substrait-extensions Rust crate
+pixi run rust-generate-extensions
+```
+
+The protobuf and extensions crates generate their Rust code at build time (with
+`prost-build` and `typify` respectively), so the generation scripts only vendor
+the spec inputs into the crate; building `substrait-prost` requires `protoc`.
+The ANTLR parsers cannot be generated at build time (the Rust target needs a
+forked ANTLR build and Java), so they are committed by the generation script.

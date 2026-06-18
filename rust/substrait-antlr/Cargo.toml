@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+[package]
+name = "substrait-antlr"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.85.1"
+description = "Generated Substrait ANTLR Parser Code"
+documentation = "https://docs.rs/substrait-antlr"
+readme = "README.md"
+homepage = "https://substrait.io"
+repository = "https://github.com/substrait-io/substrait-packaging"
+license = "Apache-2.0"
+keywords = ["substrait"]
+# The generated parsers are committed (regenerating them requires a forked ANTLR
+# JAR + Java, which are not cargo build dependencies), so no build script is
+# needed and only the Rust sources are shipped.
+include = [
+    "src/**/*.rs",
+]
+
+[dependencies]
+antlr4rust = "0.5.2"
+
+[package.metadata.docs.rs]
+all-features = true
