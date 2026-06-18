@@ -12,12 +12,22 @@ on:
         description: Substrait version to publish artifacts for
         required: true
         type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
   workflow_dispatch:
     inputs:
       substrait_version:
         description: Substrait version to publish artifacts for
         required: true
         type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   publish-rust-antlr:
@@ -25,13 +35,16 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ github.event.inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
   publish-rust-prost:
     uses: ./.github/workflows/rust_prost.yml
     secrets: inherit
     with:
       substrait_version: ${{ github.event.inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
   publish-rust-extensions:
     uses: ./.github/workflows/rust_extensions.yml
     secrets: inherit
     with:
       substrait_version: ${{ github.event.inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}

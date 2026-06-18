@@ -12,22 +12,33 @@ on:
         description: Substrait version to package extensions for
         required: true
         type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
   workflow_dispatch:
     inputs:
       substrait_version:
         description: Substrait version to package extensions for
         required: true
         type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
 
 env:
   SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
-  TAG_NAME: "rust/substrait-extensions/${{ github.event.inputs.substrait_version }}"
 
 jobs:
 
   rust-extensions-prechecks:
     runs-on: ubuntu-latest
     outputs:
+      publish_version: ${{ steps.resolve.outputs.version }}
+      tag_name: ${{ steps.resolve.outputs.tag_name }}
       tag_exists: ${{ steps.check-tag.outputs.exists }}
       artifact_exists: ${{ steps.check-artifact.outputs.exists }}
     steps:
@@ -35,15 +46,25 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Resolve Publish Version
+        id: resolve
+        run: |
+          if [ "${{ inputs.alpha }}" = "true" ]; then
+            VERSION=$(./scripts/rust/next_alpha_version.sh substrait-extensions "$SUBSTRAIT_VERSION")
+          else
+            VERSION="${SUBSTRAIT_VERSION#v}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag_name=rust/substrait-extensions/v$VERSION" >> "$GITHUB_OUTPUT"
       - name: Check Tag Existence
         id: check-tag
         run: |
-          EXISTS=$(./scripts/tag_exists.sh "$TAG_NAME")
+          EXISTS=$(./scripts/tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
       - name: Check Artifact Existence on crates.io
         id: check-artifact
         run: |
-          EXISTS=$(./scripts/rust/crate_exists.sh substrait-extensions "$SUBSTRAIT_VERSION")
+          EXISTS=$(./scripts/rust/crate_exists.sh substrait-extensions "${{ steps.resolve.outputs.version }}")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
   rust-extensions-generate:
@@ -91,7 +112,7 @@ jobs:
         run: pixi run rust-generate-extensions
 
       - name: Set Version
-        run: ./scripts/rust/set_version.sh rust/substrait-extensions "$SUBSTRAIT_VERSION"
+        run: ./scripts/rust/set_version.sh rust/substrait-extensions "${{ needs.rust-extensions-prechecks.outputs.publish_version }}"
 
       - name: Build and Test
         working-directory: rust/substrait-extensions
@@ -106,6 +127,8 @@ jobs:
 
       - name: Tag and Push Generated Code
         if: needs.rust-extensions-prechecks.outputs.tag_exists == 'false'
+        env:
+          TAG_NAME: ${{ needs.rust-extensions-prechecks.outputs.tag_name }}
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
@@ -122,13 +145,11 @@ jobs:
       - name: Checkout substrait-extensions
         uses: actions/checkout@v6
         with:
-          ref: ${{ env.TAG_NAME }}
+          ref: ${{ needs.rust-extensions-prechecks.outputs.tag_name }}
           fetch-depth: 0
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-        # TODO: dry-run only while validating the release workflow end-to-end.
-        # Remove `--dry-run` in a follow-up to publish to crates.io for real.
-        run: cargo publish --dry-run
+        run: cargo publish
