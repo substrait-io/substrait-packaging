@@ -143,6 +143,9 @@ jobs:
     needs: [rust-prost-prechecks, rust-prost-generate]
     if: needs.rust-prost-prechecks.outputs.artifact_exists == 'false'
     environment: crates-io
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: rust/substrait-prost
@@ -158,7 +161,10 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Authenticate with crates.io
+        uses: rust-lang/crates-io-auth-action@v1
+        id: auth
       - name: Publish
         env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
         run: cargo publish
