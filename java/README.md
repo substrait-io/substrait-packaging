@@ -5,9 +5,9 @@ Java package release machinery.
 A single [Gradle](https://gradle.org/) (9.5.1, Kotlin DSL) multi-project build producing three
 independently published Maven Central artifacts under the `io.substrait` group:
 
-- `substrait-protobuf` — generated Java protobuf bindings
-- `substrait-antlr` — generated Java ANTLR parsers
-- `substrait-extensions` — bundled Substrait extension YAMLs, schemas and test cases
+- `protobuf` — generated Java protobuf bindings
+- `antlr` — generated Java ANTLR parsers
+- `extensions` — bundled Substrait extension YAMLs, schemas and test cases
 
 Generated sources are produced at build time from the Substrait specification; nothing
 generated is committed to the repository.
@@ -34,7 +34,7 @@ Publishing to Maven Central is handled by GitHub Actions (see `.github/workflows
 A single artifact is published with:
 
 ```sh
-./gradlew publishAggregationToCentralPortal -PpublishArtifact=substrait-protobuf -Pversion=0.78.0
+./gradlew publishAggregationToCentralPortal -PpublishArtifact=protobuf -Pversion=0.78.0
 ```
 
 Publishing requires `MAVENCENTRAL_USERNAME` / `MAVENCENTRAL_PASSWORD` (Central Portal token) and

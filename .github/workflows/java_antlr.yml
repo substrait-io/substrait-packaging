@@ -21,7 +21,7 @@ on:
 
 env:
   SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
-  TAG_NAME: "java/substrait-antlr/${{ github.event.inputs.substrait_version }}"
+  TAG_NAME: "java/antlr/${{ github.event.inputs.substrait_version }}"
 
 jobs:
 
@@ -43,7 +43,7 @@ jobs:
       - name: Check Artifact Existence on Maven Central
         id: check-artifact
         run: |
-          EXISTS=$(./scripts/java/maven_central_package_exists.sh substrait-antlr "$SUBSTRAIT_VERSION")
+          EXISTS=$(./scripts/java/maven_central_package_exists.sh antlr "$SUBSTRAIT_VERSION")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
   java-antlr-generate:
@@ -87,7 +87,7 @@ jobs:
 
       - name: Generate and Build ANTLR Code
         working-directory: java
-        run: ./gradlew :substrait-antlr:build -Pversion=${SUBSTRAIT_VERSION#v}
+        run: ./gradlew :antlr:build -Pversion=${SUBSTRAIT_VERSION#v}
 
       # attach_subtree.sh already commits the substrait spec; the tag points at that commit.
       # Generated code is produced at build time and is intentionally not committed.
@@ -115,7 +115,7 @@ jobs:
           java-version: '17'
       - name: Build and Test
         working-directory: java
-        run: ./gradlew :substrait-antlr:build -Pversion=${SUBSTRAIT_VERSION#v}
+        run: ./gradlew :antlr:build -Pversion=${SUBSTRAIT_VERSION#v}
       - name: Publish to Maven Central
         working-directory: java
         env:
@@ -124,8 +124,8 @@ jobs:
           SIGNING_KEY_ID: ${{ secrets.SIGNING_KEY_ID }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        # TODO: dry-run only while validating the release workflow end-to-end.
-        # Swap back to `publishAggregationToCentralPortal` in a follow-up to publish to
-        # Maven Central for real. `nmcpZipAggregation` builds and signs the deployment
-        # bundle locally without uploading it to the Central Portal.
-        run: ./gradlew nmcpZipAggregation -PpublishArtifact=substrait-antlr -Pversion=${SUBSTRAIT_VERSION#v}
+        # TODO: publish SNAPSHOTs while validating the release pipeline end-to-end (these can be
+        # consumed from the Central Snapshots repo, e.g. by substrait-java). Swap to
+        # `publishAggregationToCentralPortal` with a non-SNAPSHOT version in a follow-up to publish
+        # released artifacts to Maven Central.
+        run: ./gradlew publishAggregationToCentralSnapshots -PpublishArtifact=antlr -Pversion=${SUBSTRAIT_VERSION#v}-SNAPSHOT

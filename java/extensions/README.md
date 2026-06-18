@@ -1,9 +1,9 @@
-# substrait-extensions
+# extensions
 
 Packages Substrait extension files, along with associated test cases and schemas, as JAR
 resources for the [Substrait](https://substrait.io/) specification.
 
-Versions of this artifact correspond to Substrait [releases](https://github.com/substrait-io/substrait/releases). `vx.y.z` of substrait-extensions will contain the files from `vx.y.z` of the [substrait repository](https://github.com/substrait-io/substrait).
+Versions of this artifact correspond to Substrait [releases](https://github.com/substrait-io/substrait/releases). `vx.y.z` of `io.substrait:extensions` will contain the files from `vx.y.z` of the [substrait repository](https://github.com/substrait-io/substrait).
 
 ## Contents
 
@@ -16,7 +16,7 @@ Files are bundled on the classpath under the `substrait/` prefix:
 Maven coordinates:
 
 ```
-io.substrait:substrait-extensions:x.y.z
+io.substrait:extensions:x.y.z
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ try (InputStream in =
 
 Packaging and publishing is handled in the [substrait-packaging](https://github.com/substrait-io/substrait-packaging) repository.
 
-When a new version of the Substrait specification is released, automation packages the extension files for that version and pushes them to GitHub with a tag formatted like `java/substrait-extensions/vx.y.z`. The automation then publishes that artifact to Maven Central.
+When a new version of the Substrait specification is released, automation packages the extension files for that version and pushes them to GitHub with a tag formatted like `java/extensions/vx.y.z`. The automation then publishes that artifact to Maven Central.
 
 ### Local Generation
 
@@ -43,5 +43,5 @@ repository root (see `scripts/attach_subtree.sh`), then run:
 
 ```sh
 cd java
-./gradlew :substrait-extensions:build -Pversion=x.y.z
+./gradlew :extensions:build -Pversion=x.y.z
 ```

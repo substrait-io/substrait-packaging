@@ -14,9 +14,9 @@ nmcpAggregation {
   }
 }
 
-// Publish a single artifact with -PpublishArtifact=substrait-protobuf, or all by default.
+// Publish a single artifact with -PpublishArtifact=protobuf, or all by default.
 val publishTargets =
   (findProperty("publishArtifact") as String?)?.let { listOf(":$it") }
-    ?: listOf(":substrait-protobuf", ":substrait-antlr", ":substrait-extensions")
+    ?: listOf(":protobuf", ":antlr", ":extensions")
 
 dependencies { publishTargets.forEach { nmcpAggregation(project(it)) } }

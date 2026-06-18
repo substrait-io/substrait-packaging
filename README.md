@@ -54,10 +54,10 @@ Java artifacts are built with [Gradle](https://gradle.org/); code is
 generated at build time. See [`java/README.md`](java/README.md) for details.
 
 ```sh
-# Generate substrait-antlr Java parsers
+# Generate antlr Java parsers
 pixi run java-generate-antlr
 
-# Generate substrait-protobuf Java code
+# Generate protobuf Java code
 pixi run java-generate-protobuf
 
 # Build and test all Java artifacts
