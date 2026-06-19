@@ -1,0 +1,89 @@
+name: CI (Rust)
+
+# Validates the Rust packaging machinery against the most recent substrait spec
+# release. Attaches the released spec subtree and runs the same generate + build
+# + test steps as the Rust publish workflows, but stops short of versioning,
+# committing, tagging and publishing — so a change that would break a real
+# release fails here first. Java and Python are validated by ci_java.yml and
+# ci_python.yml.
+
+on:
+  pull_request:
+    paths: &paths
+      - scripts/**
+      - pixi.toml
+      - pixi.lock
+      - rust/**
+      - .github/workflows/ci_rust.yml
+  push:
+    branches: [main]
+    paths: *paths
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait spec version to validate against (defaults to the latest release)
+        required: false
+        type: string
+
+concurrency:
+  group: ci-rust-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Substrait Version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERRIDE: ${{ github.event.inputs.substrait_version }}
+        run: |
+          if [ -n "$OVERRIDE" ]; then
+            VERSION="$OVERRIDE"
+          else
+            VERSION=$(./scripts/latest_release.sh)
+          fi
+          echo "Validating against substrait version: $VERSION"
+          echo "SUBSTRAIT_VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Configure Git Identity
+        # attach_subtree.sh creates a squash commit, which needs an identity.
+        run: |
+          git config --global user.name 'substrait-packaging-ci'
+          git config --global user.email 'substrait-packaging-ci@users.noreply.github.com'
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.9.6
+        with:
+          pixi-version: v0.62.2
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attach substrait Spec Subtree
+        run: ./scripts/attach_subtree.sh
+      - name: Generate substrait-antlr
+        run: pixi run rust-generate-antlr
+      - name: Build and Test substrait-antlr
+        working-directory: rust/substrait-antlr
+        run: |
+          cargo build
+          cargo test
+      - name: Vendor substrait-prost
+        run: pixi run rust-generate-prost
+      - name: Build and Test substrait-prost
+        working-directory: rust/substrait-prost
+        run: |
+          cargo build --all-features
+          cargo test
+      - name: Package substrait-extensions
+        run: pixi run rust-generate-extensions
+      - name: Build and Test substrait-extensions
+        working-directory: rust/substrait-extensions
+        run: |
+          cargo build
+          cargo test
