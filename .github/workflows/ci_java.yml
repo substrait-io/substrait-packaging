@@ -1,0 +1,69 @@
+name: CI (Java)
+
+# Validates the Java packaging machinery against the most recent substrait spec
+# release. Attaches the released spec subtree and runs the same build + test
+# steps as the Java publish workflows, but stops short of versioning,
+# committing, tagging and publishing — so a change that would break a real
+# release fails here first. Python and Rust are validated by ci.yml.
+#
+# Kept separate from ci.yml so it can be merged alongside the Java packaging
+# support; the version resolution is duplicated (a single call to
+# scripts/latest_release.sh) because jobs cannot share outputs across workflows.
+
+on:
+  pull_request:
+    paths: &paths
+      - scripts/**
+      - pixi.toml
+      - pixi.lock
+      - java/**
+      - .github/workflows/ci_java.yml
+  push:
+    branches: [main]
+    paths: *paths
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait spec version to validate against (defaults to the latest release)
+        required: false
+        type: string
+
+concurrency:
+  group: ci-java-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Substrait Version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERRIDE: ${{ github.event.inputs.substrait_version }}
+        run: |
+          if [ -n "$OVERRIDE" ]; then
+            VERSION="$OVERRIDE"
+          else
+            VERSION=$(./scripts/latest_release.sh)
+          fi
+          echo "Validating against substrait version: $VERSION"
+          echo "SUBSTRAIT_VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Configure Git Identity
+        # attach_subtree.sh creates a squash commit, which needs an identity.
+        run: |
+          git config --global user.name 'substrait-packaging-ci'
+          git config --global user.email 'substrait-packaging-ci@users.noreply.github.com'
+      - name: Attach substrait Spec Subtree
+        run: ./scripts/attach_subtree.sh
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build and Test
+        working-directory: java
+        run: ./gradlew build -Pversion=${SUBSTRAIT_VERSION#v}
