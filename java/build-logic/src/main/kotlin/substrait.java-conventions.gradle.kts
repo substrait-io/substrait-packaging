@@ -25,12 +25,12 @@ fun secret(name: String): String =
   System.getenv(name).takeUnless { it.isNullOrEmpty() } ?: (findProperty(name) as String?) ?: ""
 
 java {
-  toolchain { languageVersion.set(JavaLanguageVersion.of(17)) }
+  toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
   withSourcesJar()
   withJavadocJar()
 }
 
-// Only set the release for main sources; tests run on the toolchain (17), which JUnit 6 requires.
+// Only set the release for main sources; tests run on the toolchain (21), which JUnit 6 requires.
 tasks.named<JavaCompile>("compileJava") { options.release.set(11) }
 
 tasks.withType<Test>().configureEach { useJUnitPlatform() }

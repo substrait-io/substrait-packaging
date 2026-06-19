@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: Apache-2.0
+[package]
+name = "substrait-prost"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.85.1"
+description = "Generated Substrait Protocol Buffer Code"
+documentation = "https://docs.rs/substrait-prost"
+readme = "README.md"
+homepage = "https://substrait.io"
+repository = "https://github.com/substrait-io/substrait-packaging"
+license = "Apache-2.0"
+keywords = ["substrait"]
+build = "build.rs"
+# Only the vendored `.proto` files (copied in by `generate_protobuf.sh`) and the
+# Rust sources are shipped; the generated Rust code is produced at build time.
+include = [
+    "build.rs",
+    "src/**/*.rs",
+    "proto/**/*.proto",
+]
+
+[features]
+default = []
+# Embed the protobuf file descriptor set for reflection.
+embed-descriptor = []
+# Build and vendor protoc from source for a consistent compiler across
+# platforms (used by docs.rs).
+protoc = ["dep:protobuf-src"]
+# Serialize and deserialize implementations for proto types using `pbjson`,
+# following the Protobuf JSON Mapping.
+serde = ["dep:pbjson", "dep:pbjson-build", "dep:pbjson-types", "dep:serde", "dep:serde_json"]
+
+[dependencies]
+pbjson = { version = "0.9.0", optional = true }
+pbjson-types = { version = "0.9.0", optional = true }
+prost = "0.14.1"
+prost-types = "0.14.1"
+serde = { version = "1.0.228", features = ["derive"], optional = true }
+serde_json = { version = "1.0.145", features = ["preserve_order"], optional = true }
+
+[build-dependencies]
+pbjson-build = { version = "0.9.0", optional = true }
+prost-build = { version = "0.14.1", default-features = false }
+protobuf-src = { version = "2.1.1", optional = true }
+walkdir = "2.5.0"
+
+[dev-dependencies]
+prost = "0.14.1"
+
+[package.metadata.docs.rs]
+features = ["protoc"]

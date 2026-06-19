@@ -83,7 +83,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Generate and Build ANTLR Code
         working-directory: java
@@ -112,7 +112,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
       - name: Build and Test
         working-directory: java
         run: ./gradlew :antlr:build -Pversion=${SUBSTRAIT_VERSION#v}

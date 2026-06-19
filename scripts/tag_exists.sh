@@ -12,9 +12,10 @@ TAG_NAME="$1"
 # Requires exactly 2 path components before the version
 VERSION=$(echo "$TAG_NAME" | sed -n 's|^\([^/]\+\)/\([^/]\+\)/\(v.*\)$|\3|p')
 
-# Check if version was extracted and matches vx.y.z format
-if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-  echo "Error: tag name must follow format <language>/<repo>/vx.y.z, received: $TAG_NAME"
+# Check if version was extracted and matches vx.y.z format, optionally with an
+# alpha pre-release suffix (vx.y.z-alpha or vx.y.z-alpha.N)
+if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-alpha(\.[0-9]+)?)?$'; then
+  echo "Error: tag name must follow format <language>/<repo>/vx.y.z[-alpha[.N]], received: $TAG_NAME"
   exit 2
 fi
 
