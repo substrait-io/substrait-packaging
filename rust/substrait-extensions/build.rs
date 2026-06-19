@@ -21,6 +21,7 @@ fn text(out_dir: &Path) -> Result<(), Box<dyn Error>> {
     use schemars::schema::{RootSchema, Schema};
     use typify::{TypeSpace, TypeSpaceSettings};
 
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let mut out_file = File::create(out_dir.join("substrait_text").with_extension("rs"))?;
 
     for schema_path in WalkDir::new(TEXT_ROOT)
@@ -77,6 +78,29 @@ pub mod {title} {{
 }}"#,
             prettyplease::unparse(&syn::parse2::<syn::File>(type_space.to_stream())?),
         ))?;
+
+        // Also expose the raw schema source, so consumers that validate against
+        // the JSON schema (rather than the generated types) don't have to vendor
+        // it themselves. The const is named after the file stem, e.g.
+        // `simple_extensions_schema.yaml` -> `SIMPLE_EXTENSIONS_SCHEMA`.
+        let file_name = schema_path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+        let const_name = schema_path
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_uppercase();
+        out_file.write_fmt(format_args!(
+            r#"
+#[doc = "Raw source of the `{file_name}` text schema."]
+pub const {const_name}: &str = include_str!("{}/{}");
+"#,
+            manifest_dir.display(),
+            schema_path.display()
+        ))?;
     }
     Ok(())
 }
@@ -95,8 +119,10 @@ fn extensions(out_dir: &Path) -> Result<(), Box<dyn Error>> {
 // included in `extensions.rs`.
 "#,
     );
-    let mut map = HashMap::<String, String>::default();
-    for extension in WalkDir::new(EXTENSIONS_ROOT)
+    // Collect the extension files up front and sort them so the generated code
+    // (in particular the `SIMPLE_EXTENSIONS` slice below) is deterministic and
+    // independent of filesystem iteration order.
+    let mut extension_paths: Vec<PathBuf> = WalkDir::new(EXTENSIONS_ROOT)
         .into_iter()
         .filter_map(Result::ok)
         .filter(|entry| entry.file_type().is_file())
@@ -108,10 +134,16 @@ fn extensions(out_dir: &Path) -> Result<(), Box<dyn Error>> {
                 .is_some()
         })
         .map(DirEntry::into_path)
-        .inspect(|entry| {
-            println!("cargo:rerun-if-changed={}", entry.display());
-        })
-    {
+        .collect();
+    extension_paths.sort();
+
+    let mut map = HashMap::<String, String>::default();
+    // `(urn, const_name)` pairs in sorted order, for the `SIMPLE_EXTENSIONS`
+    // slice that maps each extension's URN to its raw YAML source.
+    let mut urns: Vec<(String, String)> = Vec::new();
+    for extension in &extension_paths {
+        println!("cargo:rerun-if-changed={}", extension.display());
+
         let name = extension
             .file_stem()
             .unwrap_or_default()
@@ -126,6 +158,17 @@ pub const {var_name}: &str = include_str!("{}/{}");
             manifest_dir.display(),
             extension.display()
         ));
+
+        // Extract the top-level `urn` field (a required property of every
+        // extension file) so the file can be looked up by its identifier.
+        let value = serde_yaml::from_str::<serde_yaml::Value>(&fs::read_to_string(extension)?)?;
+        let urn = value
+            .get("urn")
+            .and_then(serde_yaml::Value::as_str)
+            .unwrap_or_else(|| panic!("`urn` missing in `{}`", extension.display()))
+            .to_string();
+        urns.push((urn, var_name.clone()));
+
         map.insert(name, var_name);
     }
 
@@ -150,7 +193,31 @@ pub static EXTENSIONS: LazyLock<HashMap<&'static str, SimpleExtensions>> = LazyL
     output.push_str(
         r#"
     map
-});"#,
+});
+"#,
+    );
+
+    // Add a slice of every core extension as `(urn, raw YAML source)` pairs,
+    // keyed by the top-level `urn` field and referencing the raw-source consts
+    // emitted above. This lets consumers that work with the raw YAML (e.g. to
+    // validate against the JSON schema) enumerate and resolve extensions by URN
+    // without re-parsing.
+    output.push_str(
+        r#"
+/// All Substrait core extensions as `(urn, raw YAML source)` pairs, where `urn`
+/// is the value of the extension file's top-level `urn` field.
+pub static SIMPLE_EXTENSIONS: &[(&str, &str)] = &["#,
+    );
+    for (urn, var_name) in &urns {
+        output.push_str(&format!(
+            r#"
+    ("{urn}", {var_name}),"#
+        ));
+    }
+    output.push_str(
+        r#"
+];
+"#,
     );
 
     fs::write(substrait_extensions_file, output)?;
