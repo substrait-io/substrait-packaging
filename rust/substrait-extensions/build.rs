@@ -96,10 +96,9 @@ pub mod {title} {{
         out_file.write_fmt(format_args!(
             r#"
 #[doc = "Raw source of the `{file_name}` text schema."]
-pub const {const_name}: &str = include_str!("{}/{}");
+pub const {const_name}: &str = include_str!({:?});
 "#,
-            manifest_dir.display(),
-            schema_path.display()
+            manifest_dir.join(&schema_path)
         ))?;
     }
     Ok(())
@@ -150,13 +149,14 @@ fn extensions(out_dir: &Path) -> Result<(), Box<dyn Error>> {
             .to_string_lossy()
             .to_string();
         let var_name = name.to_uppercase();
+        // The path is emitted via `{:?}` (Debug) so that backslashes in
+        // Windows paths are escaped into a valid Rust string literal.
         output.push_str(&format!(
             r#"
 /// Included source of the `{name}` extension YAML file.
-pub const {var_name}: &str = include_str!("{}/{}");
+pub const {var_name}: &str = include_str!({:?});
 "#,
-            manifest_dir.display(),
-            extension.display()
+            manifest_dir.join(extension)
         ));
 
         // Extract the top-level `urn` field (a required property of every
