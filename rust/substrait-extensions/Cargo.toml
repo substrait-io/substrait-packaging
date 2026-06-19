@@ -35,7 +35,10 @@ serde_yaml = "0.9.34"
 [build-dependencies]
 heck = "0.5.0"
 prettyplease = "0.2.37"
-schemars = "1.2.1"
+# Pinned to 0.8 to match the schemars version used by typify (0.7): build.rs
+# feeds schemars types straight into typify, so this must track typify's
+# schemars, not the latest release. Bumping to 1.x breaks the build.
+schemars = "0.8.22"
 serde_yaml = "0.9.34"
 syn = "2.0.111"
 typify = "0.7.0"
