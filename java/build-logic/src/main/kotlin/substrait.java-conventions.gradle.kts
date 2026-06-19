@@ -30,8 +30,11 @@ java {
   withJavadocJar()
 }
 
-// Only set the release for main sources; tests run on the toolchain (21), which JUnit 6 requires.
-tasks.named<JavaCompile>("compileJava") { options.release.set(11) }
+// Compile main sources to Java 8 bytecode so the artifacts can be consumed by
+// downstream modules targeting Java 8 (e.g. substrait-java's core). The release
+// is set instead of using a Java 8 toolchain because ANTLR requires Java 11+ to
+// run; tests run on the toolchain (21), which JUnit 6 requires.
+tasks.named<JavaCompile>("compileJava") { options.release.set(8) }
 
 tasks.withType<Test>().configureEach { useJUnitPlatform() }
 
