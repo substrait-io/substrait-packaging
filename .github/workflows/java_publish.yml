@@ -24,14 +24,14 @@ jobs:
     uses: ./.github/workflows/java_antlr.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
   publish-java-protobuf:
     uses: ./.github/workflows/java_protobuf.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
   publish-java-extensions:
     uses: ./.github/workflows/java_extensions.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}

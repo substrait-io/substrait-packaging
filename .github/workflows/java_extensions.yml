@@ -20,8 +20,8 @@ on:
         type: string
 
 env:
-  SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
-  TAG_NAME: "java/extensions/${{ github.event.inputs.substrait_version }}"
+  SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
+  TAG_NAME: "java/extensions/${{ inputs.substrait_version }}"
 
 jobs:
 
