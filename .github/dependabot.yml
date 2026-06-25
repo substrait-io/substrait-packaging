@@ -53,6 +53,13 @@ updates:
       rust-dependencies:
         patterns:
           - "*"
+    ignore:
+      # Pinned to 0.8 to match the schemars version used by typify (0.7).
+      # build.rs feeds schemars types straight into typify, so this must
+      # track typify's schemars, not the latest release. Bumping to 1.x
+      # breaks the build, so block major updates.
+      - dependency-name: "schemars"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "cargo"
     directory: "/rust/substrait-antlr"
