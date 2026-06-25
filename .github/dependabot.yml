@@ -46,28 +46,21 @@ updates:
           - "*"
 
   - package-ecosystem: "cargo"
-    directory: "/rust/substrait-prost"
+    directories:
+      - "/rust/substrait-prost"
+      - "/rust/substrait-extensions"
+      - "/rust/substrait-antlr"
     schedule:
       interval: "weekly"
     groups:
       rust-dependencies:
         patterns:
           - "*"
-
-  - package-ecosystem: "cargo"
-    directory: "/rust/substrait-extensions"
-    schedule:
-      interval: "weekly"
-    groups:
-      rust-dependencies:
-        patterns:
-          - "*"
-
-  - package-ecosystem: "cargo"
-    directory: "/rust/substrait-antlr"
-    schedule:
-      interval: "weekly"
-    groups:
-      rust-dependencies:
-        patterns:
-          - "*"
+    ignore:
+      # Pinned to 0.8 in /rust/substrait-extensions to match the schemars
+      # version used by typify (0.7). build.rs feeds schemars types straight
+      # into typify, so this must track typify's schemars, not the latest
+      # release. Bumping to 1.x breaks the build, so block major updates.
+      # (No-op in the other directories, which don't depend on schemars.)
+      - dependency-name: "schemars"
+        update-types: ["version-update:semver-major"]

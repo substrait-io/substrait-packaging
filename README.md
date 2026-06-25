@@ -26,7 +26,7 @@ Each of these workflows consumes a required substrait_version input. They are in
 
 The spec_released.yml workflow is a thin-wrapper around publish_artifacts.yml which is designed to be invoked whenever a new version of [substrait](https://github.com/substrait-io/substrait) specification is released.
 
-The ci_java.yml workflow runs on pull requests and pushes to `main`. It validates the Java packaging machinery against the most recent substrait spec release by running the same build + test steps as the Java publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. It only runs when the relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
+The ci_java.yml, ci_python.yml and ci_rust.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
 
 Re-usable scripts for use across these workflows can be found in `/scripts`.
 

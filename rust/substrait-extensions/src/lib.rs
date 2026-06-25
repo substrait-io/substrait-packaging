@@ -10,12 +10,17 @@
 //! [releases](https://github.com/substrait-io/substrait/releases).
 //!
 //! - [`text`] — types generated from the text schemas (e.g.
-//!   [`text::simple_extensions::SimpleExtensions`]).
-//! - [`extensions`] — the embedded extension YAML files and an [`extensions::EXTENSIONS`]
-//!   lookup map.
+//!   [`text::simple_extensions::SimpleExtensions`]), plus the raw schema
+//!   sources as consts (e.g. `text::SIMPLE_EXTENSIONS_SCHEMA`) for consumers
+//!   that validate raw YAML against the JSON schema.
+//! - [`extensions`] — the embedded extension YAML files, the
+//!   [`extensions::EXTENSIONS`] map (keyed by file stem to the parsed
+//!   extension), and the [`extensions::SIMPLE_EXTENSIONS`] slice (keyed by URN
+//!   to the raw YAML source).
 //! - [`testcases`] — the embedded function test case files.
 
-/// Types generated from the Substrait text-based JSON schemas.
+/// Types generated from the Substrait text-based JSON schemas, plus the raw
+/// schema sources as `&str` consts (e.g. `SIMPLE_EXTENSIONS_SCHEMA`).
 #[allow(
     unused_variables,
     clippy::clone_on_copy,
@@ -42,6 +47,5 @@ pub mod testcases {
     use include_dir::{include_dir, Dir};
 
     /// The directory tree of `.test` function test case files.
-    pub static TESTCASES: Dir<'static> =
-        include_dir!("$CARGO_MANIFEST_DIR/testcases");
+    pub static TESTCASES: Dir<'static> = include_dir!("$CARGO_MANIFEST_DIR/testcases");
 }
