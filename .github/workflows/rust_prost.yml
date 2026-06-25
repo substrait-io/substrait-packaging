@@ -30,7 +30,7 @@ on:
         type: boolean
 
 env:
-  SUBSTRAIT_VERSION: ${{ github.event.inputs.substrait_version }}
+  SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
 
 jobs:
 
