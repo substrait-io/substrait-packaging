@@ -1,0 +1,50 @@
+name: Publish C++ Artifacts
+run-name: Publish C++ Artifacts for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: cpp-publish
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  publish-cpp-protobuf:
+    uses: ./.github/workflows/cpp_protobuf.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
+  publish-cpp-antlr:
+    uses: ./.github/workflows/cpp_antlr.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
+  publish-cpp-extensions:
+    uses: ./.github/workflows/cpp_extensions.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}

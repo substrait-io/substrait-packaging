@@ -1,0 +1,82 @@
+name: CI (C++)
+
+# Validates the C++ packaging machinery against the most recent substrait spec
+# release. Attaches the released spec subtree and runs the same generate + build
+# + test steps as the C++ publish workflows, but stops short of committing,
+# tagging and publishing — so a change that would break a real release fails
+# here first. Python, Rust and Go are validated by their own ci_* workflows.
+
+on:
+  pull_request:
+    paths: &paths
+      - scripts/**
+      - pixi.toml
+      - pixi.lock
+      - cpp/**
+      - .github/workflows/ci_cpp.yml
+  push:
+    branches: [main]
+    paths: *paths
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait spec version to validate against (defaults to the latest release)
+        required: false
+        type: string
+
+concurrency:
+  group: ci-cpp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cpp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Substrait Version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERRIDE: ${{ inputs.substrait_version }}
+        run: |
+          if [ -n "$OVERRIDE" ]; then
+            VERSION="$OVERRIDE"
+          else
+            VERSION=$(./scripts/latest_release.sh)
+          fi
+          echo "Validating against substrait version: $VERSION"
+          echo "SUBSTRAIT_VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Configure Git Identity
+        # attach_subtree.sh creates a squash commit, which needs an identity.
+        run: |
+          git config --global user.name 'substrait-packaging-ci'
+          git config --global user.email 'substrait-packaging-ci@users.noreply.github.com'
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.9.6
+        with:
+          pixi-version: v0.62.2
+      - name: Attach substrait Spec Subtree
+        run: ./scripts/attach_subtree.sh
+      - name: Vendor substrait-protobuf
+        run: pixi run cpp-generate-protobuf
+      - name: Build and Test substrait-protobuf
+        run: |
+          pixi run cmake -S cpp/substrait-protobuf -B cpp/substrait-protobuf/build -DCMAKE_BUILD_TYPE=Release
+          pixi run cmake --build cpp/substrait-protobuf/build -j
+          pixi run ctest --test-dir cpp/substrait-protobuf/build --output-on-failure
+      - name: Generate substrait-antlr
+        run: pixi run cpp-generate-antlr
+      - name: Build and Test substrait-antlr
+        run: |
+          pixi run cmake -S cpp/substrait-antlr -B cpp/substrait-antlr/build -DCMAKE_BUILD_TYPE=Release
+          pixi run cmake --build cpp/substrait-antlr/build -j
+          pixi run ctest --test-dir cpp/substrait-antlr/build --output-on-failure
+      - name: Package substrait-extensions
+        run: pixi run cpp-generate-extensions
+      - name: Build and Test substrait-extensions
+        run: |
+          pixi run cmake -S cpp/substrait-extensions -B cpp/substrait-extensions/build -DCMAKE_BUILD_TYPE=Release
+          pixi run cmake --build cpp/substrait-extensions/build -j
+          pixi run ctest --test-dir cpp/substrait-extensions/build --output-on-failure
