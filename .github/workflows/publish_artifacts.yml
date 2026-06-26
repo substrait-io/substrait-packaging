@@ -24,7 +24,7 @@ jobs:
     uses: ./.github/workflows/python_publish.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
   publish-java-artifacts:
     uses: ./.github/workflows/java_publish.yml
     secrets: inherit
@@ -34,4 +34,4 @@ jobs:
     uses: ./.github/workflows/rust_publish.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}

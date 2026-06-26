@@ -24,14 +24,14 @@ jobs:
     uses: ./.github/workflows/python_antlr.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
   publish-python-protobuf:
     uses: ./.github/workflows/python_protobuf.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
   publish-python-extensions:
     uses: ./.github/workflows/python_extensions.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
