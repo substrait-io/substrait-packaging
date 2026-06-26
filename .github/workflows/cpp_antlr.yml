@@ -110,7 +110,9 @@ jobs:
       - name: Build and Test
         run: |
           pixi run cmake -S cpp/substrait-antlr -B cpp/substrait-antlr/build -DCMAKE_BUILD_TYPE=Release
-          pixi run cmake --build cpp/substrait-antlr/build -j
+          # Bound parallelism: the bundled ANTLR runtime has ~140 independent TUs
+          # and an unbounded -j forks them all at once, OOM-killing the runner.
+          pixi run cmake --build cpp/substrait-antlr/build -j 2
           pixi run ctest --test-dir cpp/substrait-antlr/build --output-on-failure
 
       - name: Commit Generated Parsers

@@ -29,6 +29,15 @@ if(NOT SUBSTRAIT_ANTLR_USE_EXISTING_RUNTIME)
   set(ANTLR_BUILD_CPP_TESTS
       OFF
       CACHE BOOL "" FORCE)
+  # Only build the static runtime — that is all substrait_antlr links. Building
+  # the shared library too doubles the compile and its peak memory (it OOM-kills
+  # CI runners), for an artifact we never use.
+  set(ANTLR_BUILD_SHARED
+      OFF
+      CACHE BOOL "" FORCE)
+  set(ANTLR_BUILD_STATIC
+      ON
+      CACHE BOOL "" FORCE)
   set(ANTLR4_INSTALL
       ON
       CACHE BOOL "" FORCE)
