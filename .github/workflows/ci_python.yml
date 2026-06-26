@@ -42,7 +42,7 @@ jobs:
       - name: Resolve Substrait Version
         env:
           GH_TOKEN: ${{ github.token }}
-          OVERRIDE: ${{ github.event.inputs.substrait_version }}
+          OVERRIDE: ${{ inputs.substrait_version }}
         run: |
           if [ -n "$OVERRIDE" ]; then
             VERSION="$OVERRIDE"

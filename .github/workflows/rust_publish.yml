@@ -34,17 +34,17 @@ jobs:
     uses: ./.github/workflows/rust_antlr.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
       alpha: ${{ inputs.alpha }}
   publish-rust-prost:
     uses: ./.github/workflows/rust_prost.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
       alpha: ${{ inputs.alpha }}
   publish-rust-extensions:
     uses: ./.github/workflows/rust_extensions.yml
     secrets: inherit
     with:
-      substrait_version: ${{ github.event.inputs.substrait_version }}
+      substrait_version: ${{ inputs.substrait_version }}
       alpha: ${{ inputs.alpha }}
