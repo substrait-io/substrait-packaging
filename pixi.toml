@@ -22,10 +22,11 @@ ruff = ">=0.14.10,<0.15"
 uv = ">=0.9.25,<1"
 # Required to run the forked ANTLR JAR for the Rust parser generation.
 openjdk = ">=21,<26"
-# C++ packaging: build/test the generated CMake source packages. protobuf
-# provides protoc + libprotobuf. The ANTLR C++ runtime is built hermetically by
-# the substrait-antlr package via FetchContent (no conda runtime dep, so the
-# package builds identically on every platform and for downstream consumers).
+# C++ packaging: build/test the generated CMake source packages. libprotobuf
+# provides the protobuf C++ library, headers, protoc and the CMake config used
+# by the substrait-protobuf package. The ANTLR C++ runtime is built
+# hermetically by the substrait-antlr package via FetchContent (no conda runtime
+# dep, so it builds identically on every platform and for downstream consumers).
 cmake = ">=3.24,<4"
 cxx-compiler = ">=1.7,<2"
-protobuf = ">=5,<6"
+libprotobuf = ">=5"

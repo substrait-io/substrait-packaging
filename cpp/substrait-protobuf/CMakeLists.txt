@@ -9,7 +9,12 @@ project(
 # C++ protobuf generated code is ABI-coupled to a protobuf runtime, so this
 # package vendors the `.proto` files (see generate_protobuf.sh) and generates
 # C++ here, against the consumer's own protobuf via protobuf_generate.
-find_package(Protobuf REQUIRED)
+#
+# CONFIG mode uses protobuf's own CMake package (protobuf-config.cmake), which
+# ships protobuf_generate and the protobuf::libprotobuf / protobuf::protoc
+# imported targets. This is more reliable than CMake's bundled FindProtobuf
+# module, which fails to locate a conda/abseil-based protobuf install.
+find_package(Protobuf CONFIG REQUIRED)
 
 option(SUBSTRAIT_PROTOBUF_BUILD_TESTS
        "Build substrait-protobuf tests" ${PROJECT_IS_TOP_LEVEL})
