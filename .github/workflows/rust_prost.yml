@@ -42,7 +42,7 @@ jobs:
       tag_exists: ${{ steps.check-tag.outputs.exists }}
       artifact_exists: ${{ steps.check-artifact.outputs.exists }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -91,7 +91,7 @@ jobs:
           git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
 
       - name: Checkout substrait-packaging
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
@@ -151,7 +151,7 @@ jobs:
         working-directory: rust/substrait-prost
     steps:
       - name: Checkout substrait-prost
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.rust-prost-prechecks.outputs.tag_name }}
           fetch-depth: 0
