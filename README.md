@@ -21,12 +21,16 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
     * rust_antlr.yml
     * rust_protobuf.yml
     * rust_extensions.yml
+  * cpp_publish.yml: For releasing C++ specific artifacts
+    * cpp_antlr.yml
+    * cpp_protobuf.yml
+    * cpp_extensions.yml
 
 Each of these workflows consumes a required substrait_version input. They are intended to be invoked by their parent workflow, but can be also be invoked directly to release specific artifacts.
 
 The spec_released.yml workflow is a thin-wrapper around publish_artifacts.yml which is designed to be invoked whenever a new version of [substrait](https://github.com/substrait-io/substrait) specification is released.
 
-The ci_java.yml, ci_python.yml and ci_rust.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
+The ci_java.yml, ci_python.yml, ci_rust.yml and ci_cpp.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
 
 Re-usable scripts for use across these workflows can be found in `/scripts`.
 
@@ -86,3 +90,30 @@ The protobuf and extensions crates generate their Rust code at build time (with
 the spec inputs into the crate; building `substrait-prost` requires `protoc`.
 The ANTLR parsers cannot be generated at build time (the Rust target needs a
 forked ANTLR build and Java), so they are committed by the generation script.
+
+## C++ Code Generation
+
+```sh
+# Vendor protobuf definitions for the substrait-protobuf C++ package
+pixi run cpp-generate-protobuf
+
+# Generate substrait-antlr C++ parsers (requires java for the ANTLR tool)
+pixi run cpp-generate-antlr
+
+# Package Substrait extensions files for the substrait-extensions C++ package
+pixi run cpp-generate-extensions
+```
+
+The C++ packages are distributed as CMake source packages on git tags
+(`cpp/<package>/vx.y.z`); consumers pull them with CMake `FetchContent`. There
+is no registry upload — pushing the tag publishes the package.
+
+The protobuf package vendors the `.proto` files and generates C++ at build time
+with the consumer's own `protoc` (C++ protobuf code is ABI-coupled to a
+protobuf runtime, so committing generated sources would pin every consumer to
+one protobuf version). The ANTLR parsers are committed (stock ANTLR C++ target,
+no fork) and the `substrait-antlr` `CMakeLists.txt` builds the ANTLR C++ runtime
+hermetically via `FetchContent`. The extensions package is data-only — C++ has
+no canonical YAML/JSON schema code generation (unlike Rust's `typify` or
+Python's `datamodel-code-generator`), so it ships the raw spec data and the
+typed parsing lives downstream in the consumer.

@@ -35,3 +35,8 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
+  publish-cpp-artifacts:
+    uses: ./.github/workflows/cpp_publish.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}

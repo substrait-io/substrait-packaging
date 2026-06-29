@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+# Absolute path to the installed Substrait extension data (extensions/, text/,
+# tests/cases/), resolved relative to this config file's install location.
+set_and_check(SubstraitExtensions_DATA_DIR "@PACKAGE_SUBSTRAIT_EXTENSIONS_INSTALL_DATADIR@")
+
+include("${CMAKE_CURRENT_LIST_DIR}/SubstraitExtensionsTargets.cmake")
+
+check_required_components(SubstraitExtensions)
