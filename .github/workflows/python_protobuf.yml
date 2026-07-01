@@ -31,7 +31,7 @@ jobs:
       tag_exists: ${{ steps.check-tag.outputs.exists }}
       artifact_exists: ${{ steps.check-artifact.outputs.exists }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -70,14 +70,14 @@ jobs:
           git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
 
       - name: Checkout substrait-packaging
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
           persist-credentials: false
 
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.9.6
+        uses: prefix-dev/setup-pixi@v0.10.0
         with:
           pixi-version: v0.62.2
 
@@ -123,12 +123,12 @@ jobs:
         working-directory: python/substrait-protobuf
     steps:
       - name: Checkout substrait-protobuf
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG_NAME }}
           fetch-depth: 0
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.9.6
+        uses: prefix-dev/setup-pixi@v0.10.0
         with:
           pixi-version: v0.62.2
       - name: Build
