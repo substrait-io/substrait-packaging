@@ -24,6 +24,10 @@ include = [
 default = []
 # Embed the protobuf file descriptor set for reflection.
 embed-descriptor = []
+# Derive `prost_reflect::ReflectMessage` for all message types, enabling runtime
+# protobuf introspection against the embedded descriptor set. Implies
+# `embed-descriptor`, which the generated reflection code reads at runtime.
+reflect = ["dep:prost-reflect", "dep:prost-reflect-build", "embed-descriptor"]
 # Build and vendor protoc from source for a consistent compiler across
 # platforms (used by docs.rs).
 protoc = ["dep:protobuf-src"]
@@ -35,6 +39,7 @@ serde = ["dep:pbjson", "dep:pbjson-build", "dep:pbjson-types", "dep:serde", "dep
 pbjson = { version = "0.9.0", optional = true }
 pbjson-types = { version = "0.9.0", optional = true }
 prost = "0.14.1"
+prost-reflect = { version = "0.16.4", features = ["derive"], optional = true }
 prost-types = "0.14.1"
 serde = { version = "1.0.228", features = ["derive"], optional = true }
 serde_json = { version = "1.0.145", features = ["preserve_order"], optional = true }
@@ -42,6 +47,7 @@ serde_json = { version = "1.0.145", features = ["preserve_order"], optional = tr
 [build-dependencies]
 pbjson-build = { version = "0.9.0", optional = true }
 prost-build = { version = "0.14.1", default-features = false }
+prost-reflect-build = { version = "0.16.0", optional = true }
 protobuf-src = { version = "2.1.1", optional = true }
 walkdir = "2.5.0"
 
