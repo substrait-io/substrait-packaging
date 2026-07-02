@@ -17,6 +17,7 @@ cpp-generate-protobuf = { cmd = "cd cpp/substrait-protobuf && ./generate_protobu
 cpp-generate-antlr = { cmd = "cd cpp/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR C++ parsers" }
 cpp-generate-extensions = { cmd = "cd cpp/substrait-extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for C++" }
 go-generate-protobuf = { cmd = "cd go/substrait-protobuf && ./generate_protobuf.sh", description = "Generate protobuf Go code" }
+go-generate-protobuf-opaque = { cmd = "cd go/substrait-protobuf-opaque && ./generate_protobuf.sh", description = "Generate protobuf Go code (Opaque API)" }
 go-generate-antlr = { cmd = "cd go/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR Go parsers" }
 go-generate-extensions = { cmd = "cd go/substrait-extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for Go" }
 

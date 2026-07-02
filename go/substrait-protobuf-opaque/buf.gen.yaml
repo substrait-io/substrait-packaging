@@ -1,0 +1,27 @@
+version: v2
+# Remove previously generated files before regenerating so deletions in the spec
+# are reflected in the published module.
+clean: true
+managed:
+  enabled: true
+  override:
+    # Pin the Go import path to this module so the generated code is importable as
+    # github.com/substrait-io/substrait-packaging/go/substrait-protobuf-opaque/substraitpb.
+    - file_option: go_package
+      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf-opaque/substraitpb
+    - file_option: go_package
+      path: substrait/extensions/extensions.proto
+      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf-opaque/substraitpb/extensions
+
+plugins:
+  # Remote plugin execution: no local protoc/protoc-gen-go needed. Keep this
+  # version aligned with the google.golang.org/protobuf runtime in go.mod.
+  - remote: buf.build/protocolbuffers/go:v1.36.6
+    out: substraitpb
+    opt:
+      - module=github.com/substrait-io/substrait-packaging/go/substrait-protobuf-opaque/substraitpb
+      # This module ships the Opaque API (opaque message state + Get/Set
+      # accessors + Builder types) — the sibling substrait-protobuf module ships
+      # the Open (struct) API. Same protos, same runtime; only the generated
+      # surface differs. See https://protobuf.dev/reference/go/opaque-migration/.
+      - default_api_level=API_OPAQUE

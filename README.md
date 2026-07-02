@@ -28,6 +28,7 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
   * go_publish.yml: For releasing Go specific artifacts
     * go_antlr.yml
     * go_protobuf.yml
+    * go_protobuf_opaque.yml
     * go_extensions.yml
 
 Each of these workflows consumes a required substrait_version input. They are intended to be invoked by their parent workflow, but can be also be invoked directly to release specific artifacts.

@@ -36,6 +36,12 @@ jobs:
     with:
       substrait_version: ${{ inputs.substrait_version }}
       alpha: ${{ inputs.alpha }}
+  publish-go-protobuf-opaque:
+    uses: ./.github/workflows/go_protobuf_opaque.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
   publish-go-antlr:
     uses: ./.github/workflows/go_antlr.yml
     secrets: inherit

@@ -71,6 +71,14 @@ jobs:
           go mod tidy
           go build ./...
           go test ./...
+      - name: Generate substrait-protobuf-opaque
+        run: pixi run go-generate-protobuf-opaque
+      - name: Build and Test substrait-protobuf-opaque
+        working-directory: go/substrait-protobuf-opaque
+        run: |
+          go mod tidy
+          go build ./...
+          go test ./...
       - name: Generate substrait-antlr
         run: pixi run go-generate-antlr
       - name: Build and Test substrait-antlr
