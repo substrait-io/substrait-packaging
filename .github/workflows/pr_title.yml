@@ -1,0 +1,56 @@
+name: PR Title Check
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+jobs:
+  commitlint:
+    name: PR title / description conforms to semantic-release
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the base ref (trusted, not the PR head) so the committed
+      # commitlint.config.js cannot be weakened by the PR being validated.
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - run: npm install @commitlint/config-conventional
+      - run: npx commitlint --verbose <<< $COMMIT_MSG
+        env:
+          COMMIT_MSG: >
+            ${{ github.event.pull_request.title }}
+
+            ${{ github.event.pull_request.body }}
+      - if: failure()
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const message = `**ACTION NEEDED**
+
+              Substrait follows the [Conventional Commits
+              specification](https://www.conventionalcommits.org/en/v1.0.0/) for
+              release automation.
+
+              The PR title and description are used as the merge commit message.\
+              Please update your PR title and description to match the specification.
+              `
+            // Get list of current comments
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            // Check if this job already commented
+            for (const comment of comments) {
+              if (comment.body === message) {
+                return // Already commented
+              }
+            }
+            // Post the comment about Conventional Commits
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: message
+            })
+            core.setFailed(message)
