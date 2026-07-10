@@ -124,3 +124,15 @@ jobs:
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
+
+  # Register the freshly pushed tag in the vcpkg registry (bump the port, run
+  # vcpkg x-add-version, push to the registry branch). Runs only when a new tag
+  # was published, after the publish job succeeds.
+  cpp-extensions-registry:
+    needs: [cpp-extensions-prechecks, cpp-extensions-publish]
+    if: needs.cpp-extensions-prechecks.outputs.tag_exists == 'false'
+    uses: ./.github/workflows/cpp_registry.yml
+    secrets: inherit
+    with:
+      package: substrait-extensions
+      version: ${{ needs.cpp-extensions-prechecks.outputs.publish_version }}
