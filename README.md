@@ -40,7 +40,7 @@ pull transitive dependencies (`protobuf` for `substrait-protobuf`, `antlr4` for
       "kind": "git",
       "repository": "https://github.com/substrait-io/substrait-packaging",
       "reference": "vcpkg-registry",
-      "baseline": "934f3bf133ed5a39f0f2547f17beaabc669fb1fe",
+      "baseline": "66c7d37426e0f36712c73267834ff8ca0782fcff",
       "packages": ["substrait-protobuf", "substrait-extensions", "substrait-antlr"]
     }
   ]
