@@ -18,6 +18,9 @@ set(SUBSTRAIT_EXTENSIONS_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_library(substrait_extensions INTERFACE)
 add_library(substrait::extensions ALIAS substrait_extensions)
+# Export as substrait::extensions (matching the build-tree ALIAS) for
+# find_package() consumers, instead of substrait::substrait_extensions.
+set_target_properties(substrait_extensions PROPERTIES EXPORT_NAME extensions)
 
 # Exposed to consumers (build tree). The install-tree path is set by the
 # package config file for find_package() consumers.
