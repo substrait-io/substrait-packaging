@@ -1,0 +1,16 @@
+{
+  "default": {
+    "substrait-antlr": {
+      "baseline": "0.89.0-alpha",
+      "port-version": 0
+    },
+    "substrait-extensions": {
+      "baseline": "0.89.0-alpha",
+      "port-version": 0
+    },
+    "substrait-protobuf": {
+      "baseline": "0.89.0-alpha",
+      "port-version": 0
+    }
+  }
+}

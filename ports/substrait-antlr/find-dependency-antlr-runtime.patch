@@ -1,0 +1,17 @@
+diff --git a/cpp/substrait-antlr/cmake/SubstraitAntlrConfig.cmake.in b/cpp/substrait-antlr/cmake/SubstraitAntlrConfig.cmake.in
+index 9a212c3..f1b8c7d 100644
+--- a/cpp/substrait-antlr/cmake/SubstraitAntlrConfig.cmake.in
++++ b/cpp/substrait-antlr/cmake/SubstraitAntlrConfig.cmake.in
+@@ -1,5 +1,12 @@
+ @PACKAGE_INIT@
+ 
++# The installed substrait_antlr links the ANTLR C++ runtime (antlr4_static /
++# antlr4_shared from the antlr4-runtime package), so consumers must be able to
++# import that target too. Applies to package-manager (e.g. vcpkg) installs that
++# provide the runtime via find_package rather than a hermetic FetchContent build.
++include(CMakeFindDependencyMacro)
++find_dependency(antlr4-runtime)
++
+ include("${CMAKE_CURRENT_LIST_DIR}/SubstraitAntlrTargets.cmake")
+ 
+ check_required_components(SubstraitAntlr)
