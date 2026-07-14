@@ -9,7 +9,7 @@
       "port-version": 0
     },
     "substrait-protobuf": {
-      "baseline": "0.89.0-alpha.1",
+      "baseline": "0.89.0",
       "port-version": 0
     }
   }
