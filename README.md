@@ -16,8 +16,10 @@ as imported targets via `find_package` instead of `FetchContent`.
 > to `microsoft/vcpkg`. The registry lives on this branch; `main` is unaffected.
 > For general project documentation, see the `main` branch.
 
-The ports pin to the immutable release tags `cpp/<pkg>/vX.Y.Z`; **0.89.0-alpha** is
-currently published for all three.
+The ports pin to the immutable release tags `cpp/<pkg>/vX.Y.Z`. The set of published
+versions grows over time — see [`versions/baseline.json`](versions/baseline.json) for
+what's currently available (the baseline tracks the latest); older versions stay
+resolvable.
 
 ---
 
@@ -40,7 +42,7 @@ pull transitive dependencies (`protobuf` for `substrait-protobuf`, `antlr4` for
       "kind": "git",
       "repository": "https://github.com/substrait-io/substrait-packaging",
       "reference": "vcpkg-registry",
-      "baseline": "66c7d37426e0f36712c73267834ff8ca0782fcff",
+      "baseline": "326b88777d91aa59b61a1a16273cd5c0bc4a4408",
       "packages": ["substrait-protobuf", "substrait-extensions", "substrait-antlr"]
     }
   ]
@@ -48,9 +50,9 @@ pull transitive dependencies (`protobuf` for `substrait-protobuf`, `antlr4` for
 ```
 
 - `reference` is the branch this registry lives on (`vcpkg-registry`).
-- `baseline` is a **commit SHA on that branch** — the example above is the commit
-  that first published 0.89.0-alpha. Use the current branch tip to pick up later
-  releases (see [Upgrading](#upgrading)):
+- `baseline` is a **commit SHA on that branch** — it resolves every version published
+  as of that commit. Use the current branch tip to pick up newer releases (see
+  [Upgrading](#upgrading)):
 
   ```sh
   git ls-remote https://github.com/substrait-io/substrait-packaging vcpkg-registry
@@ -99,9 +101,11 @@ name prefixed with the `substrait::` export namespace.
 
 If you also (or instead) consume these packages with `FetchContent` /
 `add_subdirectory`, note the **build-tree ALIAS** names differ:
-`substrait::proto`, `substrait::extensions`, `substrait::antlr`. Aligning the two
-is a recommended upstream change (see [Release maintenance](#release-maintenance));
-until it ships, use the `substrait::substrait_*` names above with this registry.
+`substrait::proto`, `substrait::extensions`, `substrait::antlr`. Every version
+published so far predates the name-alignment change, so `find_package` gives the
+`substrait::substrait_*` names in the table above. That change has since landed in the
+package sources, so releases cut from them expose the short `substrait::*` names via
+`find_package` too — check the release you pin (see [Release maintenance](#release-maintenance)).
 
 ---
 
@@ -118,13 +122,14 @@ You have three ways to deal with this:
 ### 1. Pin occasionally, select by semver
 
 Between baseline bumps you can choose **any package version that already exists at
-the pinned commit** — you edit a semver string, not a SHA. In `vcpkg.json`:
+the pinned commit** — you edit a semver string, not a SHA. The available versions are
+listed in `versions/s-/substrait-<pkg>.json`. In `vcpkg.json`:
 
 ```json
 {
   "dependencies": ["substrait-protobuf"],
   "overrides": [
-    { "name": "substrait-protobuf", "version": "0.89.0-alpha" }
+    { "name": "substrait-protobuf", "version": "0.96.0-alpha" }
   ]
 }
 ```
@@ -134,7 +139,7 @@ or a minimum-version constraint:
 ```json
 {
   "dependencies": [
-    { "name": "substrait-protobuf", "version>=": "0.89.0-alpha" }
+    { "name": "substrait-protobuf", "version>=": "0.96.0-alpha" }
   ]
 }
 ```
@@ -231,36 +236,26 @@ Then confirm a consumer project can `find_package(SubstraitProtobuf CONFIG REQUI
 and link `substrait::substrait_proto`. (All three ports were validated end-to-end on
 `arm64-osx`, both via overlay and via git-registry resolution.)
 
-### Recommended upstream changes (to simplify future ports)
+### Upstream CMake support (landed) and the antlr patch transition
 
-These live in the package sources on `main`; landing them lets future release tags
-ship cleaner ports:
+The C++ package sources now support being built by a package manager and align their
+exported target names, so ports for releases cut from them get simpler:
 
-- **`substrait-antlr` runtime under vcpkg.** vcpkg blocks network during builds, so
-  the package's hermetic `FetchContent` of the ANTLR C++ runtime cannot run. This
-  port therefore carries two patches (see `ports/substrait-antlr/*.patch`):
-  - `use-vcpkg-antlr-runtime.patch` — when the runtime is not supplied by a parent
-    target, `find_package(antlr4-runtime CONFIG REQUIRED)` and link the
-    `antlr4_static`/`antlr4_shared` target the [`antlr4`](https://github.com/microsoft/vcpkg/tree/master/ports/antlr4)
-    port provides (selected by triplet linkage).
-  - `find-dependency-antlr-runtime.patch` — add `find_dependency(antlr4-runtime)` to
-    the installed `SubstraitAntlrConfig.cmake` so `find_package(SubstraitAntlr)`
-    consumers get the runtime target transitively.
+- **`substrait-antlr` external runtime.** vcpkg blocks the network during builds, so the
+  package's hermetic `FetchContent` of the ANTLR C++ runtime can't run. Releases cut
+  *before* this landed need two patches (`ports/substrait-antlr/*.patch`):
+  `use-vcpkg-antlr-runtime.patch` (import the runtime via `find_package(antlr4-runtime)`
+  and link the `antlr4_static`/`antlr4_shared` target the
+  [`antlr4`](https://github.com/microsoft/vcpkg/tree/master/ports/antlr4) port provides)
+  and `find-dependency-antlr-runtime.patch` (add `find_dependency(antlr4-runtime)` to the
+  installed `SubstraitAntlrConfig.cmake`). The sources now do this natively, guarded so
+  the hermetic build is unchanged.
+- **Exported target names.** The sources now set `EXPORT_NAME` so `find_package` exposes
+  `substrait::{proto,extensions,antlr}`, matching the `FetchContent` ALIASes.
 
-  Folding equivalent logic into `cpp/substrait-antlr/CMakeLists.txt` and
-  `SubstraitAntlrConfig.cmake.in` upstream (guarded so the hermetic `FetchContent`
-  build is unchanged) would let future ports **drop these patches**.
-
-- **Align exported target names with the build-tree ALIASes.** `find_package`
-  currently exposes `substrait::substrait_{proto,extensions,antlr}` while the
-  `FetchContent` build-tree ALIASes are `substrait::{proto,extensions,antlr}`.
-  Adding, in each package's `CMakeLists.txt`:
-
-  ```cmake
-  set_target_properties(substrait_proto PROPERTIES EXPORT_NAME proto)        # substrait-protobuf
-  set_target_properties(substrait_extensions PROPERTIES EXPORT_NAME extensions)  # substrait-extensions
-  set_target_properties(substrait_antlr PROPERTIES EXPORT_NAME antlr)        # substrait-antlr
-  ```
-
-  makes both consumption paths expose the same `substrait::{proto,extensions,antlr}`
-  names. Update this README's target-name table when that ships in a release.
+**Transition — when you register the first release cut from the updated sources:** in the
+same bump that points `REF` at that tag, remove the `PATCHES` block and the two
+`ports/substrait-antlr/*.patch` files. The patches no longer apply to that source, so the
+local build (`vcpkg install … --overlay-ports`) fails if they're left in. From that
+version on, `find_package` exposes the short target names — update the table at the top of
+this README for that version onward.
