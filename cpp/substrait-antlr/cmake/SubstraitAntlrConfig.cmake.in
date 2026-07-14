@@ -1,5 +1,15 @@
 @PACKAGE_INIT@
 
+# When this package was built against an ANTLR C++ runtime imported as an
+# installed package (find_package(antlr4-runtime)), the exported substrait_antlr
+# target links that runtime's antlr4_static/antlr4_shared target, so consumers
+# must be able to import it too. Hermetic (FetchContent) and parent-provided
+# builds leave this unset and need no such dependency.
+if(@SUBSTRAIT_ANTLR_IMPORT_RUNTIME_PACKAGE@)
+  include(CMakeFindDependencyMacro)
+  find_dependency(antlr4-runtime)
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/SubstraitAntlrTargets.cmake")
 
 check_required_components(SubstraitAntlr)

@@ -37,6 +37,9 @@ file(MAKE_DIRECTORY "${SUBSTRAIT_PROTO_GEN_DIR}")
 
 add_library(substrait_proto)
 add_library(substrait::proto ALIAS substrait_proto)
+# Export as substrait::proto (matching the build-tree ALIAS) for find_package()
+# consumers, instead of the default substrait::substrait_proto.
+set_target_properties(substrait_proto PROPERTIES EXPORT_NAME proto)
 
 # Generate the C++ sources into the build tree and attach them to the target.
 protobuf_generate(

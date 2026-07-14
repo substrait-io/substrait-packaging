@@ -24,6 +24,12 @@ set(SUBSTRAIT_ANTLR_VERSION
 option(SUBSTRAIT_ANTLR_USE_EXISTING_RUNTIME
        "Link an antlr4 runtime target provided by the parent project" OFF)
 
+# Set to ON below only when this project imports the ANTLR C++ runtime as an
+# installed package (via find_package) rather than building it hermetically or
+# reusing a parent target. The installed package config uses it to decide
+# whether to re-find that runtime for downstream find_package() consumers.
+set(SUBSTRAIT_ANTLR_IMPORT_RUNTIME_PACKAGE OFF)
+
 if(NOT SUBSTRAIT_ANTLR_USE_EXISTING_RUNTIME)
   include(FetchContent)
   set(ANTLR_BUILD_CPP_TESTS
@@ -51,6 +57,14 @@ if(NOT SUBSTRAIT_ANTLR_USE_EXISTING_RUNTIME)
     GIT_SHALLOW TRUE
     SOURCE_SUBDIR runtime/Cpp)
   FetchContent_MakeAvailable(antlr4_runtime)
+elseif(NOT TARGET antlr4_static AND NOT TARGET antlr4_shared)
+  # No parent-provided runtime target: import one as an installed package. The
+  # vcpkg `antlr4` port (and other packagers) ship the `antlr4-runtime` CMake
+  # config with an antlr4_static (static triplets) or antlr4_shared (dynamic
+  # triplets) target. Building the runtime via FetchContent here is not always
+  # possible (e.g. vcpkg isolates the network during builds).
+  find_package(antlr4-runtime CONFIG REQUIRED)
+  set(SUBSTRAIT_ANTLR_IMPORT_RUNTIME_PACKAGE ON)
 endif()
 
 # Compile the committed, generated parser sources.
@@ -67,7 +81,17 @@ endif()
 
 add_library(substrait_antlr ${SUBSTRAIT_ANTLR_SOURCES})
 add_library(substrait::antlr ALIAS substrait_antlr)
-target_link_libraries(substrait_antlr PUBLIC antlr4_static)
+# Export as substrait::antlr (matching the build-tree ALIAS) for find_package()
+# consumers, instead of the default substrait::substrait_antlr.
+set_target_properties(substrait_antlr PROPERTIES EXPORT_NAME antlr)
+# The ANTLR runtime target name depends on how it was provided: the hermetic
+# FetchContent build and static triplets expose antlr4_static; dynamic triplets
+# expose antlr4_shared.
+if(TARGET antlr4_shared)
+  target_link_libraries(substrait_antlr PUBLIC antlr4_shared)
+else()
+  target_link_libraries(substrait_antlr PUBLIC antlr4_static)
+endif()
 target_compile_features(substrait_antlr PUBLIC cxx_std_17)
 target_include_directories(
   substrait_antlr
