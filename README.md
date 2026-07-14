@@ -129,7 +129,7 @@ listed in `versions/s-/substrait-<pkg>.json`. In `vcpkg.json`:
 {
   "dependencies": ["substrait-protobuf"],
   "overrides": [
-    { "name": "substrait-protobuf", "version": "0.96.0-alpha" }
+    { "name": "substrait-protobuf", "version": "<version>" }
   ]
 }
 ```
@@ -139,7 +139,7 @@ or a minimum-version constraint:
 ```json
 {
   "dependencies": [
-    { "name": "substrait-protobuf", "version>=": "0.96.0-alpha" }
+    { "name": "substrait-protobuf", "version>=": "<version>" }
   ]
 }
 ```
