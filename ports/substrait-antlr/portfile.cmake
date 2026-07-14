@@ -1,24 +1,15 @@
-# substrait-antlr: compiles the committed, generated ANTLR parser sources.
+# substrait-antlr: compiles the committed, generated ANTLR parser sources against
+# the ANTLR C++ runtime from the vcpkg `antlr4` port.
 #
-# The upstream CMakeLists builds the ANTLR C++ runtime hermetically via
-# FetchContent, which cannot run inside vcpkg's network-isolated build. The
-# patches below make it consume the runtime from the `antlr4` port instead:
-#   * use-vcpkg-antlr-runtime.patch   -> find_package(antlr4-runtime) + link the
-#                                        antlr4_static/antlr4_shared target it
-#                                        provides (selected by triplet linkage).
-#   * find-dependency-antlr-runtime.patch -> find_dependency(antlr4-runtime) in
-#                                        the installed SubstraitAntlrConfig so
-#                                        find_package(SubstraitAntlr) consumers
-#                                        pull the runtime target transitively.
-# Both changes are recommended upstream so future release tags drop these patches
-# (see the registry README, "Release maintenance").
+# SUBSTRAIT_ANTLR_USE_EXISTING_RUNTIME=ON makes the package import that runtime via
+# find_package(antlr4-runtime) rather than building it hermetically with FetchContent
+# (which cannot run inside vcpkg's network-isolated build). That support is built into
+# the package sources as of cpp/substrait-antlr/v0.89.0-alpha.1; earlier release tags
+# needed local patches here, which are no longer required now the source handles it.
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/substrait-io/substrait-packaging
-    REF 5420bfe26717eec7f33a4e51a22da2bb64a3cbfb # cpp/substrait-antlr/v0.97.0-alpha
-    PATCHES
-        use-vcpkg-antlr-runtime.patch
-        find-dependency-antlr-runtime.patch)
+    REF 9d823d6e124e37f6c3d2ef3f803c812b48c4f270) # cpp/substrait-antlr/v0.89.0-alpha.1
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}/cpp/substrait-antlr"
