@@ -126,3 +126,15 @@ jobs:
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
+
+  # Register the freshly pushed tag in the vcpkg registry (bump the port, run
+  # vcpkg x-add-version, push to the registry branch). Runs only when a new tag
+  # was published, after the publish job succeeds.
+  cpp-antlr-registry:
+    needs: [cpp-antlr-prechecks, cpp-antlr-publish]
+    if: needs.cpp-antlr-prechecks.outputs.tag_exists == 'false'
+    uses: ./.github/workflows/cpp_registry.yml
+    secrets: inherit
+    with:
+      package: substrait-antlr
+      version: ${{ needs.cpp-antlr-prechecks.outputs.publish_version }}
