@@ -15,7 +15,7 @@
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/substrait-io/substrait-packaging
-    REF 4a0f7269f01dfb36792d9ca6a08c6eaa73d9db40 # cpp/substrait-antlr/v0.89.0-alpha
+    REF bae509ae2fd982d0c1b3efea54ed23e90c224955 # cpp/substrait-antlr/v0.96.0-alpha
     PATCHES
         use-vcpkg-antlr-runtime.patch
         find-dependency-antlr-runtime.patch)
