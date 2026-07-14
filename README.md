@@ -42,7 +42,7 @@ pull transitive dependencies (`protobuf` for `substrait-protobuf`, `antlr4` for
       "kind": "git",
       "repository": "https://github.com/substrait-io/substrait-packaging",
       "reference": "vcpkg-registry",
-      "baseline": "326b88777d91aa59b61a1a16273cd5c0bc4a4408",
+      "baseline": "<latest commit on the vcpkg-registry branch — see below>",
       "packages": ["substrait-protobuf", "substrait-extensions", "substrait-antlr"]
     }
   ]
@@ -50,9 +50,9 @@ pull transitive dependencies (`protobuf` for `substrait-protobuf`, `antlr4` for
 ```
 
 - `reference` is the branch this registry lives on (`vcpkg-registry`).
-- `baseline` is a **commit SHA on that branch** — it resolves every version published
-  as of that commit. Use the current branch tip to pick up newer releases (see
-  [Upgrading](#upgrading)):
+- `baseline` is a **commit SHA on that branch** — pin the current tip to get every
+  release published so far (or an earlier commit to freeze what you resolve; see
+  [Upgrading](#upgrading)). Get the tip with:
 
   ```sh
   git ls-remote https://github.com/substrait-io/substrait-packaging vcpkg-registry
