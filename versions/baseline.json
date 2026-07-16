@@ -5,7 +5,7 @@
       "port-version": 0
     },
     "substrait-extensions": {
-      "baseline": "0.96.0",
+      "baseline": "0.97.0",
       "port-version": 0
     },
     "substrait-protobuf": {

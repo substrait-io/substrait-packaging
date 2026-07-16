@@ -4,7 +4,7 @@
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/substrait-io/substrait-packaging
-    REF 7c87c0665b853c9bb4bb5f040e1b73bb370c2e8d) # cpp/substrait-extensions/v0.96.0
+    REF 3cd4c736c039d69293255425a5c11d842e0a6432) # cpp/substrait-extensions/v0.97.0
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}/cpp/substrait-extensions"
