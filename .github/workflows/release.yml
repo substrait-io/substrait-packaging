@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  schedule:
+    # 2 AM on Sunday
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+
+# we do not want more than one release workflow executing at the same time, ever
+concurrency:
+  group: release
+  # cancelling in the middle of a release would create incomplete releases
+  # so cancel-in-progress is false
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.repository == 'substrait-io/substrait'
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: generate-token
+        with:
+          client-id: ${{ secrets.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          # request token for both substrait and substrait-packaging repos
+          # for ci/release/notify.sh
+          repositories: |
+            substrait
+            substrait-packaging
+
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - uses: prefix-dev/setup-pixi@v0.9.5
+        with:
+          pixi-version: v0.66.0
+          cache: true
+
+      - name: run semantic-release
+        run: pixi run release
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
