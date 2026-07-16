@@ -1,6 +1,6 @@
 {
   "name": "substrait-antlr",
-  "version-semver": "0.91.0",
+  "version-semver": "0.92.0",
   "description": "Substrait ANTLR parsers for C++. Ships the committed generated parser sources compiled against the ANTLR C++ runtime provided by the antlr4 port.",
   "homepage": "https://github.com/substrait-io/substrait-packaging",
   "license": "Apache-2.0",
