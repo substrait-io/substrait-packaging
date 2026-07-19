@@ -1,6 +1,6 @@
 {
   "name": "substrait-extensions",
-  "version-semver": "0.97.0",
+  "version-semver": "0.98.0",
   "description": "Substrait extension definitions, text schemas and function test cases as installed data. Data-only: exposes an INTERFACE target and a SubstraitExtensions_DATA_DIR CMake variable pointing at the installed spec files; consumers do their own typed parsing.",
   "homepage": "https://github.com/substrait-io/substrait-packaging",
   "license": "Apache-2.0",
