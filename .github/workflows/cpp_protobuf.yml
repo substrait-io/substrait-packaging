@@ -15,7 +15,7 @@ on:
       alpha:
         description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
         required: false
-        default: true
+        default: false
         type: boolean
   workflow_dispatch:
     inputs:
@@ -26,7 +26,7 @@ on:
       alpha:
         description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
         required: false
-        default: true
+        default: false
         type: boolean
 
 env:
@@ -41,7 +41,7 @@ jobs:
       tag_name: ${{ steps.resolve.outputs.tag_name }}
       tag_exists: ${{ steps.check-tag.outputs.exists }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -90,14 +90,14 @@ jobs:
           git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
 
       - name: Checkout substrait-packaging
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
           persist-credentials: false
 
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.9.6
+        uses: prefix-dev/setup-pixi@v0.10.0
         with:
           pixi-version: v0.62.2
 
@@ -124,3 +124,15 @@ jobs:
         run: |
           git tag -a "$TAG_NAME" -m "$TAG_NAME"
           git push origin "$TAG_NAME"
+
+  # Register the freshly pushed tag in the vcpkg registry (bump the port, run
+  # vcpkg x-add-version, push to the registry branch). Runs only when a new tag
+  # was published, after the publish job succeeds.
+  cpp-protobuf-registry:
+    needs: [cpp-protobuf-prechecks, cpp-protobuf-publish]
+    if: needs.cpp-protobuf-prechecks.outputs.tag_exists == 'false'
+    uses: ./.github/workflows/cpp_registry.yml
+    secrets: inherit
+    with:
+      package: substrait-protobuf
+      version: ${{ needs.cpp-protobuf-prechecks.outputs.publish_version }}
