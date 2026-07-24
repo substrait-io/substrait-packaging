@@ -7,6 +7,9 @@ platforms = ["linux-64", "osx-64", "osx-arm64", "linux-aarch64"]
 python-generate-antlr = { cmd = "cd python/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR Python parsers" }
 python-generate-protobuf = { cmd = "cd python/substrait-protobuf && ./generate_protobuf.sh", description = "Generate protobuf Python code" }
 python-generate-extensions = { cmd = "cd python/substrait-extensions && ./generate_extensions.sh", description = "Package Substrait extensions files" }
+java-generate-protobuf = { cmd = "cd java && ./gradlew :protobuf:generateProto", description = "Generate protobuf Java code" }
+java-generate-antlr = { cmd = "cd java && ./gradlew :antlr:generateGrammarSource", description = "Generate ANTLR Java parsers" }
+java-build = { cmd = "cd java && ./gradlew build", description = "Build and test all Java artifacts" }
 rust-generate-antlr = { cmd = "cd rust/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR Rust parsers" }
 rust-generate-prost = { cmd = "cd rust/substrait-prost && ./generate_protobuf.sh", description = "Vendor protobuf definitions for the Rust crate" }
 rust-generate-extensions = { cmd = "cd rust/substrait-extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for Rust" }
@@ -20,7 +23,8 @@ buf = ">=1.62.1,<2"
 datamodel-code-generator = ">=0.52.0,<0.53"
 ruff = ">=0.14.10,<0.15"
 uv = ">=0.9.25,<1"
-# Required to run the forked ANTLR JAR for the Rust parser generation.
+# Required to run the forked ANTLR JAR for the Rust parser generation, and to
+# satisfy the Java build's Gradle toolchain (Java 21).
 openjdk = ">=21,<26"
 # C++ packaging: build/test the generated CMake source packages. libprotobuf
 # provides the protobuf C++ library, headers, protoc and the CMake config used

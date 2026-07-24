@@ -1,0 +1,37 @@
+name: Publish Java Artifacts
+run-name: Publish Java Artifacts for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: java-publish
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+
+jobs:
+  publish-java-antlr:
+    uses: ./.github/workflows/java_antlr.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+  publish-java-protobuf:
+    uses: ./.github/workflows/java_protobuf.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+  publish-java-extensions:
+    uses: ./.github/workflows/java_extensions.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
