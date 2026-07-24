@@ -25,7 +25,12 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
+  # TEMPORARILY DISABLED: Java publishing is blocked on a Maven Central Portal 403 while the
+  # `io.substrait` namespace is authorized for the publishing account. The Java workflows remain
+  # manually dispatchable (java_publish.yml / java_*.yml) so the fix can be verified. Re-enable by
+  # removing the `if: false` guard below once the Central Portal credentials/namespace are sorted.
   publish-java-artifacts:
+    if: false
     uses: ./.github/workflows/java_publish.yml
     secrets: inherit
     with:
