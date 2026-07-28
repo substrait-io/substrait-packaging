@@ -124,8 +124,4 @@ jobs:
           SIGNING_KEY_ID: ${{ secrets.M2_SIGNING_KEY_ID }}
           SIGNING_KEY: ${{ secrets.M2_SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.M2_SIGNING_PASSWORD }}
-        # TODO: publish SNAPSHOTs while validating the release pipeline end-to-end (these can be
-        # consumed from the Central Snapshots repo, e.g. by substrait-java). Swap to
-        # `publishAggregationToCentralPortal` with a non-SNAPSHOT version in a follow-up to publish
-        # released artifacts to Maven Central.
-        run: ./gradlew publishAggregationToCentralSnapshots -PpublishArtifact=antlr -Pversion=${SUBSTRAIT_VERSION#v}-SNAPSHOT
+        run: ./gradlew publishAggregationToCentralPortal -PpublishArtifact=antlr -Pversion=${SUBSTRAIT_VERSION#v}
