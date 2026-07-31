@@ -1,0 +1,124 @@
+name: PR Build Check
+
+on:
+  pull_request:
+jobs:
+  site:
+    name: Build Website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Generate Static Site
+        run: pixi run mkdocs build
+  editorconfig-checker:
+    name: Check editorconfig
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Run editorconfig-checker
+        run: pixi run editorconfig-checker
+  proto-format-check:
+    name: Check Protobuf Style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Lint Protobuf
+        run: pixi run lint-protobuf
+      - name: Check Protobuf Style
+        run: pixi run check-protobuf
+  proto:
+    name: Check Protobuf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Compile protobuf
+        run: pixi run generate-protobuf
+  yamllint:
+    name: Lint YAML extensions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Run yamllint
+        run: pixi run yamllint
+  yamlvalidate:
+    name: Validate YAML extensions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Validate YAML extensions
+        run: |
+          pixi run check-jsonschema --schemafile text/simple_extensions_schema.yaml extensions/*.yaml
+          pixi run check-jsonschema --schemafile text/simple_extensions_schema.yaml site/examples/**/*.yaml
+          pixi run check-jsonschema --schemafile text/dialect_schema.yaml dialects/tests/*.yaml
+  dry_run_release:
+    name: Dry-run release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Dry-run release
+        run: pixi run dry-run
+  python-style:
+    name: Style-check and lint Python files, and run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Generate protobuf bindings
+        run: pixi run generate-protobuf
+      - name: Black
+        run: pixi run black
+      - name: Flake8
+        run: pixi run flake8
+      - name: Run tests including test_substrait_extension_coverage
+        run: pixi run test
+  check-proto-prefix:
+    name: Check proto-prefix.py
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          cache: true
+      - name: Run proto-prefix.py
+        run: pixi run tools/proto_prefix.py output test proto go_package=github.com/test/proto
+      - name: Modify buf config to build rewritten proto files
+        run: |
+          echo "version: v1" > buf.work.yaml
+          echo "directories:" >> buf.work.yaml
+          echo "  - output" >> buf.work.yaml
+      - name: Compile rewritten proto files
+        run: pixi run generate-protobuf
