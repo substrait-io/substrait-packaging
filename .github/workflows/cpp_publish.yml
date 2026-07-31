@@ -12,22 +12,12 @@ on:
         description: Substrait version to publish artifacts for
         required: true
         type: string
-      alpha:
-        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
-        required: false
-        default: false
-        type: boolean
   workflow_dispatch:
     inputs:
       substrait_version:
         description: Substrait version to publish artifacts for
         required: true
         type: string
-      alpha:
-        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   publish-cpp-protobuf:
@@ -35,16 +25,13 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
-      alpha: ${{ inputs.alpha }}
   publish-cpp-antlr:
     uses: ./.github/workflows/cpp_antlr.yml
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
-      alpha: ${{ inputs.alpha }}
   publish-cpp-extensions:
     uses: ./.github/workflows/cpp_extensions.yml
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
-      alpha: ${{ inputs.alpha }}
