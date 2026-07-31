@@ -79,7 +79,7 @@ jobs:
       - name: Install pixi
         uses: prefix-dev/setup-pixi@v0.10.0
         with:
-          pixi-version: v0.62.2
+          pixi-version: v0.73.0
 
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
