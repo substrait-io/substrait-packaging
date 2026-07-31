@@ -12,10 +12,9 @@ VERSION="$2"
 # Strip leading 'v' from version (crates.io versions are bare semver).
 VERSION="${VERSION#v}"
 
-# Validate the version matches the expected x.y.z format, optionally with an
-# alpha pre-release suffix (x.y.z-alpha or x.y.z-alpha.N).
-if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-alpha(\.[0-9]+)?)?$'; then
-  echo "Error: version must follow the format x.y.z[-alpha[.N]], received: $VERSION"
+# Validate the version matches the expected x.y.z format.
+if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+  echo "Error: version must follow the format x.y.z, received: $VERSION"
   exit 2
 fi
 
