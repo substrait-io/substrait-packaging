@@ -11,11 +11,9 @@ match the Substrait specification release they are generated from:
   and types generated from the text schemas (`typify`).
 - [`substrait-antlr`](substrait-antlr) — generated ANTLR parsers (`antlr4rust`).
 
-## Alpha pre-releases
+## Publishing
 
-The publish workflows accept an `alpha` input (currently defaulting to `true`)
-that publishes auto-incrementing alpha pre-releases so a spec version can be
-published repeatedly while the pipeline is validated. The first alpha for a spec
-version is `x.y.z-alpha`, and each subsequent publish bumps the index
-(`x.y.z-alpha.1`, `x.y.z-alpha.2`, …) past whatever already exists on crates.io
-for that version. Set `alpha: false` to publish a final `x.y.z` release instead.
+The publish workflows are driven by the spec release pipeline and publish a
+final `x.y.z` crate matching the Substrait specification version. Publishes are
+idempotent: a crate version that already exists on crates.io is skipped, so a
+partially failed release can be re-run safely.
