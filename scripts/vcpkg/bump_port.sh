@@ -12,12 +12,12 @@ set -eu
 
 if [ "$#" -lt 3 ] || [ "$#" -gt 4 ]; then
   echo "Usage: $0 <package> <version> <commit-sha> [registry-dir]" >&2
-  echo "  e.g. $0 substrait-protobuf 0.96.0-alpha a59c0622... ." >&2
+  echo "  e.g. $0 substrait-protobuf 0.96.0 a59c0622... ." >&2
   exit 1
 fi
 
 PACKAGE="$1"   # substrait-protobuf | substrait-antlr | substrait-extensions
-VERSION="$2"   # x.y.z[-alpha[.N]] (no leading 'v')
+VERSION="$2"   # x.y.z (no leading 'v')
 SHA="$3"       # dereferenced (peeled) commit SHA of the annotated release tag
 REGISTRY_DIR="${4:-.}"
 
@@ -29,8 +29,8 @@ if ! printf '%s' "$SHA" | grep -qE '^[0-9a-f]{40}$'; then
 fi
 
 # Match the tag/version grammar used elsewhere (see scripts/tag_exists.sh).
-if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-alpha(\.[0-9]+)?)?$'; then
-  echo "Error: version must be x.y.z[-alpha[.N]], received: $VERSION" >&2
+if ! printf '%s' "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+  echo "Error: version must be x.y.z, received: $VERSION" >&2
   exit 2
 fi
 
@@ -44,7 +44,7 @@ for f in "$MANIFEST" "$PORTFILE"; do
   fi
 done
 
-# --- vcpkg.json: set the published version (semver, incl. -alpha pre-releases).
+# --- vcpkg.json: set the published version.
 tmp="$(mktemp)"
 jq --arg v "$VERSION" '.["version-semver"] = $v' "$MANIFEST" > "$tmp"
 mv "$tmp" "$MANIFEST"
@@ -52,8 +52,8 @@ mv "$tmp" "$MANIFEST"
 # --- portfile.cmake: repoint the REF line's SHA and its trailing tag comment.
 # Both port shapes keep the SHA and a `# cpp/<package>/vX.Y.Z` comment on the
 # REF line, whether or not a PATCHES block follows:
-#   REF <sha>) # cpp/substrait-protobuf/v0.89.0-alpha      (protobuf/extensions)
-#   REF <sha> # cpp/substrait-antlr/v0.89.0-alpha          (antlr, PATCHES below)
+#   REF <sha>) # cpp/substrait-protobuf/v0.89.0      (protobuf/extensions)
+#   REF <sha> # cpp/substrait-antlr/v0.89.0          (antlr, PATCHES below)
 SHA="$SHA" VERSION="$VERSION" PACKAGE="$PACKAGE" perl -i -pe '
   next unless /^\s*REF\s+[0-9a-f]{40}\b/;
   s/[0-9a-f]{40}/$ENV{SHA}/;

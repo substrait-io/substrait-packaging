@@ -18,7 +18,7 @@ on:
         required: true
         type: string
       version:
-        description: Published version, e.g. 0.96.0-alpha (no leading 'v')
+        description: Published version, e.g. 0.96.0 (no leading 'v')
         required: true
         type: string
   workflow_dispatch:
@@ -28,7 +28,7 @@ on:
         required: true
         type: string
       version:
-        description: Published version, e.g. 0.96.0-alpha (no leading 'v')
+        description: Published version, e.g. 0.96.0 (no leading 'v')
         required: true
         type: string
 
