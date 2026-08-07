@@ -35,8 +35,9 @@ var parser = new SubstraitTypeParser(new CommonTokenStream(lexer));
 var tree = parser.typeDef();
 ```
 
-The package targets `netstandard2.0` and `net8.0`, so it is usable from .NET
-Framework 4.6.2+, Mono/Unity and modern .NET alike.
+The package targets `netstandard2.0` and `net10.0`, so it is usable from .NET
+Framework 4.6.2+, Mono/Unity and modern .NET alike — anything older than .NET 10
+resolves the `netstandard2.0` asset.
 
 ## Generation and Publishing
 

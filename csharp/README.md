@@ -17,17 +17,34 @@ metadata live in [`Directory.Build.props`](Directory.Build.props).
 
 ## Target frameworks
 
-The packages multi-target `netstandard2.0` and `net8.0`. `netstandard2.0` keeps
-.NET Framework 4.6.2+, Mono and Unity consumers viable; `net8.0` gives modern
-runtimes the current BCL. Generated specification bindings have no reason to be
-modern-only.
+The packages multi-target `netstandard2.0` and `net10.0`.
+
+`netstandard2.0` does the real work: it keeps .NET Framework 4.6.2+, Mono and
+Unity consumers viable, and it is also what .NET 8 and .NET 9 consumers resolve.
+Generated specification bindings have no reason to be modern-only.
+
+The modern leg is `net10.0` rather than `net8.0` deliberately — .NET 8 leaves
+support in November 2026, and these packages are published on every spec release
+for years. Choosing `net10.0` excludes nobody, because anything older falls back
+to `netstandard2.0`.
+
+Today that leg earns little: none of the sources use an API `netstandard2.0`
+lacks, `Antlr4.Runtime.Standard` publishes no modern asset at all (`net45` and
+`netstandard2.0` only), and a dependency's asset is selected by the consumer's
+own framework rather than by ours. It is kept as headroom for trimming/AOT
+annotations or source generators, and so the package does not advertise an
+out-of-support framework.
+
+### Test coverage of both assets
 
 The test projects target `net10.0` only — a library TFM is not runnable, and the
-SDK ships a single runtime. Running on `net10.0` exercises the `net8.0` asset; the
-`netstandard2.0` asset is validated at compile time by the library build. None of
-the three packages compile differently per TFM, so this is full coverage in
-practice, but a `net472` test project would be needed to exercise the
-`netstandard2.0` asset at runtime.
+SDK ships a single runtime — so they exercise the `net10.0` asset.
+
+The `netstandard2.0` asset gets its runtime coverage from
+`scripts/csharp/smoke_test.sh`, which consumes each packed package twice: once
+from a `net8.0` project, which resolves `netstandard2.0` since `net10.0` is not
+compatible, and once from a `net10.0` project. Between the two passes both
+published assets are executed, not merely compiled.
 
 ## Code Generation
 

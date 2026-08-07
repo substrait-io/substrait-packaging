@@ -31,8 +31,9 @@ var bytes = plan.ToByteArray();
 var roundTripped = Plan.Parser.ParseFrom(bytes);
 ```
 
-The package targets `netstandard2.0` and `net8.0`, so it is usable from .NET
-Framework 4.6.2+, Mono/Unity and modern .NET alike.
+The package targets `netstandard2.0` and `net10.0`, so it is usable from .NET
+Framework 4.6.2+, Mono/Unity and modern .NET alike — anything older than .NET 10
+resolves the `netstandard2.0` asset.
 
 The `.proto` files are shipped in the package under `proto/` so they can be fed
 to other tooling (or another protobuf implementation) without needing a second

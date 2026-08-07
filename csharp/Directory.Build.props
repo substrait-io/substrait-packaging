@@ -11,11 +11,21 @@
 
   <PropertyGroup>
     <!--
-      netstandard2.0 keeps .NET Framework 4.6.2+, Mono and Unity consumers
-      viable; net8.0 gives modern runtimes the current BCL and its fast paths.
+      netstandard2.0 does the real work here: it keeps .NET Framework 4.6.2+,
+      Mono and Unity consumers viable, and it is what .NET 8/9 consumers resolve.
       Generated spec bindings have no reason to be modern-only.
+
+      net10.0 is the modern leg. It is deliberately not net8.0 — that runtime
+      goes out of support in November 2026, and these packages are published on
+      every spec release for years. Nobody is excluded by the choice, since
+      anything older than .NET 10 falls back to netstandard2.0.
+
+      The modern leg earns little today (our own sources use no API that
+      netstandard2.0 lacks, Antlr4.Runtime.Standard ships no modern asset at all,
+      and a dependency's asset is chosen by the consumer's TFM rather than ours).
+      It is kept as headroom for trimming/AOT annotations or source generators.
     -->
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>

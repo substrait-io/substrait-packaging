@@ -4,9 +4,10 @@
   <PropertyGroup>
     <!--
       Overrides the multi-targeting in ../Directory.Build.props: the library
-      ships netstandard2.0 + net8.0, but only a runnable TFM makes sense for
-      tests. Running on net10.0 exercises the net8.0 asset; the netstandard2.0
-      asset is validated at compile time by the library build.
+      ships netstandard2.0 + net10.0, but only a runnable TFM makes sense for
+      tests. These exercise the net10.0 asset; the netstandard2.0 asset gets its
+      runtime coverage from scripts/csharp/smoke_test.sh, which consumes the
+      packed package from a net8.0 project.
     -->
     <TargetFrameworks>net10.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
