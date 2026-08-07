@@ -1,0 +1,38 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Substrait.Antlr</PackageId>
+    <Description>Generated ANTLR parsers for the Substrait type and function test case grammars.</Description>
+    <RootNamespace>Substrait.Antlr</RootNamespace>
+    <!--
+      ANTLR's C# target does not emit nullable annotations (and, unlike protoc,
+      does not emit `#nullable disable` either), so nullable analysis is off for
+      the generated sources this project consists of.
+    -->
+    <Nullable>disable</Nullable>
+    <!--
+      CS3021: ANTLR decorates its output with [CLSCompliant(false)], which the
+      compiler flags as redundant because the assembly declares no CLSCompliant
+      attribute of its own. Suppressing is preferable to adding an assembly
+      attribute the generator did not ask for.
+    -->
+    <NoWarn>$(NoWarn);CS3021</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    The parsers in SubstraitType/ and FuncTestCase/ are committed by
+    generate_antlr.sh and picked up by the SDK's default source globbing; there
+    is no build-time generation step, so consumers and the publish workflow do
+    not need a JDK.
+
+    Antlr4.Runtime.Standard trails the ANTLR tool: 4.13.1 is the newest runtime
+    while pixi pins the tool at >=4.13.2. That is safe — ANTLR's
+    RuntimeMetaData.CheckVersion compares major.minor only — but a tool bump to
+    4.14 would need a matching runtime release before it could be picked up here.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+  </ItemGroup>
+
+</Project>

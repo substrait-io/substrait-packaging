@@ -1,0 +1,37 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Substrait.Extensions</PackageId>
+    <Description>Substrait extension definitions, text schemas and test cases, packaged as embedded resources.</Description>
+    <RootNamespace>Substrait.Extensions</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    The spec data is embedded rather than shipped as loose content files: that is
+    the .NET counterpart to the Java artifact's classpath resources and the Rust
+    crate's include_dir, and it means consumers get the data without a
+    content-file copy step or a dependency on where the package was restored.
+
+    Explicit LogicalNames keep the resource paths identical to the Java
+    artifact's (`substrait/extensions/...`) instead of the SDK's dotted mangling
+    of directory names.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="extensions/*.yaml"
+                      LogicalName="substrait/extensions/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="text/*.yaml"
+                      LogicalName="substrait/text/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="testcases/**/*.test"
+                      LogicalName="substrait/tests/cases/%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="dialects/*.yaml"
+                      LogicalName="substrait/dialects/tests/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!--
+    No package dependencies: this artifact is data plus a resource accessor. YAML
+    parsing and typed models are deliberately left to consumers — see
+    generate_extensions.sh for why there is no generated type layer.
+  -->
+
+</Project>

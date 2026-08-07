@@ -1,0 +1,49 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Substrait.Protobuf</PackageId>
+    <Description>Generated Substrait Protocol Buffer bindings for .NET.</Description>
+    <RootNamespace>Substrait.Protobuf</RootNamespace>
+    <!--
+      Generated protobuf sources carry their own suppressions and are not
+      nullable-annotated. protoc emits `#nullable disable` per file, but the
+      project-level setting is turned off too so the build does not depend on
+      that detail of the generator.
+    -->
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    Compile the vendored protos at build time with Grpc.Tools, which supplies
+    protoc and the C# plugin as a build-only dependency. Nothing generated is
+    committed: `dotnet pack` runs the generator, so the published assembly is
+    always in step with the vendored .proto files (same arrangement as the
+    substrait-prost Rust crate).
+
+    Import paths in the protos are rooted at `substrait/`, so ProtoRoot must be
+    the `proto` directory. The generated namespace comes from the spec's own
+    `option csharp_namespace = "Substrait.Protobuf"` — this package deliberately
+    does not override it.
+  -->
+  <ItemGroup>
+    <Protobuf Include="proto/substrait/**/*.proto" ProtoRoot="proto" GrpcServices="None" />
+  </ItemGroup>
+
+  <!--
+    Ship the .proto files alongside the compiled bindings so consumers can feed
+    them to their own codegen or tooling without a second source of truth.
+  -->
+  <ItemGroup>
+    <None Include="proto/**/*.proto" Pack="true" PackagePath="proto/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.35.1" />
+    <PackageReference Include="Grpc.Tools" Version="2.83.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

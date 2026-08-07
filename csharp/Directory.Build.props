@@ -1,0 +1,64 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<Project>
+
+  <!--
+    Shared build settings for every C# artifact in this directory.
+
+    The three packages (Substrait.Protobuf, Substrait.Antlr,
+    Substrait.Extensions) are versioned and published independently, exactly
+    like the Python/Rust/C++ artifacts, so nothing here couples them together.
+  -->
+
+  <PropertyGroup>
+    <!--
+      netstandard2.0 keeps .NET Framework 4.6.2+, Mono and Unity consumers
+      viable; net8.0 gives modern runtimes the current BCL and its fast paths.
+      Generated spec bindings have no reason to be modern-only.
+    -->
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--
+      CS1591 (missing XML doc): the generated bindings document what the spec
+      documents and no more; requiring docs on every generated member would
+      mean patching generator output.
+    -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <!--
+      Version is a placeholder in-tree. The publish workflows pass the spec
+      version at pack time via -p:Version=x.y.z, mirroring how the Python and
+      Rust workflows set the version out-of-band rather than committing it.
+    -->
+    <Version>0.0.0</Version>
+  </PropertyGroup>
+
+  <!-- NuGet package metadata. PackageId/Description stay per-project. -->
+  <PropertyGroup>
+    <Authors>Substrait Contributors</Authors>
+    <Company>Substrait</Company>
+    <Copyright>Copyright Substrait Contributors</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://substrait.io</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/substrait-io/substrait-packaging</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>substrait</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <!-- Reproducible builds and debuggable published packages. -->
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
