@@ -20,6 +20,9 @@ var textFS embed.FS
 //go:embed tests/cases
 var testsFS embed.FS
 
+//go:embed examples
+var examplesFS embed.FS
+
 // GetSubstraitFS returns an embed.FS containing the Substrait extension
 // definition YAML files under the "extensions" directory.
 //
@@ -38,3 +41,13 @@ func GetSubstraitTextFS() embed.FS { return textFS }
 // GetSubstraitTestsFS returns an embed.FS containing the Substrait function
 // test case files under the "tests/cases" directory.
 func GetSubstraitTestsFS() embed.FS { return testsFS }
+
+// GetSubstraitExamplesFS returns an embed.FS containing the example extension
+// and type YAML files from the specification's documentation, under the
+// "examples/extensions" and "examples/types" directories.
+//
+// These are illustrations of the simple-extension format, not entries in the
+// Substrait extension catalog: they are deliberately absent from the FS returned
+// by GetSubstraitExtensionsFS, and their contents and URNs may change without a
+// deprecation cycle. They are useful as fixtures for testing an extension parser.
+func GetSubstraitExamplesFS() embed.FS { return examplesFS }
