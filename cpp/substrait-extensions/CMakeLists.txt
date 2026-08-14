@@ -42,6 +42,7 @@ install(TARGETS substrait_extensions EXPORT SubstraitExtensionsTargets)
 # kept out of the installed data tree.
 install(
   DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/extensions"
+            "${CMAKE_CURRENT_SOURCE_DIR}/examples"
             "${CMAKE_CURRENT_SOURCE_DIR}/text"
   DESTINATION "${SUBSTRAIT_EXTENSIONS_INSTALL_DATADIR}"
   OPTIONAL)

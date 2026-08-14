@@ -5,6 +5,7 @@ SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
 TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
+EXAMPLES_DIR="$SUBSTRAIT_HOME/site/examples"
 
 echo "Vendoring Substrait extension files from $SUBSTRAIT_HOME"
 
@@ -24,3 +25,14 @@ cp "$TEXT_DIR"/*.yaml text/
 rm -rf testcases
 mkdir -p testcases
 cp -r "$TESTCASES_DIR"/. testcases/
+
+# Copy the example extension and type YAML files. The crate embeds these via
+# include_dir. They live outside `extensions/` on purpose: `build.rs` walks that
+# directory to build the EXTENSIONS map and the SIMPLE_EXTENSIONS URN table, and
+# examples are documentation illustrations rather than catalog entries. The plan
+# examples in `site/examples/proto-textformat` are not vendored here -- they are
+# protobuf, not simple-extension YAML.
+rm -rf examples
+mkdir -p examples
+cp -r "$EXAMPLES_DIR/extensions" examples/
+cp -r "$EXAMPLES_DIR/types" examples/

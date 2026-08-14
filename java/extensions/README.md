@@ -12,6 +12,10 @@ Files are bundled on the classpath under the `substrait/` prefix:
 - `substrait/extensions/` — Substrait extension YAML files (functions, types, type variations).
 - `substrait/text/` — Substrait schema files (`simple_extensions_schema.yaml`, `dialect_schema.yaml`).
 - `substrait/tests/cases/` — Substrait function test case files.
+- `substrait/examples/` — example extension and type YAML files from the
+  specification's documentation, under `examples/extensions/` and `examples/types/`.
+
+Examples are **not** catalog entries: their URNs use the `extension:org.example:` owner rather than `extension:io.substrait:`, they are deliberately absent from the extension lookups, and their contents and URNs may change without a deprecation cycle. They ship as fixtures for exercising an extension parser against the corners of the simple-extension schema.
 
 Maven coordinates:
 

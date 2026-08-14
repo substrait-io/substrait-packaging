@@ -33,6 +33,10 @@ namespaces = true
 "substrait_extensions.dialects" = ["*.yaml"]
 "substrait_extensions.extensions" = ["*.yaml"]
 "substrait_extensions.testcases" = ["*/*.test"]
+# The examples are nested one level deeper (examples/extensions, examples/types).
+# package-data globs are per-package and not recursive, so this is declared on the
+# top-level package rather than on each examples subpackage.
+"substrait_extensions" = ["examples/**/*.yaml"]
 
 [build-system]
 requires = ["setuptools>=80"]
