@@ -18,6 +18,12 @@
 //!   extension), and the [`extensions::SIMPLE_EXTENSIONS`] slice (keyed by URN
 //!   to the raw YAML source).
 //! - [`testcases`] — the embedded function test case files.
+//! - [`examples`] — the embedded example extension and type YAML files from the
+//!   specification's documentation. These are illustrations, not catalog
+//!   entries: they are deliberately absent from [`extensions::EXTENSIONS`] and
+//!   [`extensions::SIMPLE_EXTENSIONS`], their URNs use the
+//!   `extension:org.example:` owner, and they carry no compatibility guarantee.
+//!   They are useful as fixtures for testing an extension parser.
 
 /// Types generated from the Substrait text-based JSON schemas, plus the raw
 /// schema sources as `&str` consts (e.g. `SIMPLE_EXTENSIONS_SCHEMA`).
@@ -48,4 +54,19 @@ pub mod testcases {
 
     /// The directory tree of `.test` function test case files.
     pub static TESTCASES: Dir<'static> = include_dir!("$CARGO_MANIFEST_DIR/testcases");
+}
+
+/// The embedded example extension and type YAML files.
+///
+/// These come from the specification's documentation (`site/examples`) and are
+/// illustrations of the simple-extension format, not entries in the Substrait
+/// extension catalog. They are not registered in [`extensions::EXTENSIONS`] or
+/// [`extensions::SIMPLE_EXTENSIONS`], and their contents and URNs may change
+/// without a deprecation cycle.
+pub mod examples {
+    use include_dir::{include_dir, Dir};
+
+    /// The directory tree of example `.yaml` files, under `extensions/` and
+    /// `types/`.
+    pub static EXAMPLES: Dir<'static> = include_dir!("$CARGO_MANIFEST_DIR/examples");
 }

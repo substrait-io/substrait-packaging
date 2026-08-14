@@ -12,14 +12,16 @@ repository = "https://github.com/substrait-io/substrait-packaging"
 license = "Apache-2.0"
 keywords = ["substrait"]
 build = "build.rs"
-# The extension YAML files, text schemas and test cases are vendored into this
-# directory by `generate_extensions.sh` and shipped in the published crate.
+# The extension YAML files, text schemas, test cases and documentation examples
+# are vendored into this directory by `generate_extensions.sh` and shipped in the
+# published crate.
 include = [
     "build.rs",
     "src/**/*.rs",
     "extensions/**/*.yaml",
     "text/**/*.yaml",
     "testcases/**/*.test",
+    "examples/**/*.yaml",
 ]
 
 [dependencies]

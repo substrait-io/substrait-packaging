@@ -6,10 +6,12 @@ SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
 TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
+EXAMPLES_DIR="$SUBSTRAIT_HOME/site/examples"
 
 DIALECT_TARGET="src/substrait_extensions/dialects"
 EXTENSIONS_TARGET="src/substrait_extensions/extensions"
 TESTCASES_TARGET="src/substrait_extensions/testcases"
+EXAMPLES_TARGET="src/substrait_extensions/examples"
 
 echo "Generating substrait-extensions from $SUBSTRAIT_HOME"
 
@@ -49,3 +51,15 @@ rm -rf "$TESTCASES_TARGET"
 mkdir -p "$TESTCASES_TARGET"
 cp -r "$TESTCASES_DIR"/. "$TESTCASES_TARGET/"
 touch "$TESTCASES_TARGET/__init__.py"
+
+# Step 4: Copy the example extension and type YAML files. These are documentation
+# examples rather than catalog entries -- they are kept in a separate package so a
+# consumer that enumerates `substrait_extensions.extensions` never sees them --
+# and are useful as fixtures for testing an extension parser. The plan examples in
+# `site/examples/proto-textformat` are deliberately not vendored here: they are
+# protobuf, not simple-extension YAML, and belong with the protobuf artifact.
+rm -rf "$EXAMPLES_TARGET"
+mkdir -p "$EXAMPLES_TARGET"
+cp -r "$EXAMPLES_DIR/extensions" "$EXAMPLES_TARGET/"
+cp -r "$EXAMPLES_DIR/types" "$EXAMPLES_TARGET/"
+touch "$EXAMPLES_TARGET/__init__.py"
