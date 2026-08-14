@@ -31,7 +31,11 @@ include_dir = { version = "0.7.4", features = ["glob"] }
 # ::regress::Regex for `pattern` validations.
 regress = "0.11.1"
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = { version = "1.0.145", features = ["preserve_order"] }
+# Deliberately *without* `preserve_order`: that feature is global, so enabling
+# it here would switch `serde_json::Map` to `IndexMap` for every crate in a
+# downstream build with no way to opt out. Insertion order is preserved where it
+# matters by generating `IndexMap` instead (see `build.rs`).
+serde_json = "1.0.145"
 serde_yaml = "0.9.34"
 
 [build-dependencies]

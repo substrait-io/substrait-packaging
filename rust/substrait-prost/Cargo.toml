@@ -42,7 +42,11 @@ prost = "0.14.1"
 prost-reflect = { version = "0.16.4", features = ["derive"], optional = true }
 prost-types = "0.14.1"
 serde = { version = "1.0.228", features = ["derive"], optional = true }
-serde_json = { version = "1.0.145", features = ["preserve_order"], optional = true }
+# Deliberately *without* `preserve_order`: that feature is global, so enabling
+# it here would switch `serde_json::Map` to `IndexMap` for every crate in a
+# downstream build with no way to opt out. Nothing here depends on `Map`
+# iteration order.
+serde_json = { version = "1.0.145", optional = true }
 
 [build-dependencies]
 pbjson-build = { version = "0.9.0", optional = true }
