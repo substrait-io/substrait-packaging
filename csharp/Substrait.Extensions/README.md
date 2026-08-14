@@ -1,15 +1,16 @@
 # Substrait.Extensions
 
-Packaged [Substrait](https://substrait.io/) extension definitions, text schemas
-and test cases for .NET.
+Packaged [Substrait](https://substrait.io/) extension definitions, text schemas,
+test cases and documentation examples for .NET.
 
 The files this package ships come from the
 [substrait repository](https://github.com/substrait-io/substrait):
 [`extensions/`](https://github.com/substrait-io/substrait/tree/main/extensions),
 [`text/`](https://github.com/substrait-io/substrait/tree/main/text),
-[`tests/cases/`](https://github.com/substrait-io/substrait/tree/main/tests/cases)
+[`tests/cases/`](https://github.com/substrait-io/substrait/tree/main/tests/cases),
+[`dialects/tests/`](https://github.com/substrait-io/substrait/tree/main/dialects/tests)
 and
-[`dialects/tests/`](https://github.com/substrait-io/substrait/tree/main/dialects/tests).
+[`site/examples/`](https://github.com/substrait-io/substrait/tree/main/site/examples).
 
 Versions of this package correspond to Substrait
 [releases](https://github.com/substrait-io/substrait/releases). `x.y.z` of
@@ -37,7 +38,15 @@ foreach (var name in SubstraitExtensions.ExtensionFiles)
 
 var schema = SubstraitExtensions.ReadTextSchema("simple_extensions_schema.yaml");
 var addCases = SubstraitExtensions.ReadTestCase("arithmetic/add.test");
+
+// Documentation examples, useful as parser fixtures.
+var distance = SubstraitExtensions.ReadExample("extensions/distance_functions.yaml");
 ```
+
+`Examples` is **not** part of the extension catalog: those files illustrate the
+simple-extension format, their URNs use an example owner rather than
+`extension:io.substrait:`, they are deliberately absent from `ExtensionFiles`, and
+their contents and URNs may change without a deprecation cycle.
 
 The package has no dependencies and targets `netstandard2.0` and `net10.0`, so it
 is usable from .NET Framework 4.6.2+, Mono/Unity and modern .NET alike — anything

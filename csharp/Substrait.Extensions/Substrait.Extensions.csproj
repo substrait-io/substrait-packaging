@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <PackageId>Substrait.Extensions</PackageId>
-    <Description>Substrait extension definitions, text schemas and test cases, packaged as embedded resources.</Description>
+    <Description>Substrait extension definitions, text schemas, test cases and documentation examples, packaged as embedded resources.</Description>
     <RootNamespace>Substrait.Extensions</RootNamespace>
   </PropertyGroup>
 
@@ -26,6 +26,8 @@
                       LogicalName="substrait/tests/cases/%(RecursiveDir)%(Filename)%(Extension)" />
     <EmbeddedResource Include="dialects/*.yaml"
                       LogicalName="substrait/dialects/tests/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="examples/**/*.yaml"
+                      LogicalName="substrait/examples/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <!--

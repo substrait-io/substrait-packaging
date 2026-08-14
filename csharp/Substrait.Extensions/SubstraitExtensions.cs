@@ -22,6 +22,7 @@ public static class SubstraitExtensions
     private const string TextPrefix = "substrait/text/";
     private const string TestCasesPrefix = "substrait/tests/cases/";
     private const string DialectTestsPrefix = "substrait/dialects/tests/";
+    private const string ExamplesPrefix = "substrait/examples/";
 
     private static readonly Assembly Assembly = typeof(SubstraitExtensions).Assembly;
 
@@ -56,6 +57,19 @@ public static class SubstraitExtensions
     /// </summary>
     public static IReadOnlyList<string> DialectTests { get; } = NamesUnder(DialectTestsPrefix);
 
+    /// <summary>
+    /// Example file names, e.g. <c>extensions/distance_functions.yaml</c>.
+    /// </summary>
+    /// <remarks>
+    /// These come from the specification's documentation and illustrate the
+    /// simple-extension format; they are not entries in the Substrait extension
+    /// catalog. They are deliberately absent from <see cref="ExtensionFiles"/>,
+    /// their URNs use an example owner rather than <c>extension:io.substrait:</c>,
+    /// and their contents and URNs may change without a deprecation cycle. They
+    /// are useful as fixtures for exercising an extension parser.
+    /// </remarks>
+    public static IReadOnlyList<string> Examples { get; } = NamesUnder(ExamplesPrefix);
+
     /// <summary>Reads an extension definition file listed in <see cref="ExtensionFiles"/>.</summary>
     public static string ReadExtensionFile(string name) => ReadResource(ExtensionsPrefix + name);
 
@@ -67,6 +81,9 @@ public static class SubstraitExtensions
 
     /// <summary>Reads a dialect test fixture listed in <see cref="DialectTests"/>.</summary>
     public static string ReadDialectTest(string name) => ReadResource(DialectTestsPrefix + name);
+
+    /// <summary>Reads an example file listed in <see cref="Examples"/>.</summary>
+    public static string ReadExample(string name) => ReadResource(ExamplesPrefix + name);
 
     /// <summary>
     /// Reads an embedded file by its full <c>substrait/</c>-rooted path.

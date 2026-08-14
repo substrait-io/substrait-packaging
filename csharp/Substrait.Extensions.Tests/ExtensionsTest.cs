@@ -36,6 +36,31 @@ public class ExtensionsTest
     }
 
     [Fact]
+    public void ExampleFilesBundled()
+    {
+        Assert.NotEmpty(SubstraitExtensions.ReadExample("extensions/distance_functions.yaml"));
+        Assert.NotEmpty(SubstraitExtensions.ReadExample("types/user_defined_point.yaml"));
+
+        // Both example trees are present, and the nested path survives the
+        // RecursiveDir LogicalName mapping.
+        Assert.Contains("extensions/distance_functions.yaml", SubstraitExtensions.Examples);
+        Assert.Contains("types/user_defined_point.yaml", SubstraitExtensions.Examples);
+    }
+
+    [Fact]
+    public void ExamplesAreNotBundledAsExtensions()
+    {
+        // The examples are illustrations, not catalog entries: a consumer
+        // enumerating ExtensionFiles must not encounter them. Guards against a
+        // future change that flattens the copy into extensions/.
+        Assert.NotEmpty(SubstraitExtensions.Examples);
+        Assert.DoesNotContain("distance_functions.yaml", SubstraitExtensions.ExtensionFiles);
+        Assert.All(
+            SubstraitExtensions.ExtensionFiles,
+            name => Assert.DoesNotContain("/", name));
+    }
+
+    [Fact]
     public void ListingsAreNonEmptyAndReadable()
     {
         // Guards against a generate script that copied nothing, and against a
@@ -44,12 +69,14 @@ public class ExtensionsTest
         Assert.NotEmpty(SubstraitExtensions.TextSchemas);
         Assert.NotEmpty(SubstraitExtensions.TestCases);
         Assert.NotEmpty(SubstraitExtensions.DialectTests);
+        Assert.NotEmpty(SubstraitExtensions.Examples);
 
         Assert.Equal(
             SubstraitExtensions.ExtensionFiles.Count
                 + SubstraitExtensions.TextSchemas.Count
                 + SubstraitExtensions.TestCases.Count
-                + SubstraitExtensions.DialectTests.Count,
+                + SubstraitExtensions.DialectTests.Count
+                + SubstraitExtensions.Examples.Count,
             SubstraitExtensions.ResourcePaths.Count);
 
         foreach (var path in SubstraitExtensions.ResourcePaths)

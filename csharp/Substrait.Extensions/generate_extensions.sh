@@ -23,6 +23,7 @@ EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
 TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
 DIALECT_TESTS_DIR="$SUBSTRAIT_HOME/dialects/tests"
+EXAMPLES_DIR="$SUBSTRAIT_HOME/site/examples"
 
 echo "Packaging Substrait extension files from $SUBSTRAIT_HOME"
 
@@ -47,3 +48,14 @@ cp -r "$TESTCASES_DIR"/. testcases/
 rm -rf dialects
 mkdir -p dialects
 cp -r "$DIALECT_TESTS_DIR"/. dialects/
+
+# Example extension and type YAML files from the specification's documentation.
+# Kept in their own directory, and embedded under their own resource prefix, so
+# that a consumer enumerating ExtensionFiles never sees them: they are
+# illustrations of the schema, not entries in the Substrait extension catalog.
+# The plan examples in site/examples/proto-textformat are protobuf text format
+# rather than simple-extension YAML, so they are not vendored here.
+rm -rf examples
+mkdir -p examples
+cp -r "$EXAMPLES_DIR/extensions" examples/
+cp -r "$EXAMPLES_DIR/types" examples/
