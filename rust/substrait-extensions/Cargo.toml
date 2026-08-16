@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 [package]
 name = "substrait-extensions"
-version = "0.0.0"
+version = "0.101.0"
 edition = "2021"
 rust-version = "1.85.1"
 description = "Packaged Substrait Extension Files"
