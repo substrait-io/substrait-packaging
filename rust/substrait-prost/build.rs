@@ -35,6 +35,17 @@ fn configure_common(
         .file_descriptor_set_bytes("crate::FILE_DESCRIPTOR_SET")
         .configure(config, protos, &[PROTO_ROOT])?;
 
+    #[cfg(feature = "protox")]
+    {
+        use std::fs;
+
+        use protox::prost::Message;
+
+        config.skip_protoc_run();
+        let file_descriptors = protox::compile(protos, &[PROTO_ROOT])?;
+        fs::write(descriptor_path, file_descriptors.encode_to_vec())?;
+    }
+
     // `protos` is only consumed by the `reflect` builder above.
     let _ = protos;
 
