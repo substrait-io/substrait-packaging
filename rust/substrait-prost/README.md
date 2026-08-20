@@ -32,7 +32,9 @@ the `PATH`. Alternatively, enable the `protoc` feature to build and vendor
 - `serde` — derive `serde` `Serialize`/`Deserialize` for the proto types via
   [`pbjson`](https://docs.rs/pbjson), following the Protobuf JSON Mapping.
 - `protoc` — build and vendor `protoc` from source (used by docs.rs).
-- `protox` - use [`protox`](https://github.com/andrewhickman/protox) for compile proto files
+- `protox` — compile the `.proto` files with
+  [`protox`](https://docs.rs/protox), a pure-Rust protobuf compiler, so no
+  `protoc` is required (used by docs.rs).
 - `embed-descriptor` — embed the protobuf file descriptor set
   (`FILE_DESCRIPTOR_SET`) for reflection.
 
