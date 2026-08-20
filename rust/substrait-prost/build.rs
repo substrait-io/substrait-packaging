@@ -29,24 +29,23 @@ fn configure_common(
     config.file_descriptor_set_path(descriptor_path);
     config.enable_type_names();
 
+    #[cfg(feature = "protox")]
+    {
+        config.skip_protoc_run();
+        let file_descriptors = protox::Compiler::new([PROTO_ROOT])?
+            .include_source_info(true)
+            .include_imports(true)
+            .open_files(protos)?
+            .encode_file_descriptor_set();
+        std::fs::write(descriptor_path, file_descriptors)?;
+    }
+
     #[cfg(feature = "reflect")]
     prost_reflect_build::Builder::new()
         .file_descriptor_set_path(descriptor_path)
         .file_descriptor_set_bytes("crate::FILE_DESCRIPTOR_SET")
         .configure(config, protos, &[PROTO_ROOT])?;
 
-    #[cfg(feature = "protox")]
-    {
-        use std::fs;
-
-        use protox::prost::Message;
-
-        config.skip_protoc_run();
-        let file_descriptors = protox::compile(protos, &[PROTO_ROOT])?;
-        fs::write(descriptor_path, file_descriptors.encode_to_vec())?;
-    }
-
-    // `protos` is only consumed by the `reflect` builder above.
     let _ = protos;
 
     Ok(())

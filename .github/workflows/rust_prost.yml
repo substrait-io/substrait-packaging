@@ -91,11 +91,6 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
 
@@ -108,7 +103,7 @@ jobs:
       - name: Build and Test
         working-directory: rust/substrait-prost
         run: |
-          cargo build --all-features
+          cargo build --features embed-descriptor,reflect,serde,protox
           cargo test
 
       - name: Commit Generated Code

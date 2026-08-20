@@ -82,6 +82,8 @@ jobs:
           cargo test
       - name: Build and Test substrait-prost with protox
         working-directory: rust/substrait-prost
+        env:
+          PROTOC: /nonexistent
         run: |
           cargo build --features embed-descriptor,reflect,serde,protox
           cargo test
