@@ -87,7 +87,8 @@ pixi run rust-generate-extensions
 
 The protobuf and extensions crates generate their Rust code at build time (with
 `prost-build` and `typify` respectively), so the generation scripts only vendor
-the spec inputs into the crate; building `substrait-prost` requires `protoc`.
+the spec inputs into the crate; building `substrait-prost` requires a protobuf
+compiler (`protoc` on the `PATH`, or the `protox` feature for a pure-Rust one).
 The ANTLR parsers cannot be generated at build time (the Rust target needs a
 forked ANTLR build and Java), so they are committed by the generation script.
 

@@ -23,9 +23,10 @@ use substrait_prost::extensions::SimpleExtensionUrn;
 ```
 
 The Rust code is generated at build time with `prost-build` from the vendored
-`.proto` files, so **building this crate requires `protoc`** to be available on
-the `PATH`. Alternatively, enable the `protoc` feature to build and vendor
-`protoc` from source.
+`.proto` files, so a protobuf compiler is required. By default that is `protoc`
+on the `PATH`; enable the `protox` feature to compile with a pure-Rust compiler
+and no external toolchain, or the `protoc` feature to build and vendor `protoc`
+from source.
 
 ### Features
 
@@ -33,7 +34,7 @@ the `PATH`. Alternatively, enable the `protoc` feature to build and vendor
   [`pbjson`](https://docs.rs/pbjson), following the Protobuf JSON Mapping.
 - `protoc` — build and vendor `protoc` from source.
 - `protox` — compile the `.proto` files with [`protox`](https://docs.rs/protox),
-  a pure-Rust protobuf compiler. (used by docs.rs)
+  a pure-Rust protobuf compiler (used by docs.rs).
 - `embed-descriptor` — embed the protobuf file descriptor set
   (`FILE_DESCRIPTOR_SET`) for reflection.
 

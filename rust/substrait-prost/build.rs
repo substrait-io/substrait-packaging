@@ -18,7 +18,9 @@ const PROTO_ROOT: &str = "proto";
 /// - the descriptor-set output path,
 /// - `prost::Name` impls (via `enable_type_names`) so consumers get
 ///   authoritative fully-qualified type names instead of reconstructing them
-///   from Rust module paths, and
+///   from Rust module paths,
+/// - with the `protox` feature, a descriptor set compiled in-process by
+///   `protox`, plus `skip_protoc_run` so `protoc` is never invoked, and
 /// - with the `reflect` feature, `prost_reflect::ReflectMessage` derives that
 ///   read the crate's embedded `FILE_DESCRIPTOR_SET` for runtime introspection.
 fn configure_common(
@@ -31,6 +33,8 @@ fn configure_common(
 
     #[cfg(feature = "protox")]
     {
+        // Must precede any `compile_protos` call below: `skip_protoc_run` only
+        // applies to compilations started after it is set.
         config.skip_protoc_run();
         let file_descriptors = protox::Compiler::new([PROTO_ROOT])?
             .include_source_info(true)
