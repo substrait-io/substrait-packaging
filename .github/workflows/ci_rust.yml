@@ -75,10 +75,17 @@ jobs:
           cargo test
       - name: Vendor substrait-prost
         run: pixi run rust-generate-prost
-      - name: Build and Test substrait-prost
+      - name: Build and Test substrait-prost with protoc
         working-directory: rust/substrait-prost
         run: |
-          cargo build --all-features
+          cargo build --features embed-descriptor,reflect,serde,protoc
+          cargo test
+      - name: Build and Test substrait-prost with protox
+        working-directory: rust/substrait-prost
+        env:
+          PROTOC: /nonexistent
+        run: |
+          cargo build --features embed-descriptor,reflect,serde,protox
           cargo test
       - name: Package substrait-extensions
         run: pixi run rust-generate-extensions
