@@ -1,6 +1,6 @@
 {
   "name": "substrait-protobuf",
-  "version-semver": "0.101.0",
+  "version-semver": "0.102.0",
   "description": "Substrait protobuf bindings for C++. The .proto files are vendored and the C++ sources are generated at build time against your own protobuf runtime (C++ protobuf generated code is ABI-coupled to its runtime, so no pre-generated sources are shipped).",
   "homepage": "https://github.com/substrait-io/substrait-packaging",
   "license": "Apache-2.0",
