@@ -104,7 +104,7 @@ jobs:
         working-directory: rust/substrait-prost
         run: |
           cargo build --features embed-descriptor,reflect,serde,protox
-          cargo test
+          cargo test --features embed-descriptor,reflect,serde,protox
 
       - name: Commit Generated Code
         run: |
