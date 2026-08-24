@@ -82,6 +82,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     // for use in docker build where file changes can be wonky
     println!("cargo:rerun-if-env-changed=FORCE_REBUILD");
 
+    // Without `protoc` or `protox`, `prost-build` resolves the compiler from
+    // `PROTOC` (falling back to `PATH`), so that variable is a real input to
+    // this script: without it declared, Cargo reuses a stale run after `PROTOC`
+    // changes and a broken compiler configuration passes on cached output.
+    println!("cargo:rerun-if-env-changed=PROTOC");
+
     #[cfg(feature = "protoc")]
     unsafe {
         std::env::set_var("PROTOC", protobuf_src::protoc())
