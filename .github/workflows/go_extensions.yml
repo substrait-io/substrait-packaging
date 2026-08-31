@@ -1,0 +1,148 @@
+name: Publish Go Extensions Module
+run-name: Publish Go Extensions Module for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: go-extensions
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to package extensions for
+        required: true
+        type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to package extensions for
+        required: true
+        type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
+
+env:
+  SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
+  MODULE_PATH: github.com/substrait-io/substrait-packaging/go/substrait-extensions
+
+jobs:
+
+  go-extensions-prechecks:
+    runs-on: ubuntu-latest
+    outputs:
+      publish_version: ${{ steps.resolve.outputs.version }}
+      tag_name: ${{ steps.resolve.outputs.tag_name }}
+      tag_exists: ${{ steps.check-tag.outputs.exists }}
+      module_exists: ${{ steps.check-module.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Publish Version
+        id: resolve
+        run: |
+          if [ "${{ inputs.alpha }}" = "true" ]; then
+            VERSION=$(./scripts/go/next_alpha_version.sh substrait-extensions "$SUBSTRAIT_VERSION")
+          else
+            VERSION="${SUBSTRAIT_VERSION#v}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag_name=go/substrait-extensions/v$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Check Tag Existence
+        id: check-tag
+        run: |
+          EXISTS=$(./scripts/tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+      - name: Check Module Existence on the Go Proxy
+        id: check-module
+        run: |
+          EXISTS=$(./scripts/go/module_exists.sh "$MODULE_PATH" "${{ steps.resolve.outputs.version }}")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+
+  # For Go there is no registry upload: pushing the version tag publishes the
+  # module. This job vendors the spec data, commits it, and pushes the tag, then
+  # warms the module proxy so pkg.go.dev indexes the release promptly.
+  go-extensions-publish:
+    runs-on: ubuntu-latest
+    needs: go-extensions-prechecks
+    steps:
+      - name: Generate GitHub App Token for Pushing Tags
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
+          private-key: ${{ secrets.PACKAGER_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure GitHub User
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
+
+      - name: Checkout substrait-packaging
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.10.1
+        with:
+          pixi-version: v0.73.0
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go/substrait-extensions/go.mod
+
+      - name: Attach and Commit substrait Repo
+        run: ./scripts/attach_subtree.sh
+
+      - name: Package Extension Files
+        run: pixi run go-generate-extensions
+
+      - name: Build and Test
+        working-directory: go/substrait-extensions
+        run: |
+          go mod tidy
+          go build ./...
+          go test ./...
+
+      - name: Commit Vendored Data
+        run: |
+          git add go/substrait-extensions
+          git commit -m "Vendored Go extension files for Substrait version $SUBSTRAIT_VERSION"
+
+      - name: Tag and Push Vendored Data
+        if: needs.go-extensions-prechecks.outputs.tag_exists == 'false'
+        env:
+          TAG_NAME: ${{ needs.go-extensions-prechecks.outputs.tag_name }}
+        run: |
+          git tag -a "$TAG_NAME" -m "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: Warm the Go Module Proxy
+        # Triggers proxy.golang.org to fetch and cache the new version, which in
+        # turn makes it discoverable on pkg.go.dev. Skipped if already published.
+        if: needs.go-extensions-prechecks.outputs.module_exists == 'false'
+        env:
+          VERSION: ${{ needs.go-extensions-prechecks.outputs.publish_version }}
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-all-errors \
+            "https://proxy.golang.org/$MODULE_PATH/@v/v$VERSION.info"
