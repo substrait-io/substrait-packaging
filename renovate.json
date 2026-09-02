@@ -1,0 +1,49 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(build)",
+    ":maintainLockFilesWeekly"
+  ],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "build",
+  "semanticCommitScope": "deps",
+  "minimumReleaseAge": "14 days",
+  "packageRules": [
+    {
+      "description": "Port of the dependabot github-actions group",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions"
+    },
+    {
+      "description": "Port of the dependabot java-dependencies group",
+      "matchManagers": ["gradle", "gradle-wrapper"],
+      "groupName": "java-dependencies"
+    },
+    {
+      "description": "Port of the dependabot python-dependencies group",
+      "matchManagers": ["pep621"],
+      "groupName": "python-dependencies"
+    },
+    {
+      "description": "Port of the dependabot rust-dependencies group",
+      "matchManagers": ["cargo"],
+      "groupName": "rust-dependencies"
+    },
+    {
+      "description": "Group pixi.toml bumps so pixi.lock is only regenerated once",
+      "matchManagers": ["pixi"],
+      "groupName": "pixi-dependencies"
+    },
+    {
+      "description": "Keep schemars on 0.8 in /rust/substrait-extensions to match the schemars version used by typify (0.7). build.rs feeds schemars types straight into typify, so this must track typify's schemars, not the latest release. Cargo treats a 0.x minor bump as breaking, so 0.9 is blocked as well, not just 1.x",
+      "matchPackageNames": ["schemars"],
+      "allowedVersions": "<0.9"
+    },
+    {
+      "description": "Changing the supported Python version is a project decision, not a routine bump",
+      "matchPackageNames": ["python"],
+      "enabled": false
+    }
+  ]
+}
