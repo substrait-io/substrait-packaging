@@ -1,0 +1,164 @@
+name: Publish C# Protobuf Package
+run-name: Publish C# Protobuf Package for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: csharp-protobuf
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to generate protobuf for
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to generate protobuf for
+        required: true
+        type: string
+
+env:
+  SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
+  PACKAGE_ID: Substrait.Protobuf
+
+jobs:
+
+  csharp-protobuf-prechecks:
+    runs-on: ubuntu-latest
+    outputs:
+      publish_version: ${{ steps.resolve.outputs.version }}
+      tag_name: ${{ steps.resolve.outputs.tag_name }}
+      tag_exists: ${{ steps.check-tag.outputs.exists }}
+      artifact_exists: ${{ steps.check-artifact.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Publish Version
+        id: resolve
+        run: |
+          VERSION="${SUBSTRAIT_VERSION#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag_name=csharp/$PACKAGE_ID/v$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Check Tag Existence
+        id: check-tag
+        run: |
+          EXISTS=$(./scripts/tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+      - name: Check Artifact Existence on NuGet
+        id: check-artifact
+        run: |
+          EXISTS=$(./scripts/csharp/nuget_package_exists.sh "$PACKAGE_ID" "${{ steps.resolve.outputs.version }}")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+
+  csharp-protobuf-generate:
+    runs-on: ubuntu-latest
+    needs: csharp-protobuf-prechecks
+    steps:
+      - name: Generate GitHub App Token for Pushing Tags
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
+          private-key: ${{ secrets.PACKAGER_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure GitHub User
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
+
+      - name: Checkout substrait-packaging
+        uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.73.0
+
+      - name: Attach and Commit substrait Repo
+        run: ./scripts/attach_subtree.sh
+
+      - name: Vendor Protobuf Definitions
+        run: pixi run csharp-generate-protobuf
+
+      # No version is committed: unlike the Python and Rust artifacts, the
+      # version is supplied to `dotnet pack` in the publish job, so there is
+      # nothing to write into the project file here.
+
+      - name: Commit Vendored Definitions
+        run: |
+          git add csharp/Substrait.Protobuf
+          git commit -m "Vendored protobuf definitions for Substrait version $SUBSTRAIT_VERSION"
+
+      - name: Build and Test
+        working-directory: csharp
+        run: pixi run dotnet test Substrait.Protobuf.Tests/Substrait.Protobuf.Tests.csproj --configuration Release
+
+      - name: Tag and Push Vendored Definitions
+        if: needs.csharp-protobuf-prechecks.outputs.tag_exists == 'false'
+        env:
+          TAG_NAME: ${{ needs.csharp-protobuf-prechecks.outputs.tag_name }}
+        run: |
+          git tag -a "$TAG_NAME" -m "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+  csharp-protobuf-publish:
+    runs-on: ubuntu-latest
+    needs: [csharp-protobuf-prechecks, csharp-protobuf-generate]
+    if: needs.csharp-protobuf-prechecks.outputs.artifact_exists == 'false'
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PUBLISH_VERSION: ${{ needs.csharp-protobuf-prechecks.outputs.publish_version }}
+    steps:
+      - name: Checkout Substrait.Protobuf
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.csharp-protobuf-prechecks.outputs.tag_name }}
+          fetch-depth: 0
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.73.0
+      - name: Pack
+        working-directory: csharp
+        run: |
+          pixi run dotnet pack Substrait.Protobuf/Substrait.Protobuf.csproj \
+            --configuration Release \
+            -p:Version="$PUBLISH_VERSION" \
+            --output "$GITHUB_WORKSPACE/artifacts"
+      - name: Smoke Test
+        env:
+          SMOKE_STATEMENT: |
+            var typeUrl = Google.Protobuf.WellKnownTypes.Any.Pack(new Substrait.Protobuf.Type()).TypeUrl;
+            if (typeUrl != "type.googleapis.com/substrait.Type") throw new System.Exception(typeUrl);
+        run: |
+          pixi run ./scripts/csharp/smoke_test.sh \
+            "$PACKAGE_ID" "$PUBLISH_VERSION" artifacts "$SMOKE_STATEMENT"
+      - name: Authenticate with NuGet
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish
+        run: |
+          pixi run dotnet nuget push "artifacts/*.nupkg" \
+            --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

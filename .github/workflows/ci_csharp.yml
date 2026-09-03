@@ -1,0 +1,116 @@
+name: CI (C#)
+
+# Validates the C# packaging machinery against the most recent substrait spec
+# release. Attaches the released spec subtree and runs the same generate + build
+# + test steps as the C# publish workflows, plus a pack and a smoke test against
+# the resulting packages, but stops short of versioning, committing, tagging and
+# publishing — so a change that would break a real release fails here first.
+# The other languages are validated by ci_java.yml, ci_python.yml, ci_rust.yml
+# and ci_cpp.yml.
+
+on:
+  pull_request:
+    paths: &paths
+      - scripts/**
+      - pixi.toml
+      - pixi.lock
+      - csharp/**
+      - antlr/**
+      - testprotos.proto
+      - .github/workflows/ci_csharp.yml
+  push:
+    branches: [main]
+    paths: *paths
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait spec version to validate against (defaults to the latest release)
+        required: false
+        type: string
+
+concurrency:
+  group: ci-csharp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  csharp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Substrait Version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERRIDE: ${{ inputs.substrait_version }}
+        run: |
+          if [ -n "$OVERRIDE" ]; then
+            VERSION="$OVERRIDE"
+          else
+            VERSION=$(./scripts/latest_release.sh)
+          fi
+          echo "Validating against substrait version: $VERSION"
+          echo "SUBSTRAIT_VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Configure Git Identity
+        # attach_subtree.sh creates a squash commit, which needs an identity.
+        run: |
+          git config --global user.name 'substrait-packaging-ci'
+          git config --global user.email 'substrait-packaging-ci@users.noreply.github.com'
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.10.0
+        with:
+          pixi-version: v0.73.0
+      - name: Attach substrait Spec Subtree
+        run: ./scripts/attach_subtree.sh
+
+      - name: Generate Substrait.Protobuf
+        run: pixi run csharp-generate-protobuf
+      - name: Generate Substrait.Antlr
+        run: pixi run csharp-generate-antlr
+      - name: Generate Substrait.Extensions
+        run: pixi run csharp-generate-extensions
+
+      # One build/test pass over the whole solution: unlike the publish
+      # workflows, which are per-package because they tag and publish
+      # independently, CI has no reason to separate them.
+      - name: Build and Test
+        run: pixi run csharp-build
+
+      # Packing and consuming the packages catches mistakes a project-reference
+      # build cannot see: missing TFM assets, undeclared dependencies, or spec
+      # data left out of the nupkg.
+      - name: Pack
+        working-directory: csharp
+        run: |
+          pixi run dotnet pack Substrait.slnx \
+            --configuration Release \
+            -p:Version=0.0.0-ci \
+            --output "$GITHUB_WORKSPACE/artifacts"
+      - name: Smoke Test Substrait.Protobuf
+        env:
+          SMOKE_STATEMENT: |
+            var typeUrl = Google.Protobuf.WellKnownTypes.Any.Pack(new Substrait.Protobuf.Type()).TypeUrl;
+            if (typeUrl != "type.googleapis.com/substrait.Type") throw new System.Exception(typeUrl);
+        run: |
+          pixi run ./scripts/csharp/smoke_test.sh \
+            Substrait.Protobuf 0.0.0-ci artifacts "$SMOKE_STATEMENT"
+      - name: Smoke Test Substrait.Antlr
+        env:
+          SMOKE_STATEMENT: |
+            var lexer = new Substrait.Antlr.SubstraitType.SubstraitTypeLexer(new Antlr4.Runtime.AntlrInputStream("i32"));
+            var parser = new Substrait.Antlr.SubstraitType.SubstraitTypeParser(new Antlr4.Runtime.CommonTokenStream(lexer));
+            var tree = parser.typeDef().scalarType().ToStringTree(parser);
+            if (tree != "(scalarType i32)") throw new System.Exception(tree);
+        run: |
+          pixi run ./scripts/csharp/smoke_test.sh \
+            Substrait.Antlr 0.0.0-ci artifacts "$SMOKE_STATEMENT"
+      - name: Smoke Test Substrait.Extensions
+        env:
+          SMOKE_STATEMENT: |
+            var yaml = Substrait.Extensions.SubstraitExtensions.ReadExtensionFile("functions_arithmetic.yaml");
+            if (yaml.Length == 0) throw new System.Exception("functions_arithmetic.yaml is empty");
+            if (Substrait.Extensions.SubstraitExtensions.TestCases.Count == 0) throw new System.Exception("no test cases embedded");
+        run: |
+          pixi run ./scripts/csharp/smoke_test.sh \
+            Substrait.Extensions 0.0.0-ci artifacts "$SMOKE_STATEMENT"

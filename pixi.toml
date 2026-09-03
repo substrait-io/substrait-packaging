@@ -16,8 +16,16 @@ rust-generate-extensions = { cmd = "cd rust/substrait-extensions && ./generate_e
 cpp-generate-protobuf = { cmd = "cd cpp/substrait-protobuf && ./generate_protobuf.sh", description = "Vendor protobuf definitions for the C++ package" }
 cpp-generate-antlr = { cmd = "cd cpp/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR C++ parsers" }
 cpp-generate-extensions = { cmd = "cd cpp/substrait-extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for C++" }
+csharp-generate-protobuf = { cmd = "cd csharp/Substrait.Protobuf && ./generate_protobuf.sh", description = "Vendor protobuf definitions for the C# package" }
+csharp-generate-antlr = { cmd = "cd csharp/Substrait.Antlr && ./generate_antlr.sh", description = "Generate ANTLR C# parsers" }
+csharp-generate-extensions = { cmd = "cd csharp/Substrait.Extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for C#" }
+csharp-build = { cmd = "cd csharp && dotnet test Substrait.slnx", description = "Build and test all C# artifacts" }
 
 [dependencies]
+# Note for the C# target: Antlr4.Runtime.Standard trails the tool (4.13.1 is the
+# newest published C# runtime). That is safe while both agree on major.minor,
+# which is all ANTLR's RuntimeMetaData.CheckVersion compares, but a bump to 4.14
+# needs a matching C# runtime release first.
 antlr = ">=4.13.2,<5"
 buf = ">=1.62.1,<2"
 datamodel-code-generator = ">=0.52.0,<0.53"
@@ -34,3 +42,7 @@ openjdk = ">=21,<26"
 cmake = ">=3.24,<4"
 cxx-compiler = ">=1.7,<2"
 libprotobuf = ">=5"
+# C# packaging: build, test and pack the NuGet packages. The SDK also supplies
+# protoc and the C# protobuf plugin via the Grpc.Tools NuGet package, so no
+# separate protoc dependency is needed for the C# target.
+dotnet-sdk = ">=10,<11"
