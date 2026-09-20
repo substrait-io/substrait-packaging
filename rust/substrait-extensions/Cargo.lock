@@ -282,7 +282,7 @@ dependencies = [
 
 [[package]]
 name = "substrait-extensions"
-version = "0.0.0"
+version = "0.103.1"
 dependencies = [
  "heck",
  "include_dir",
