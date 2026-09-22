@@ -21,7 +21,7 @@ on:
 
 env:
   SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
-  PACKAGE_ID: Substrait.Antlr
+  PACKAGE_ID: Substrait.Net.Antlr
 
 jobs:
 
@@ -125,7 +125,7 @@ jobs:
     env:
       PUBLISH_VERSION: ${{ needs.csharp-antlr-prechecks.outputs.publish_version }}
     steps:
-      - name: Checkout Substrait.Antlr
+      - name: Checkout Substrait.Net.Antlr
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.csharp-antlr-prechecks.outputs.tag_name }}

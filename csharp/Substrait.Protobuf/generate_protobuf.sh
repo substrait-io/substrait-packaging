@@ -3,7 +3,7 @@
 set -eu
 
 # Vendors the Substrait protobuf definitions for the Substrait.Protobuf NuGet
-# package.
+# package (`Substrait.Net.Protobuf`).
 #
 # Like the Rust and C++ protobuf artifacts, this package commits the `.proto`
 # files rather than generated sources: `dotnet build`/`dotnet pack` runs protoc

@@ -5,11 +5,11 @@ NuGet package release machinery.
 This directory contains three independently published packages, each versioned to
 match the Substrait specification release they are generated from:
 
-- [`Substrait.Protobuf`](Substrait.Protobuf) — generated protobuf bindings
+- [`Substrait.Net.Protobuf`](Substrait.Protobuf) — generated protobuf bindings
   (`Google.Protobuf`, generated at build time by `Grpc.Tools`).
-- [`Substrait.Antlr`](Substrait.Antlr) — generated ANTLR parsers
+- [`Substrait.Net.Antlr`](Substrait.Antlr) — generated ANTLR parsers
   (`Antlr4.Runtime.Standard`, committed).
-- [`Substrait.Extensions`](Substrait.Extensions) — packaged extension YAML files,
+- [`Substrait.Net.Extensions`](Substrait.Extensions) — packaged extension YAML files,
   text schemas and test cases, embedded as assembly resources.
 
 Each package has a sibling `*.Tests` project. Shared build settings and NuGet
@@ -51,13 +51,13 @@ published assets are executed, not merely compiled.
 From the repository root:
 
 ```sh
-# Vendor protobuf definitions for the Substrait.Protobuf package
+# Vendor protobuf definitions for the Substrait.Net.Protobuf package
 pixi run csharp-generate-protobuf
 
-# Generate Substrait.Antlr parsers (requires java for the ANTLR tool)
+# Generate Substrait.Net.Antlr parsers (requires java for the ANTLR tool)
 pixi run csharp-generate-antlr
 
-# Package Substrait extension files for the Substrait.Extensions package
+# Package Substrait extension files for the Substrait.Net.Extensions package
 pixi run csharp-generate-extensions
 
 # Build and test all C# artifacts

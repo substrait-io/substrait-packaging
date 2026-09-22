@@ -21,7 +21,7 @@ on:
 
 env:
   SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
-  PACKAGE_ID: Substrait.Extensions
+  PACKAGE_ID: Substrait.Net.Extensions
 
 jobs:
 
@@ -123,7 +123,7 @@ jobs:
     env:
       PUBLISH_VERSION: ${{ needs.csharp-extensions-prechecks.outputs.publish_version }}
     steps:
-      - name: Checkout Substrait.Extensions
+      - name: Checkout Substrait.Net.Extensions
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.csharp-extensions-prechecks.outputs.tag_name }}

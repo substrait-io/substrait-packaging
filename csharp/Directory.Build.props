@@ -4,8 +4,8 @@
   <!--
     Shared build settings for every C# artifact in this directory.
 
-    The three packages (Substrait.Protobuf, Substrait.Antlr,
-    Substrait.Extensions) are versioned and published independently, exactly
+    The three packages (Substrait.Net.Protobuf, Substrait.Net.Antlr,
+    Substrait.Net.Extensions) are versioned and published independently, exactly
     like the Python/Rust/C++ artifacts, so nothing here couples them together.
   -->
 

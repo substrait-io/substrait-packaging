@@ -2,7 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Substrait.Extensions</PackageId>
+    <PackageId>Substrait.Net.Extensions</PackageId>
+    <AssemblyName>Substrait.Net.Extensions</AssemblyName>
     <Description>Substrait extension definitions, text schemas, test cases and documentation examples, packaged as embedded resources.</Description>
     <RootNamespace>Substrait.Extensions</RootNamespace>
   </PropertyGroup>

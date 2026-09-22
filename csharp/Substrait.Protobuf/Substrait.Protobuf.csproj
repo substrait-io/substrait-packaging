@@ -2,7 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Substrait.Protobuf</PackageId>
+    <PackageId>Substrait.Net.Protobuf</PackageId>
+    <AssemblyName>Substrait.Net.Protobuf</AssemblyName>
     <Description>Generated Substrait Protocol Buffer bindings for .NET.</Description>
     <RootNamespace>Substrait.Protobuf</RootNamespace>
     <!--

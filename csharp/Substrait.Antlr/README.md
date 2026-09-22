@@ -1,4 +1,4 @@
-# Substrait.Antlr
+# Substrait.Net.Antlr
 
 Generated .NET [ANTLR](https://www.antlr.org/) parsers for the
 [Substrait](https://substrait.io/) specification's grammars.
@@ -8,16 +8,17 @@ The grammars from which the parsers are generated can be found
 
 Versions of this package correspond to Substrait
 [releases](https://github.com/substrait-io/substrait/releases). `x.y.z` of
-`Substrait.Antlr` contains parsers generated from `vx.y.z` of the
+`Substrait.Net.Antlr` contains parsers generated from `vx.y.z` of the
 [substrait repository](https://github.com/substrait-io/substrait).
 
 ## Usage
 
 ```sh
-dotnet add package Substrait.Antlr
+dotnet add package Substrait.Net.Antlr
 ```
 
-Each grammar set gets its own namespace:
+The package assembly is `Substrait.Net.Antlr.dll`. Each grammar set keeps its
+existing namespace:
 
 - `Substrait.Antlr.SubstraitType` — the type grammar (`SubstraitType.g4`, which
   is a combined grammar and so supplies its own lexer). Both a visitor and a
@@ -47,8 +48,8 @@ repository.
 
 When a new version of the Substrait specification is released, automation
 generates the parsers for that version and pushes them to GitHub with a tag
-formatted like `csharp/Substrait.Antlr/vx.y.z`. The automation then publishes the
-package to [NuGet](https://www.nuget.org/packages/Substrait.Antlr).
+formatted like `csharp/Substrait.Net.Antlr/vx.y.z`. The automation then publishes
+the package to [NuGet](https://www.nuget.org/packages/Substrait.Net.Antlr).
 
 The parsers are generated with the stock ANTLR C# target — no fork is required,
 unlike the Rust crate — and are **committed** to the repository rather than

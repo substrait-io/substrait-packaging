@@ -3,7 +3,7 @@
 set -eu
 
 # Packages the Substrait extension files for the Substrait.Extensions NuGet
-# package.
+# package (`Substrait.Net.Extensions`).
 #
 # This package ships the raw spec data only, like the Java and C++ extensions
 # artifacts and unlike Rust's typify-generated types and Python's

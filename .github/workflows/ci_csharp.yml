@@ -87,15 +87,15 @@ jobs:
             --configuration Release \
             -p:Version=0.0.0-ci \
             --output "$GITHUB_WORKSPACE/artifacts"
-      - name: Smoke Test Substrait.Protobuf
+      - name: Smoke Test Substrait.Net.Protobuf
         env:
           SMOKE_STATEMENT: |
             var typeUrl = Google.Protobuf.WellKnownTypes.Any.Pack(new Substrait.Protobuf.Type()).TypeUrl;
             if (typeUrl != "type.googleapis.com/substrait.Type") throw new System.Exception(typeUrl);
         run: |
           pixi run ./scripts/csharp/smoke_test.sh \
-            Substrait.Protobuf 0.0.0-ci artifacts "$SMOKE_STATEMENT"
-      - name: Smoke Test Substrait.Antlr
+            Substrait.Net.Protobuf 0.0.0-ci artifacts "$SMOKE_STATEMENT"
+      - name: Smoke Test Substrait.Net.Antlr
         env:
           SMOKE_STATEMENT: |
             var lexer = new Substrait.Antlr.SubstraitType.SubstraitTypeLexer(new Antlr4.Runtime.AntlrInputStream("i32"));
@@ -104,8 +104,8 @@ jobs:
             if (tree != "(scalarType i32)") throw new System.Exception(tree);
         run: |
           pixi run ./scripts/csharp/smoke_test.sh \
-            Substrait.Antlr 0.0.0-ci artifacts "$SMOKE_STATEMENT"
-      - name: Smoke Test Substrait.Extensions
+            Substrait.Net.Antlr 0.0.0-ci artifacts "$SMOKE_STATEMENT"
+      - name: Smoke Test Substrait.Net.Extensions
         env:
           SMOKE_STATEMENT: |
             var yaml = Substrait.Extensions.SubstraitExtensions.ReadExtensionFile("functions_arithmetic.yaml");
@@ -113,4 +113,4 @@ jobs:
             if (Substrait.Extensions.SubstraitExtensions.TestCases.Count == 0) throw new System.Exception("no test cases embedded");
         run: |
           pixi run ./scripts/csharp/smoke_test.sh \
-            Substrait.Extensions 0.0.0-ci artifacts "$SMOKE_STATEMENT"
+            Substrait.Net.Extensions 0.0.0-ci artifacts "$SMOKE_STATEMENT"

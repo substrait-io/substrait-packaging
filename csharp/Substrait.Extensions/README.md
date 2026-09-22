@@ -1,4 +1,4 @@
-# Substrait.Extensions
+# Substrait.Net.Extensions
 
 Packaged [Substrait](https://substrait.io/) extension definitions, text schemas,
 test cases and documentation examples for .NET.
@@ -14,18 +14,19 @@ and
 
 Versions of this package correspond to Substrait
 [releases](https://github.com/substrait-io/substrait/releases). `x.y.z` of
-`Substrait.Extensions` contains the files from `vx.y.z` of the
+`Substrait.Net.Extensions` contains the files from `vx.y.z` of the
 [substrait repository](https://github.com/substrait-io/substrait).
 
 ## Usage
 
 ```sh
-dotnet add package Substrait.Extensions
+dotnet add package Substrait.Net.Extensions
 ```
 
-The files are embedded in the assembly as resources under `substrait/`, using the
-same layout as the specification repository. `SubstraitExtensions` locates and
-reads them:
+The files are embedded in `Substrait.Net.Extensions.dll` as resources under
+`substrait/`, using the same layout as the specification repository. The public
+API remains in the `Substrait.Extensions` namespace; `SubstraitExtensions`
+locates and reads the resources:
 
 ```csharp
 using Substrait.Extensions;
@@ -75,9 +76,9 @@ repository.
 
 When a new version of the Substrait specification is released, automation
 packages the extension files for that version and pushes them to GitHub with a
-tag formatted like `csharp/Substrait.Extensions/vx.y.z`. The automation then
+tag formatted like `csharp/Substrait.Net.Extensions/vx.y.z`. The automation then
 publishes the package to
-[NuGet](https://www.nuget.org/packages/Substrait.Extensions).
+[NuGet](https://www.nuget.org/packages/Substrait.Net.Extensions).
 
 ### Local Generation
 

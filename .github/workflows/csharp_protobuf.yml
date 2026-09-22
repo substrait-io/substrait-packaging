@@ -21,7 +21,7 @@ on:
 
 env:
   SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
-  PACKAGE_ID: Substrait.Protobuf
+  PACKAGE_ID: Substrait.Net.Protobuf
 
 jobs:
 
@@ -127,7 +127,7 @@ jobs:
     env:
       PUBLISH_VERSION: ${{ needs.csharp-protobuf-prechecks.outputs.publish_version }}
     steps:
-      - name: Checkout Substrait.Protobuf
+      - name: Checkout Substrait.Net.Protobuf
         uses: actions/checkout@v7
         with:
           ref: ${{ needs.csharp-protobuf-prechecks.outputs.tag_name }}

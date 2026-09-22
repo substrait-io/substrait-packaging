@@ -2,7 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Substrait.Antlr</PackageId>
+    <PackageId>Substrait.Net.Antlr</PackageId>
+    <AssemblyName>Substrait.Net.Antlr</AssemblyName>
     <Description>Generated ANTLR parsers for the Substrait type and function test case grammars.</Description>
     <RootNamespace>Substrait.Antlr</RootNamespace>
     <!--

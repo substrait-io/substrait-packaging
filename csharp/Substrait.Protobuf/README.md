@@ -1,4 +1,4 @@
-# Substrait.Protobuf
+# Substrait.Net.Protobuf
 
 Generated .NET [protobuf](https://protobuf.dev/) bindings for the
 [Substrait](https://substrait.io/) specification, using
@@ -9,16 +9,17 @@ The protobuf definitions from which the code is generated can be found
 
 Versions of this package correspond to Substrait
 [releases](https://github.com/substrait-io/substrait/releases). `x.y.z` of
-`Substrait.Protobuf` contains code generated from `vx.y.z` of the
+`Substrait.Net.Protobuf` contains code generated from `vx.y.z` of the
 [substrait repository](https://github.com/substrait-io/substrait).
 
 ## Usage
 
 ```sh
-dotnet add package Substrait.Protobuf
+dotnet add package Substrait.Net.Protobuf
 ```
 
-All generated types live in the `Substrait.Protobuf` namespace, which comes from
+The package assembly is `Substrait.Net.Protobuf.dll`. All generated types remain
+in the `Substrait.Protobuf` namespace, which comes from
 the specification's own `option csharp_namespace` — including the messages from
 `substrait/extensions/extensions.proto`, which the spec maps into the same
 namespace rather than a nested one:
@@ -53,9 +54,9 @@ repository.
 
 When a new version of the Substrait specification is released, automation
 vendors the protobuf definitions for that version and pushes them to GitHub with
-a tag formatted like `csharp/Substrait.Protobuf/vx.y.z`. The automation then
+a tag formatted like `csharp/Substrait.Net.Protobuf/vx.y.z`. The automation then
 publishes the package to
-[NuGet](https://www.nuget.org/packages/Substrait.Protobuf).
+[NuGet](https://www.nuget.org/packages/Substrait.Net.Protobuf).
 
 The C# sources are generated at build time by
 [Grpc.Tools](https://www.nuget.org/packages/Grpc.Tools), which supplies `protoc`
