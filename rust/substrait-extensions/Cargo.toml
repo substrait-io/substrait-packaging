@@ -47,7 +47,7 @@ prettyplease = "0.3.0"
 schemars = "0.8.22"
 serde_yaml = "0.9.34"
 syn = "3.0.2"
-typify = "0.7.0"
+typify = "0.8.0"
 walkdir = "2.5.0"
 
 [package.metadata.docs.rs]
