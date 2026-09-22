@@ -24,18 +24,22 @@ public class AntlrTest
     public void ParsesSimpleType()
     {
         var parser = TypeParser("i32");
+        var typeDef = parser.typeDef();
 
-        Assert.Equal("(scalarType i32)", parser.typeDef().scalarType().ToStringTree(parser));
+        Assert.Equal("(scalarType i32)", typeDef.scalarType().ToStringTree(parser));
+        Assert.Equal(TokenConstants.EOF, parser.CurrentToken.Type);
     }
 
     [Fact]
     public void ParsesCompositeType()
     {
-        var parser = TypeParser("list?<any1>>");
+        var parser = TypeParser("list?<any1>");
+        var typeDef = parser.typeDef();
 
         Assert.Equal(
             "(parameterizedType list ? < (expr (typeDef (anyType any1))) >)",
-            parser.typeDef().parameterizedType().ToStringTree(parser));
+            typeDef.parameterizedType().ToStringTree(parser));
+        Assert.Equal(TokenConstants.EOF, parser.CurrentToken.Type);
     }
 
     [Fact]

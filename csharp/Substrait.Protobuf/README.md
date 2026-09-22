@@ -24,9 +24,15 @@ the specification's own `option csharp_namespace` — including the messages fro
 namespace rather than a nested one:
 
 ```csharp
+using Google.Protobuf;
 using Substrait.Protobuf;
 
-var plan = new Plan { Version = new Version { MajorNumber = 0, MinorNumber = 99 } };
+// Version is qualified because the unqualified name collides with System.Version,
+// which projects with ImplicitUsings enabled have in scope.
+var plan = new Plan
+{
+    Version = new Substrait.Protobuf.Version { MajorNumber = 0, MinorNumber = 99 },
+};
 var bytes = plan.ToByteArray();
 var roundTripped = Plan.Parser.ParseFrom(bytes);
 ```

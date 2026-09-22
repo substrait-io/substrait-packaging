@@ -30,7 +30,7 @@ Each grammar set gets its own namespace:
 using Antlr4.Runtime;
 using Substrait.Antlr.SubstraitType;
 
-var lexer = new SubstraitTypeLexer(new AntlrInputStream("list?<any1>>"));
+var lexer = new SubstraitTypeLexer(new AntlrInputStream("list?<any1>"));
 var parser = new SubstraitTypeParser(new CommonTokenStream(lexer));
 var tree = parser.typeDef();
 ```
