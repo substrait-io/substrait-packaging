@@ -40,3 +40,8 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
+  publish-csharp-artifacts:
+    uses: ./.github/workflows/csharp_publish.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}

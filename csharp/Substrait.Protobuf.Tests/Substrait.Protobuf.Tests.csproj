@@ -1,0 +1,47 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--
+      Overrides the multi-targeting in ../Directory.Build.props: the library
+      ships netstandard2.0 + net10.0, but only a runnable TFM makes sense for
+      tests. These exercise the net10.0 asset; the netstandard2.0 asset gets its
+      runtime coverage from scripts/csharp/smoke_test.sh, which consumes the
+      packed package from a net8.0 project.
+    -->
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Substrait.Protobuf/Substrait.Protobuf.csproj" />
+  </ItemGroup>
+
+  <!--
+    Compile the repository's fake "external" protos against the vendored
+    Substrait protos. This is the same check the Python artifact performs: it
+    proves a downstream consumer can `import "substrait/algebra.proto"` from
+    their own schema and have the generated types line up with the ones this
+    package ships.
+  -->
+  <ItemGroup>
+    <Protobuf Include="../../testprotos.proto"
+              ProtoRoot="../.."
+              AdditionalImportDirs="../Substrait.Protobuf/proto"
+              GrpcServices="None" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <!-- Needed to compile testprotos.proto in this project. -->
+    <PackageReference Include="Grpc.Tools" Version="2.83.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
