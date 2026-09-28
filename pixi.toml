@@ -20,6 +20,10 @@ csharp-generate-protobuf = { cmd = "cd csharp/Substrait.Protobuf && ./generate_p
 csharp-generate-antlr = { cmd = "cd csharp/Substrait.Antlr && ./generate_antlr.sh", description = "Generate ANTLR C# parsers" }
 csharp-generate-extensions = { cmd = "cd csharp/Substrait.Extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for C#" }
 csharp-build = { cmd = "cd csharp && dotnet test Substrait.slnx", description = "Build and test all C# artifacts" }
+go-generate-protobuf = { cmd = "cd go/substrait-protobuf && ./generate_protobuf.sh", description = "Generate protobuf Go code" }
+go-generate-protobuf-opaque = { cmd = "cd go/substrait-protobuf-opaque && ./generate_protobuf.sh", description = "Generate protobuf Go code (Opaque API)" }
+go-generate-antlr = { cmd = "cd go/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR Go parsers" }
+go-generate-extensions = { cmd = "cd go/substrait-extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for Go" }
 
 [dependencies]
 # Note for the C# target: Antlr4.Runtime.Standard trails the tool (4.13.1 is the

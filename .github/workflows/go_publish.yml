@@ -1,0 +1,56 @@
+name: Publish Go Artifacts
+run-name: Publish Go Artifacts for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: go-publish
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+      alpha:
+        description: Publish an auto-incrementing alpha pre-release (-alpha, -alpha.1, ...)
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  publish-go-protobuf:
+    uses: ./.github/workflows/go_protobuf.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
+  publish-go-protobuf-opaque:
+    uses: ./.github/workflows/go_protobuf_opaque.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
+  publish-go-antlr:
+    uses: ./.github/workflows/go_antlr.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
+  publish-go-extensions:
+    uses: ./.github/workflows/go_extensions.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+      alpha: ${{ inputs.alpha }}
