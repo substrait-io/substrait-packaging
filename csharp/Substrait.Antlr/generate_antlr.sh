@@ -15,7 +15,7 @@ set -eu
 
 SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 GRAMMAR_DIR="$SUBSTRAIT_HOME/grammar"
-SOURCE_METADATA=$(sh ../../scripts/csharp/source_metadata.sh "$SUBSTRAIT_HOME")
+SOURCE_METADATA=$(sh ../../scripts/csharp/source_metadata.sh "$SUBSTRAIT_HOME" 'grammar/*.g4')
 rm -f SubstraitSource.props
 
 TYPE_TARGET="SubstraitType"

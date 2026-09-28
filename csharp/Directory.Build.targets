@@ -7,5 +7,11 @@
            Text="Missing SubstraitSource.props. Run this package's generation script before building or packing." />
     <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(SubstraitGitHash)', '^[0-9a-f]{40}$'))"
            Text="SubstraitGitHash must identify the specification sources with a 40-character lowercase Git SHA. Regenerate this package." />
+    <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)/SubstraitSource.props"
+             Query="/Project/PropertyGroup/SubstraitGitHash/text()">
+      <Output TaskParameter="Result" ItemName="_SubstraitRecordedGitHash" />
+    </XmlPeek>
+    <Error Condition="'@(_SubstraitRecordedGitHash)' != '$(SubstraitGitHash)'"
+           Text="SubstraitGitHash must match the recorded value in SubstraitSource.props. Regenerate this package instead of overriding its specification commit." />
   </Target>
 </Project>

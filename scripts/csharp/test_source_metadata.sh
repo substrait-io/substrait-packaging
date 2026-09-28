@@ -15,16 +15,24 @@ configure_repository() {
 }
 
 assert_hash() {
-  sh "$HELPER" "$1" > "$WORK_DIR/metadata.props"
-  grep -Fx "    <SubstraitGitHash>$2</SubstraitGitHash>" "$WORK_DIR/metadata.props" > /dev/null
+  source_dir=$1
+  expected_hash=$2
+  shift 2
+  [ "$#" -gt 0 ] || set -- .
+  sh "$HELPER" "$source_dir" "$@" > "$WORK_DIR/metadata.props"
+  grep -Fx "    <SubstraitGitHash>$expected_hash</SubstraitGitHash>" "$WORK_DIR/metadata.props" > /dev/null
 }
 
 assert_failure() {
-  if sh "$HELPER" "$1" > "$WORK_DIR/output" 2> "$WORK_DIR/error"; then
-    echo "Expected source metadata generation to fail for $1" >&2
+  source_dir=$1
+  expected_error=$2
+  shift 2
+  [ "$#" -gt 0 ] || set -- .
+  if sh "$HELPER" "$source_dir" "$@" > "$WORK_DIR/output" 2> "$WORK_DIR/error"; then
+    echo "Expected source metadata generation to fail for $source_dir" >&2
     exit 1
   fi
-  grep -F "$2" "$WORK_DIR/error" > /dev/null
+  grep -F "$expected_error" "$WORK_DIR/error" > /dev/null
   test ! -s "$WORK_DIR/output"
 }
 
@@ -45,12 +53,32 @@ git -C "$PACKAGING" subtree add --prefix=substrait "$SOURCE" HEAD --squash > /de
 test "$(git -C "$PACKAGING/substrait" rev-parse HEAD)" != "$SPECIFICATION_COMMIT"
 assert_hash "$PACKAGING/substrait" "$SPECIFICATION_COMMIT"
 
+for checkout in "$SOURCE" "$PACKAGING/substrait"; do
+  git_dir=$(git -C "$checkout" rev-parse --absolute-git-dir)
+  printf '*.proto\n*.g4\n*.yaml\nignored-input\nignored-build/\n' >> "$git_dir/info/exclude"
+  mkdir -p "$checkout/ignored-build"
+  printf 'build output\n' > "$checkout/ignored-build/output"
+  set -- proto/substrait 'grammar/*.g4' 'extensions/*.yaml' 'text/*.yaml' \
+    tests/cases dialects/tests site/examples/extensions site/examples/types
+  assert_hash "$checkout" "$SPECIFICATION_COMMIT" "$@"
+
+  for input in proto/substrait/ignored.proto grammar/ignored.g4 \
+    extensions/ignored.yaml text/ignored.yaml tests/cases/ignored-input \
+    dialects/tests/ignored-input site/examples/extensions/ignored.yaml \
+    site/examples/types/ignored.yaml; do
+    mkdir -p "$(dirname "$checkout/$input")"
+    printf 'uncommitted source\n' > "$checkout/$input"
+    assert_failure "$checkout" "Ignored generation inputs" "$@"
+    rm "$checkout/$input"
+  done
+done
+
 # Later packaging commits and unrelated local edits must not change provenance.
 printf 'packaging\n' > "$PACKAGING/package.txt"
 git -C "$PACKAGING" add package.txt
 git -C "$PACKAGING" commit -qm "Update packaging"
 printf 'unrelated edit\n' >> "$PACKAGING/package.txt"
-assert_hash "$PACKAGING/substrait" "$SPECIFICATION_COMMIT"
+assert_hash "$PACKAGING/substrait" "$SPECIFICATION_COMMIT" spec.txt
 
 git clone -q --no-hardlinks "$PACKAGING" "$WORK_DIR/modified-subtree"
 configure_repository "$WORK_DIR/modified-subtree"
@@ -77,5 +105,52 @@ printf 'source without provenance\n' > "$FAKE/substrait/spec.txt"
 git -C "$FAKE" add substrait/spec.txt
 git -C "$FAKE" commit -qm "Not a subtree import"
 assert_failure "$FAKE/substrait" "Cannot find the Substrait subtree's source commit"
+
+BUILD="$WORK_DIR/build"
+mkdir -p "$BUILD"
+cp "$SCRIPT_DIR/../../csharp/Directory.Build.props" "$BUILD/"
+cp "$SCRIPT_DIR/../../csharp/Directory.Build.targets" "$BUILD/"
+sh "$HELPER" "$FAKE" substrait > "$BUILD/SubstraitSource.props"
+BUILD_COMMIT=$(git -C "$FAKE" rev-parse HEAD)
+cat > "$BUILD/metadata.proj" <<'EOF'
+<Project>
+  <Import Project="Directory.Build.props" />
+  <Import Project="Directory.Build.targets" />
+  <Target Name="GenerateAssemblyInfo">
+    <Error Condition="'%(AssemblyMetadata.Value)' != '$(SubstraitGitHash)'"
+           Text="Assembly metadata does not match the validated specification commit." />
+  </Target>
+  <Target Name="GenerateNuspec" />
+</Project>
+EOF
+
+assert_build_failure() {
+  target=$1
+  expected_error=$2
+  shift 2
+  if dotnet msbuild "$BUILD/metadata.proj" -nologo -v:quiet "-t:$target" "$@" > "$WORK_DIR/build.log" 2>&1; then
+    echo "Expected $target to reject invalid specification metadata" >&2
+    exit 1
+  fi
+  if ! grep -F "$expected_error" "$WORK_DIR/build.log" > /dev/null; then
+    cat "$WORK_DIR/build.log" >&2
+    exit 1
+  fi
+}
+
+for target in GenerateAssemblyInfo GenerateNuspec; do
+  dotnet msbuild "$BUILD/metadata.proj" -nologo -v:quiet "-t:$target"
+  dotnet msbuild "$BUILD/metadata.proj" -nologo -v:quiet "-t:$target" "-p:SubstraitGitHash=$BUILD_COMMIT"
+  assert_build_failure "$target" "must match the recorded value" "-p:SubstraitGitHash=$SPECIFICATION_COMMIT"
+  assert_build_failure "$target" "40-character lowercase Git SHA" "-p:SubstraitGitHash=invalid"
+done
+
+printf '<Project />\n' > "$BUILD/SubstraitSource.props"
+assert_build_failure GenerateAssemblyInfo "must match the recorded value" "-p:SubstraitGitHash=$BUILD_COMMIT"
+printf '<Project><PropertyGroup><SubstraitGitHash>invalid</SubstraitGitHash></PropertyGroup></Project>\n' > "$BUILD/SubstraitSource.props"
+assert_build_failure GenerateAssemblyInfo "40-character lowercase Git SHA"
+assert_build_failure GenerateAssemblyInfo "must match the recorded value" "-p:SubstraitGitHash=$BUILD_COMMIT"
+rm "$BUILD/SubstraitSource.props"
+assert_build_failure GenerateAssemblyInfo "Missing SubstraitSource.props" "-p:SubstraitGitHash=$BUILD_COMMIT"
 
 echo "Specification source metadata tests passed."

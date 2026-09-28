@@ -2,18 +2,25 @@
 # SPDX-License-Identifier: Apache-2.0
 set -eu
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <Substrait source directory>" >&2
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <Substrait source directory> <input pathspec>..." >&2
   exit 1
 fi
 
 SOURCE_DIR=$(cd "$1" && pwd -P)
+shift
 REPOSITORY_DIR=$(git -C "$SOURCE_DIR" rev-parse --show-toplevel)
 REPOSITORY_DIR=$(cd "$REPOSITORY_DIR" && pwd -P)
 
 SOURCE_STATUS=$(git -C "$SOURCE_DIR" status --porcelain --untracked-files=all -- .)
 if [ -n "$SOURCE_STATUS" ]; then
   echo "Substrait sources must be clean to record their specification commit." >&2
+  exit 1
+fi
+
+IGNORED_INPUTS=$(git -C "$SOURCE_DIR" ls-files --others --ignored --exclude-standard -- "$@")
+if [ -n "$IGNORED_INPUTS" ]; then
+  printf 'Ignored generation inputs are not part of the specification commit:\n%s\n' "$IGNORED_INPUTS" >&2
   exit 1
 fi
 
