@@ -15,6 +15,8 @@ set -eu
 
 SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 PROTO_DIR="$SUBSTRAIT_HOME/proto/substrait"
+SOURCE_METADATA=$(sh ../../scripts/csharp/source_metadata.sh "$SUBSTRAIT_HOME" proto/substrait)
+rm -f SubstraitSource.props
 
 echo "Vendoring Substrait protos from $PROTO_DIR"
 
@@ -24,3 +26,5 @@ echo "Vendoring Substrait protos from $PROTO_DIR"
 rm -rf proto
 mkdir -p proto
 cp -r "$PROTO_DIR" proto/
+
+printf '%s\n' "$SOURCE_METADATA" > SubstraitSource.props

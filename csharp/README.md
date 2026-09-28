@@ -75,8 +75,54 @@ reasoning as the other language targets:
 - **ANTLR** commits the generated parsers. The ANTLR tool is a Java program, and
   neither consumers nor the publish workflow should need a JDK. Uses the stock
   ANTLR C# target; no fork is required, unlike the Rust crate.
-- **Extensions** vendors the specification data and generates nothing. See that
-  package's README for why there is no typed layer.
+- **Extensions** vendors the specification data without generating a typed
+  layer. See that package's README for why there is no typed layer.
+
+### Specification provenance
+
+Every package assembly, for both target frameworks, includes an
+`AssemblyMetadataAttribute` with key `SubstraitGitHash`. Its value is the full
+40-character lowercase commit ID of the **Substrait specification**, not the
+packaging repository:
+
+```csharp
+using System.Linq;
+using System.Reflection;
+using Substrait.Protobuf;
+
+var specificationCommit = typeof(Plan).Assembly
+    .GetCustomAttributes<AssemblyMetadataAttribute>()
+    .SingleOrDefault(attribute => attribute.Key == "SubstraitGitHash")
+    ?.Value;
+```
+
+Older published packages may not include this attribute. The example returns
+`null` in that case; consumers must handle missing specification provenance.
+
+Use a type from `Substrait.Net.Antlr` or `Substrait.Net.Extensions` to inspect
+those assemblies instead. The ordinary NuGet repository metadata and assembly
+informational version retain their packaging-repository provenance.
+
+Each generation script writes a `SubstraitSource.props` beside its project.
+The release workflow commits it with that package's generated or vendored
+files, so a later build or pack does not need the original specification
+checkout or a network lookup. Do not edit the stamp independently of its
+sources. Builds and packing fail if it is missing or malformed, or if a
+`SubstraitGitHash` override differs from the recorded value.
+
+Generation accepts either a clean standalone Git checkout supplied through
+`SUBSTRAIT_HOME`, or the standard `substrait` squash subtree created by
+`scripts/attach_subtree.sh`. Standalone checkouts use their `HEAD`; subtrees use
+the upstream `git-subtree-split` commit and verify the imported tree still
+matches. Dirty sources, source archives without Git provenance, and modified
+subtrees are rejected rather than assigned a misleading hash. Ignored files
+that match a package's generation inputs are also rejected; ignored build
+artifacts outside those inputs do not affect provenance.
+
+Run `pixi run sh scripts/csharp/test_source_metadata.sh` from the repository
+root to test both source layouts, ignored inputs, and build-time stamp
+validation. The package smoke tests compare the embedded metadata against the
+recorded source stamp for both assets.
 
 ## Publishing
 
