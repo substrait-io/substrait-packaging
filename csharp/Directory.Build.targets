@@ -1,0 +1,11 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<Project>
+  <Target Name="ValidateSubstraitSourceMetadata"
+          BeforeTargets="GenerateAssemblyInfo;GenerateNuspec"
+          Condition="'$(IsPackable)' != 'false'">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/SubstraitSource.props')"
+           Text="Missing SubstraitSource.props. Run this package's generation script before building or packing." />
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(SubstraitGitHash)', '^[0-9a-f]{40}$'))"
+           Text="SubstraitGitHash must identify the specification sources with a 40-character lowercase Git SHA. Regenerate this package." />
+  </Target>
+</Project>

@@ -15,6 +15,8 @@ set -eu
 
 SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 GRAMMAR_DIR="$SUBSTRAIT_HOME/grammar"
+SOURCE_METADATA=$(sh ../../scripts/csharp/source_metadata.sh "$SUBSTRAIT_HOME")
+rm -f SubstraitSource.props
 
 TYPE_TARGET="SubstraitType"
 FTEST_TARGET="FuncTestCase"
@@ -55,3 +57,5 @@ done
 
 # Cleanup
 rm -rf tmp
+
+printf '%s\n' "$SOURCE_METADATA" > SubstraitSource.props

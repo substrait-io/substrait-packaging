@@ -64,6 +64,9 @@ jobs:
       - name: Attach substrait Spec Subtree
         run: ./scripts/attach_subtree.sh
 
+      - name: Test specification source metadata
+        run: sh scripts/csharp/test_source_metadata.sh
+
       - name: Generate Substrait.Protobuf
         run: pixi run csharp-generate-protobuf
       - name: Generate Substrait.Antlr

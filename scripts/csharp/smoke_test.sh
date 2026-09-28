@@ -28,6 +28,16 @@ VERSION="${2#v}"
 NUPKG_DIR=$(cd "$3" && pwd)
 STATEMENT="$4"
 
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PROJECT_NAME=$(printf '%s\n' "$PACKAGE_ID" | sed 's/^Substrait\.Net\./Substrait./')
+SOURCE_METADATA="$SCRIPT_DIR/../../csharp/$PROJECT_NAME/SubstraitSource.props"
+SPECIFICATION_COMMIT=$(sed -n 's/.*<SubstraitGitHash>\([0-9a-f]*\)<\/SubstraitGitHash>.*/\1/p' "$SOURCE_METADATA")
+if [ "${#SPECIFICATION_COMMIT}" -ne 40 ] ||
+   ! printf '%s\n' "$SPECIFICATION_COMMIT" | grep -Eq '^[0-9a-f]{40}$'; then
+  echo "Missing or invalid specification commit in $SOURCE_METADATA" >&2
+  exit 1
+fi
+
 CONSUMER_FRAMEWORKS="net8.0 net10.0"
 
 WORK_DIR=$(mktemp -d)
@@ -86,6 +96,13 @@ public static class SmokeTest
     public static void Main()
     {
 $STATEMENT
+        var assembly = System.Reflection.Assembly.Load("$PACKAGE_ID");
+        var attributes = assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute), false);
+        var sourceHashes = System.Linq.Enumerable.Where(
+            System.Linq.Enumerable.Cast<System.Reflection.AssemblyMetadataAttribute>(attributes),
+            attribute => attribute.Key == "SubstraitGitHash");
+        if (System.Linq.Enumerable.Single(sourceHashes).Value != "$SPECIFICATION_COMMIT")
+            throw new System.Exception("The assembly's specification commit does not match its vendored sources.");
         System.Console.WriteLine("$PACKAGE_ID $VERSION OK (consumer $FRAMEWORK)");
     }
 }

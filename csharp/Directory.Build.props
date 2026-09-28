@@ -71,4 +71,11 @@
     <None Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
+  <Import Project="$(MSBuildProjectDirectory)/SubstraitSource.props"
+          Condition="Exists('$(MSBuildProjectDirectory)/SubstraitSource.props')" />
+
+  <ItemGroup Condition="'$(SubstraitGitHash)' != ''">
+    <AssemblyMetadata Include="SubstraitGitHash" Value="$(SubstraitGitHash)" />
+  </ItemGroup>
+
 </Project>
