@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Package substrait provides access to the Substrait specification's extension
-// definitions, text schemas and function test cases via embed.FS.
+// definitions, text schemas, function test cases and dialect test fixtures via
+// embed.FS.
 //
 // The package name is "substrait" (not "substraitextensions") so that it is a
 // drop-in replacement for the legacy embed module that lived at the root of the
@@ -19,6 +20,9 @@ var textFS embed.FS
 
 //go:embed tests/cases
 var testsFS embed.FS
+
+//go:embed dialects/tests
+var dialectTestsFS embed.FS
 
 //go:embed examples
 var examplesFS embed.FS
@@ -41,6 +45,10 @@ func GetSubstraitTextFS() embed.FS { return textFS }
 // GetSubstraitTestsFS returns an embed.FS containing the Substrait function
 // test case files under the "tests/cases" directory.
 func GetSubstraitTestsFS() embed.FS { return testsFS }
+
+// GetSubstraitDialectTestsFS returns an embed.FS containing the Substrait
+// per-section dialect test fixtures under the "dialects/tests" directory.
+func GetSubstraitDialectTestsFS() embed.FS { return dialectTestsFS }
 
 // GetSubstraitExamplesFS returns an embed.FS containing the example extension
 // and type YAML files from the specification's documentation, under the

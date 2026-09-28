@@ -6,6 +6,7 @@ SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
 TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
+DIALECT_TESTS_DIR="$SUBSTRAIT_HOME/dialects/tests"
 EXAMPLES_DIR="$SUBSTRAIT_HOME/site/examples"
 
 echo "Vendoring Substrait extension files from $SUBSTRAIT_HOME"
@@ -28,6 +29,11 @@ cp "$TEXT_DIR"/*.yaml text/
 rm -rf tests/cases
 mkdir -p tests/cases
 cp -r "$TESTCASES_DIR"/. tests/cases/
+
+# Per-section dialect test fixtures (embedded via //go:embed dialects/tests).
+rm -rf dialects/tests
+mkdir -p dialects/tests
+cp -r "$DIALECT_TESTS_DIR"/. dialects/tests/
 
 # Example extension and type YAML files (embedded via //go:embed examples). These
 # are documentation illustrations rather than catalog entries, so they are kept in

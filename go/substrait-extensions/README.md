@@ -1,12 +1,12 @@
 # substrait-extensions (Go)
 
-Go access to the [Substrait](https://substrait.io/) specification's extension definitions, text schemas, function test cases and documentation examples, bundled via [`embed.FS`](https://pkg.go.dev/embed).
+Go access to the [Substrait](https://substrait.io/) specification's extension definitions, text schemas, function test cases, dialect test fixtures and documentation examples, bundled via [`embed.FS`](https://pkg.go.dev/embed).
 
 This module ships the raw spec **data only** — it does not generate Go types from the extension schema. Unlike the Python and Rust extensions packages (which generate types with datamodel-code-generator and typify), Go has no canonical JSON-schema code generator, and the extension schema's polymorphic function definitions do not map cleanly onto Go's type system. The typed parsing therefore lives downstream (e.g. in [substrait-go](https://github.com/substrait-io/substrait-go)). This mirrors the Java extensions artifact, which also bundles the data as resources without generating types.
 
 It is a drop-in replacement for the legacy `embed.FS` module that lived at the root of the substrait specification repository (`github.com/substrait-io/substrait`): the package is named `substrait` and exposes the same accessors, so consumers only change the import path.
 
-The data is sourced from [extensions](https://github.com/substrait-io/substrait/tree/main/extensions), [text](https://github.com/substrait-io/substrait/tree/main/text), [tests/cases](https://github.com/substrait-io/substrait/tree/main/tests/cases) and [site/examples](https://github.com/substrait-io/substrait/tree/main/site/examples) in the substrait repository. Versions of this module correspond to Substrait [releases](https://github.com/substrait-io/substrait/releases).
+The data is sourced from [extensions](https://github.com/substrait-io/substrait/tree/main/extensions), [text](https://github.com/substrait-io/substrait/tree/main/text), [tests/cases](https://github.com/substrait-io/substrait/tree/main/tests/cases), [dialects/tests](https://github.com/substrait-io/substrait/tree/main/dialects/tests) and [site/examples](https://github.com/substrait-io/substrait/tree/main/site/examples) in the substrait repository. Versions of this module correspond to Substrait [releases](https://github.com/substrait-io/substrait/releases).
 
 ## Module Usage
 
@@ -14,13 +14,15 @@ The data is sourced from [extensions](https://github.com/substrait-io/substrait/
 import "github.com/substrait-io/substrait-packaging/go/substrait-extensions"
 
 func example() {
-	extFS := substrait.GetSubstraitExtensionsFS() // extensions/*.yaml
-	textFS := substrait.GetSubstraitTextFS()      // text/*.yaml
-	testsFS := substrait.GetSubstraitTestsFS()    // tests/cases/**/*.test
-	exFS := substrait.GetSubstraitExamplesFS()    // examples/{extensions,types}/*.yaml
+	extFS := substrait.GetSubstraitExtensionsFS()    // extensions/*.yaml
+	textFS := substrait.GetSubstraitTextFS()         // text/*.yaml
+	testsFS := substrait.GetSubstraitTestsFS()       // tests/cases/**/*.test
+	dialFS := substrait.GetSubstraitDialectTestsFS() // dialects/tests/*.yaml
+	exFS := substrait.GetSubstraitExamplesFS()       // examples/{extensions,types}/*.yaml
 	_ = extFS
 	_ = textFS
 	_ = testsFS
+	_ = dialFS
 	_ = exFS
 }
 ```

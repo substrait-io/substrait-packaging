@@ -46,6 +46,16 @@ func TestEmbeddedTests(t *testing.T) {
 	}
 }
 
+func TestEmbeddedDialectTests(t *testing.T) {
+	entries, err := GetSubstraitDialectTestsFS().ReadDir("dialects/tests")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("no embedded dialect test fixtures found under dialects/tests/")
+	}
+}
+
 func TestEmbeddedExamples(t *testing.T) {
 	for _, dir := range []string{"examples/extensions", "examples/types"} {
 		entries, err := GetSubstraitExamplesFS().ReadDir(dir)
