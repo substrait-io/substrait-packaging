@@ -12,14 +12,16 @@ repository = "https://github.com/substrait-io/substrait-packaging"
 license = "Apache-2.0"
 keywords = ["substrait"]
 build = "build.rs"
-# The extension YAML files, text schemas and test cases are vendored into this
-# directory by `generate_extensions.sh` and shipped in the published crate.
+# The extension YAML files, text schemas, test cases and documentation examples
+# are vendored into this directory by `generate_extensions.sh` and shipped in the
+# published crate.
 include = [
     "build.rs",
     "src/**/*.rs",
     "extensions/**/*.yaml",
     "text/**/*.yaml",
     "testcases/**/*.test",
+    "examples/**/*.yaml",
 ]
 
 [dependencies]
@@ -27,9 +29,13 @@ indexmap = { version = "2.7.0", features = ["serde"] }
 include_dir = { version = "0.7.4", features = ["glob"] }
 # Required by the typify-generated text types: the generated code emits
 # ::regress::Regex for `pattern` validations.
-regress = "0.11.1"
+regress = "0.12.0"
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = { version = "1.0.145", features = ["preserve_order"] }
+# Deliberately *without* `preserve_order`: that feature is global, so enabling
+# it here would switch `serde_json::Map` to `IndexMap` for every crate in a
+# downstream build with no way to opt out. Insertion order is preserved where it
+# matters by generating `IndexMap` instead (see `build.rs`).
+serde_json = "1.0.145"
 serde_yaml = "0.9.34"
 
 [build-dependencies]
@@ -41,7 +47,7 @@ prettyplease = "0.3.0"
 schemars = "0.8.22"
 serde_yaml = "0.9.34"
 syn = "3.0.2"
-typify = "0.7.0"
+typify = "0.8.0"
 walkdir = "2.5.0"
 
 [package.metadata.docs.rs]

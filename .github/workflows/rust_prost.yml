@@ -84,17 +84,12 @@ jobs:
           persist-credentials: false
 
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.10.1
+        uses: prefix-dev/setup-pixi@v0.10.2
         with:
           pixi-version: v0.73.0
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Install protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
@@ -108,8 +103,8 @@ jobs:
       - name: Build and Test
         working-directory: rust/substrait-prost
         run: |
-          cargo build --all-features
-          cargo test
+          cargo build --features embed-descriptor,reflect,serde,protox
+          cargo test --features embed-descriptor,reflect,serde,protox
 
       - name: Commit Generated Code
         run: |

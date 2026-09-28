@@ -15,6 +15,7 @@ on:
       - pixi.lock
       - rust/**
       - .github/workflows/ci_rust.yml
+      - .github/workflows/rust_prost.yml
   push:
     branches: [main]
     paths: *paths
@@ -55,7 +56,7 @@ jobs:
           git config --global user.name 'substrait-packaging-ci'
           git config --global user.email 'substrait-packaging-ci@users.noreply.github.com'
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.10.1
+        uses: prefix-dev/setup-pixi@v0.10.2
         with:
           pixi-version: v0.73.0
       - name: Install Rust
@@ -75,11 +76,18 @@ jobs:
           cargo test
       - name: Vendor substrait-prost
         run: pixi run rust-generate-prost
-      - name: Build and Test substrait-prost
+      - name: Build and Test substrait-prost with protoc
         working-directory: rust/substrait-prost
         run: |
-          cargo build --all-features
-          cargo test
+          cargo build --features embed-descriptor,reflect,serde,protoc
+          cargo test --features embed-descriptor,reflect,serde,protoc
+      - name: Build and Test substrait-prost with protox
+        working-directory: rust/substrait-prost
+        env:
+          PROTOC: /nonexistent
+        run: |
+          cargo build --features embed-descriptor,reflect,serde,protox
+          cargo test --features embed-descriptor,reflect,serde,protox
       - name: Package substrait-extensions
         run: pixi run rust-generate-extensions
       - name: Build and Test substrait-extensions

@@ -13,8 +13,9 @@
 //!
 //! The Rust code in this crate is generated at build time with
 //! [`prost`](https://docs.rs/prost) from the vendored Substrait `.proto`
-//! definitions. Building this crate requires `protoc` to be available, or the
-//! `protoc` feature to be enabled (which builds and vendors it from source).
+//! definitions. By default this requires `protoc` on the `PATH`; enable the
+//! `protox` feature to compile with a pure-Rust compiler instead, or the
+//! `protoc` feature to build and vendor `protoc` from source.
 
 /// Generated types for the protobuf `substrait.extensions` package.
 pub mod extensions {

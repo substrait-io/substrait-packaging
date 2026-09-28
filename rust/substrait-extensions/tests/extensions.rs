@@ -2,6 +2,7 @@
 
 //! Smoke tests for the packaged Substrait extension files.
 
+use substrait_extensions::examples::EXAMPLES;
 use substrait_extensions::extensions::{EXTENSIONS, FUNCTIONS_ARITHMETIC, SIMPLE_EXTENSIONS};
 use substrait_extensions::testcases::TESTCASES;
 use substrait_extensions::text::simple_extensions::SimpleExtensions;
@@ -67,4 +68,49 @@ fn testcases_are_embedded() {
         .filter(|entry| entry.as_file().is_some())
         .count();
     assert!(count > 0, "expected embedded .test files");
+}
+
+#[test]
+fn examples_are_embedded_and_parse() {
+    // Both example trees are embedded...
+    let yamls: Vec<_> = EXAMPLES
+        .find("**/*.yaml")
+        .expect("valid glob")
+        .filter_map(|entry| entry.as_file())
+        .collect();
+    assert!(!yamls.is_empty(), "expected embedded example .yaml files");
+    assert!(EXAMPLES.get_dir("extensions").is_some());
+    assert!(EXAMPLES.get_dir("types").is_some());
+
+    // ...and every one parses as a simple extension, which is what makes them
+    // usable as parser fixtures.
+    for file in yamls {
+        let source = file.contents_utf8().expect("example is UTF-8");
+        let _: SimpleExtensions = serde_yaml::from_str(source)
+            .unwrap_or_else(|e| panic!("{} parses: {e}", file.path().display()));
+    }
+}
+
+#[test]
+fn examples_are_not_registered_as_catalog_entries() {
+    // The examples are illustrations, not catalog entries, so they must not
+    // appear in the lookups `build.rs` builds by walking `extensions/`. Keyed by
+    // file stem, which is what this crate controls; whether an example's *URN*
+    // collides with an official one is the specification's invariant to keep.
+    for file in EXAMPLES
+        .find("**/*.yaml")
+        .expect("valid glob")
+        .filter_map(|entry| entry.as_file())
+    {
+        let stem = file
+            .path()
+            .file_stem()
+            .expect("example has a file stem")
+            .to_string_lossy()
+            .to_string();
+        assert!(
+            !EXTENSIONS.contains_key(stem.as_str()),
+            "example {stem} is registered in EXTENSIONS"
+        );
+    }
 }

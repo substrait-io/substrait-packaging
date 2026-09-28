@@ -76,7 +76,11 @@ fn text(out_dir: &Path) -> Result<(), Box<dyn Error>> {
 pub mod {title} {{
     {}
 }}"#,
-            prettyplease::unparse(&syn::parse2::<syn::File>(type_space.to_stream())?),
+            {
+                let generated =
+                    prettyplease::unparse(&syn::parse2::<syn::File>(type_space.to_stream())?);
+                rewrite_type_object_map(generated, &schema_path)
+            },
         ))?;
 
         // Also expose the raw schema source, so consumers that validate against
@@ -102,6 +106,64 @@ pub const {const_name}: &str = include_str!({:?});
         ))?;
     }
     Ok(())
+}
+
+/// Rewrite the `Type` enum's free-form-object arm from `::serde_json::Map` to
+/// `::indexmap::IndexMap`.
+///
+/// The object arm of the `Type` schema (`oneOf: [string, object]`) carries a
+/// named struct's fields, whose *order* is semantically significant (see
+/// substrait-io/substrait#915).
+///
+/// typify hardcodes `::serde_json::Map<String, Value>` for free-form JSON
+/// objects and ignores `TypeSpaceSettings::with_map_type` for that case, and
+/// `serde_json::Map` only preserves insertion order when the `serde_json`
+/// `preserve_order` feature is enabled. That feature is *global*: because of
+/// Cargo feature unification, enabling it here switches `serde_json::Map` to
+/// `IndexMap` for every crate in a downstream build, and downstream users
+/// cannot opt out. So rather than enable it, rewrite this one type to
+/// `IndexMap`, which preserves insertion order unconditionally.
+///
+/// The rewrite is deliberately anchored on the whole `Type` block rather than
+/// applied to the output globally: every other `::serde_json::Map` in the
+/// generated code (`metadata`, `required_options`) holds order-insensitive data
+/// and keeps its current public type.
+fn rewrite_type_object_map(generated: String, schema_path: &Path) -> String {
+    const SERDE_JSON_MAP: &str = "::serde_json::Map<::std::string::String, ::serde_json::Value>";
+    const INDEX_MAP: &str = "::indexmap::IndexMap<::std::string::String, ::serde_json::Value>";
+
+    // Only the `simple_extensions` schema defines `Type`; leave the others be.
+    if !generated.contains("pub enum Type {") {
+        return generated;
+    }
+
+    // The `Type` block exactly as typify and prettyplease emit it today.
+    let from = [
+        format!("    Object({SERDE_JSON_MAP}),"),
+        "}".to_string(),
+        format!("impl ::std::convert::From<{SERDE_JSON_MAP}>"),
+        "for Type {".to_string(),
+        "    fn from(".to_string(),
+        format!("        value: {SERDE_JSON_MAP},"),
+        "    ) -> Self {".to_string(),
+        "        Self::Object(value)".to_string(),
+        "    }".to_string(),
+        "}".to_string(),
+    ]
+    .join("\n");
+
+    // Fail the build rather than silently leaving `::serde_json::Map` in place,
+    // which would quietly reintroduce the dependency on `preserve_order`, if a
+    // `typify` or `prettyplease` upgrade changes the emitted formatting.
+    assert_eq!(
+        generated.matches(from.as_str()).count(),
+        1,
+        "expected exactly one `Type` block to rewrite in `{}`; the generated \
+         formatting changed and `rewrite_type_object_map` needs updating",
+        schema_path.display()
+    );
+
+    generated.replace(from.as_str(), &from.replace(SERDE_JSON_MAP, INDEX_MAP))
 }
 
 /// Embed the Substrait core extension YAML files and build a lookup map from

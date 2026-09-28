@@ -1,7 +1,8 @@
 # substrait-extensions (C++)
 
-The [Substrait](https://substrait.io/) extension definitions, text schemas and
-function test cases, distributed as a CMake source package.
+The [Substrait](https://substrait.io/) extension definitions, text schemas,
+function test cases and documentation examples, distributed as a CMake source
+package.
 
 Versions of this package correspond to Substrait
 [releases](https://github.com/substrait-io/substrait/releases): the tag
@@ -20,6 +21,10 @@ The package vendors:
 - `extensions/` — extension definition YAML files
 - `text/` — text schema YAML files (e.g. `simple_extensions_schema.yaml`)
 - `tests/cases/` — function test case files
+- `examples/` — example extension and type YAML files (`examples/extensions/`,
+  `examples/types/`)
+
+Examples are **not** catalog entries: their URNs use the `extension:org.example:` owner rather than `extension:io.substrait:`, they are deliberately absent from the extension lookups, and their contents and URNs may change without a deprecation cycle. They ship as fixtures for exercising an extension parser against the corners of the simple-extension schema.
 
 ## Usage
 
@@ -33,7 +38,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(substrait_extensions)
 
 # SubstraitExtensions_DATA_DIR points at the directory containing
-# extensions/, text/ and tests/cases/.
+# extensions/, examples/, text/ and tests/cases/.
 target_compile_definitions(
   my_target PRIVATE "MY_DATA_DIR=\"${SubstraitExtensions_DATA_DIR}\"")
 ```

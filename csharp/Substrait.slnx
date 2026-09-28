@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Substrait.Antlr/Substrait.Antlr.csproj" />
+  <Project Path="Substrait.Antlr.Tests/Substrait.Antlr.Tests.csproj" />
+  <Project Path="Substrait.Extensions/Substrait.Extensions.csproj" />
+  <Project Path="Substrait.Extensions.Tests/Substrait.Extensions.Tests.csproj" />
+  <Project Path="Substrait.Protobuf/Substrait.Protobuf.csproj" />
+  <Project Path="Substrait.Protobuf.Tests/Substrait.Protobuf.Tests.csproj" />
+</Solution>

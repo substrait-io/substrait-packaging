@@ -1,0 +1,37 @@
+name: Publish C# Artifacts
+run-name: Publish C# Artifacts for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: csharp-publish
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to publish artifacts for
+        required: true
+        type: string
+
+jobs:
+  publish-csharp-antlr:
+    uses: ./.github/workflows/csharp_antlr.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+  publish-csharp-protobuf:
+    uses: ./.github/workflows/csharp_protobuf.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
+  publish-csharp-extensions:
+    uses: ./.github/workflows/csharp_extensions.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}

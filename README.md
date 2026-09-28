@@ -25,6 +25,10 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
     * cpp_antlr.yml
     * cpp_protobuf.yml
     * cpp_extensions.yml
+  * csharp_publish.yml: For releasing C# specific artifacts
+    * csharp_antlr.yml
+    * csharp_protobuf.yml
+    * csharp_extensions.yml
   * go_publish.yml: For releasing Go specific artifacts
     * go_antlr.yml
     * go_protobuf.yml
@@ -35,7 +39,7 @@ Each of these workflows consumes a required substrait_version input. They are in
 
 The spec_released.yml workflow is a thin-wrapper around publish_artifacts.yml which is designed to be invoked whenever a new version of [substrait](https://github.com/substrait-io/substrait) specification is released.
 
-The ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml and ci_go.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
+The ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml, ci_csharp.yml and ci_go.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
 
 Re-usable scripts for use across these workflows can be found in `/scripts`.
 
@@ -92,7 +96,8 @@ pixi run rust-generate-extensions
 
 The protobuf and extensions crates generate their Rust code at build time (with
 `prost-build` and `typify` respectively), so the generation scripts only vendor
-the spec inputs into the crate; building `substrait-prost` requires `protoc`.
+the spec inputs into the crate; building `substrait-prost` requires a protobuf
+compiler (`protoc` on the `PATH`, or the `protox` feature for a pure-Rust one).
 The ANTLR parsers cannot be generated at build time (the Rust target needs a
 forked ANTLR build and Java), so they are committed by the generation script.
 

@@ -1,6 +1,7 @@
 package io.substrait.extensions;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
@@ -29,5 +30,23 @@ class ExtensionsTest {
   @Test
   void testCaseFileBundled() throws Exception {
     assertTrue(readResource("substrait/tests/cases/arithmetic/add.test").length() > 0);
+  }
+
+  @Test
+  void exampleFilesBundled() throws Exception {
+    // Documentation examples ship as fixtures for testing an extension parser.
+    assertTrue(readResource("substrait/examples/extensions/distance_functions.yaml").length() > 0);
+    assertTrue(readResource("substrait/examples/types/user_defined_point.yaml").length() > 0);
+  }
+
+  @Test
+  void examplesAreNotBundledAsExtensions() throws Exception {
+    // An example must not be reachable where a consumer enumerates the catalog.
+    try (InputStream in =
+        getClass()
+            .getClassLoader()
+            .getResourceAsStream("substrait/extensions/distance_functions.yaml")) {
+      assertNull(in, "example leaked into substrait/extensions/");
+    }
   }
 }

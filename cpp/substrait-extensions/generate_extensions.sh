@@ -6,6 +6,7 @@ SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 EXTENSIONS_DIR="$SUBSTRAIT_HOME/extensions"
 TEXT_DIR="$SUBSTRAIT_HOME/text"
 TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
+EXAMPLES_DIR="$SUBSTRAIT_HOME/site/examples"
 
 echo "Vendoring Substrait extension files from $SUBSTRAIT_HOME"
 
@@ -30,3 +31,13 @@ cp "$TEXT_DIR"/*.yaml text/
 rm -rf tests/cases
 mkdir -p tests/cases
 cp -r "$TESTCASES_DIR"/. tests/cases/
+
+# Example extension and type YAML files from the specification's documentation.
+# Kept outside `extensions/` because they are illustrations, not catalog entries:
+# a consumer enumerating `extensions/` must not pick them up. The plan examples in
+# `site/examples/proto-textformat` are not vendored here -- they are protobuf, not
+# simple-extension YAML.
+rm -rf examples
+mkdir -p examples
+cp -r "$EXAMPLES_DIR/extensions" examples/
+cp -r "$EXAMPLES_DIR/types" examples/

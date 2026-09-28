@@ -10,6 +10,8 @@ int main() {
   // A handful of files that must exist in every spec release.
   const std::filesystem::path mustExist[] = {
       dataDir / "extensions" / "functions_arithmetic.yaml",
+      dataDir / "examples" / "extensions" / "distance_functions.yaml",
+      dataDir / "examples" / "types" / "user_defined_point.yaml",
       dataDir / "text" / "simple_extensions_schema.yaml",
       dataDir / "tests" / "cases",
   };
