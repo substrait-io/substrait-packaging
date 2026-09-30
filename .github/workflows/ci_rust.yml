@@ -76,6 +76,15 @@ jobs:
           cargo test
       - name: Vendor substrait-prost
         run: pixi run rust-generate-prost
+      # The default feature set is what a downstream `cargo build` gets:
+      # `prost-build` locating `protoc` on `PATH`. The `protoc` and `protox`
+      # steps below both bypass that lookup, so without this step it is only
+      # ever exercised by the verification build inside `cargo publish`.
+      - name: Build and Test substrait-prost with default features
+        working-directory: rust/substrait-prost
+        run: |
+          cargo build
+          cargo test
       - name: Build and Test substrait-prost with protoc
         working-directory: rust/substrait-prost
         run: |
