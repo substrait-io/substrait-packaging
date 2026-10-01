@@ -31,6 +31,11 @@
       "groupName": "rust-dependencies"
     },
     {
+      "description": "The committed Rust parsers only work with the antlr4rust release line they were generated for, so the generator JAR and the runtime crate must be bumped together. Must come after the rust-dependencies rule to override its group",
+      "matchPackageNames": ["antlr4rust", "antlr4rust/antlr4"],
+      "groupName": "antlr4rust"
+    },
+    {
       "description": "C# arrived after the dependabot configuration was last touched, so there is no group to port; match the other languages",
       "matchManagers": ["nuget"],
       "groupName": "csharp-dependencies"
@@ -49,6 +54,18 @@
       "description": "Changing the supported Python version is a project decision, not a routine bump",
       "matchPackageNames": ["python"],
       "enabled": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Forked ANTLR generator JAR for the Rust parsers (release tag and SHA256)",
+      "managerFilePatterns": ["/^rust/substrait-antlr/generate_antlr\\.sh$/"],
+      "matchStrings": [
+        "releases/download/(?<currentValue>v[^/]+)/[^\"]+\\.jar\"\\s*\\nANTLR_SHA256=\"(?<currentDigest>[a-f0-9]{64})\""
+      ],
+      "depNameTemplate": "antlr4rust/antlr4",
+      "datasourceTemplate": "github-release-attachments"
     }
   ]
 }
