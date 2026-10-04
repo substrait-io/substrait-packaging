@@ -1,7 +1,7 @@
 {
   "default": {
     "substrait-antlr": {
-      "baseline": "0.104.0",
+      "baseline": "0.105.0",
       "port-version": 0
     },
     "substrait-extensions": {
