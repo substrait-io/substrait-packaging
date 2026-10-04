@@ -1,0 +1,20 @@
+name: License check
+
+on: pull_request
+
+# The SPDX header check only reads the checked-out files.
+permissions:
+  contents: read
+
+jobs:
+  license:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Check License Header
+      uses: enarx/spdx@master
+      with:
+        licenses: |-
+          Apache-2.0
+          MIT
