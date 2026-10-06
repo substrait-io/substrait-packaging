@@ -2,9 +2,9 @@
 
 //! Smoke tests for the generated Substrait ANTLR parsers.
 
-use antlr4rust::common_token_stream::CommonTokenStream;
-use antlr4rust::tree::ParseTree;
-use antlr4rust::InputStream;
+use substrait_antlr::antlr4rust::common_token_stream::CommonTokenStream;
+use substrait_antlr::antlr4rust::tree::ParseTree;
+use substrait_antlr::antlr4rust::InputStream;
 
 use substrait_antlr::func_test_case::{FuncTestCaseLexer, FuncTestCaseParser};
 use substrait_antlr::substrait_type::{SubstraitTypeLexer, SubstraitTypeParser};

@@ -11,6 +11,13 @@
 //!   (`SubstraitType.g4`).
 //! - [`func_test_case`] — parser for the function test case grammar
 //!   (`FuncTestCaseParser.g4`).
+//!
+//! The generated code only works with the exact `antlr4rust` version it was
+//! generated for, so that runtime is re-exported as [`antlr4rust`]. Use it
+//! through this re-export rather than depending on `antlr4rust` directly, so
+//! that the two can never drift apart.
+
+pub use antlr4rust;
 
 pub mod func_test_case;
 pub mod substrait_type;
