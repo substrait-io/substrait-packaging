@@ -1,0 +1,94 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(build)",
+    ":maintainLockFilesWeekly"
+  ],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "build",
+  "semanticCommitScope": "deps",
+  "minimumReleaseAge": "14 days",
+  "packageRules": [
+    {
+      "description": "Port of the dependabot github-actions group",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions"
+    },
+    {
+      "description": "Port of the dependabot java-dependencies group",
+      "matchManagers": ["gradle", "gradle-wrapper"],
+      "groupName": "java-dependencies"
+    },
+    {
+      "description": "Port of the dependabot python-dependencies group",
+      "matchManagers": ["pep621"],
+      "groupName": "python-dependencies"
+    },
+    {
+      "description": "Port of the dependabot rust-dependencies group",
+      "matchManagers": ["cargo"],
+      "groupName": "rust-dependencies"
+    },
+    {
+      "description": "The committed Rust parsers only work with the antlr4rust release line they were generated for, so the generator JAR and the runtime crate must be bumped together. Must come after the rust-dependencies rule to override its group",
+      "matchPackageNames": ["antlr4rust", "antlr4rust/antlr4"],
+      "groupName": "antlr4rust"
+    },
+    {
+      "description": "C# arrived after the dependabot configuration was last touched, so there is no group to port; match the other languages",
+      "matchManagers": ["nuget"],
+      "groupName": "csharp-dependencies"
+    },
+    {
+      "description": "Group pixi.toml bumps so pixi.lock is only regenerated once",
+      "matchManagers": ["pixi"],
+      "groupName": "pixi-dependencies"
+    },
+    {
+      "description": "The committed C++ parsers must be built against the ANTLR C++ runtime from the same release, so the antlr tool in pixi.toml and SUBSTRAIT_ANTLR_VERSION in cpp/substrait-antlr/CMakeLists.txt must be bumped together. 4.14 is blocked until a matching Antlr4.Runtime.Standard (C#) release exists. Must come after the pixi-dependencies rule to override its group",
+      "matchPackageNames": ["antlr"],
+      "matchDatasources": ["conda"],
+      "groupName": "antlr",
+      "allowedVersions": "<4.14"
+    },
+    {
+      "description": "Keep schemars on 0.8 in /rust/substrait-extensions to match the schemars version used by typify (0.7). build.rs feeds schemars types straight into typify, so this must track typify's schemars, not the latest release. Cargo treats a 0.x minor bump as breaking, so 0.9 is blocked as well, not just 1.x",
+      "matchPackageNames": ["schemars"],
+      "allowedVersions": "<0.9"
+    },
+    {
+      "description": "Changing the supported Python version is a project decision, not a routine bump",
+      "matchPackageNames": ["python"],
+      "enabled": false
+    },
+    {
+      "description": "setup-pixi's pixi-version input is a v-prefixed release tag. Conda versioning cannot determine a major version for it, so Renovate silently drops every update",
+      "matchDepNames": ["prefix-dev/pixi"],
+      "versioning": "semver"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Forked ANTLR generator JAR for the Rust parsers (release tag and SHA256)",
+      "managerFilePatterns": ["/^rust/substrait-antlr/generate_antlr\\.sh$/"],
+      "matchStrings": [
+        "releases/download/(?<currentValue>v[^/]+)/[^\"]+\\.jar\"\\s*\\nANTLR_SHA256=\"(?<currentDigest>[a-f0-9]{64})\""
+      ],
+      "depNameTemplate": "antlr4rust/antlr4",
+      "datasourceTemplate": "github-release-attachments"
+    },
+    {
+      "customType": "regex",
+      "description": "ANTLR C++ runtime version, tracked against the conda-forge antlr tool in pixi.toml",
+      "managerFilePatterns": ["/^cpp/substrait-antlr/CMakeLists\\.txt$/"],
+      "matchStrings": [
+        "set\\(SUBSTRAIT_ANTLR_VERSION\\s+\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "antlr",
+      "packageNameTemplate": "conda-forge/antlr",
+      "datasourceTemplate": "conda"
+    }
+  ]
+}

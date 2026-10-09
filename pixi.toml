@@ -26,7 +26,10 @@ csharp-build = { cmd = "cd csharp && dotnet test Substrait.slnx", description = 
 # newest published C# runtime). That is safe while both agree on major.minor,
 # which is all ANTLR's RuntimeMetaData.CheckVersion compares, but a bump to 4.14
 # needs a matching C# runtime release first.
-antlr = ">=4.13.2,<5"
+# Pinned exactly so the weekly pixi.lock refresh can't move the tool away from
+# SUBSTRAIT_ANTLR_VERSION in cpp/substrait-antlr/CMakeLists.txt; Renovate bumps
+# both together.
+antlr = "==4.13.2"
 buf = ">=1.62.1,<2"
 datamodel-code-generator = ">=0.52.0,<0.53"
 ruff = ">=0.14.10,<0.15"

@@ -11,7 +11,8 @@ option(SUBSTRAIT_ANTLR_BUILD_TESTS "Build substrait-antlr tests"
 
 # Version of the ANTLR C++ runtime to build. Keep aligned with the `antlr` tool
 # version in pixi.toml that generates the committed parsers — the generated code
-# and the runtime must come from the same ANTLR release.
+# and the runtime must come from the same ANTLR release. Renovate bumps both
+# together (see renovate.json).
 set(SUBSTRAIT_ANTLR_VERSION
     "4.13.2"
     CACHE STRING "ANTLR C++ runtime version")
