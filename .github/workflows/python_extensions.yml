@@ -135,7 +135,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.2.0
         with:
           # Pin uv version
-          version: "0.12.20"
+          version: "0.12.21"
       - name: Build
         run: uv build
       - name: Smoke Test (wheel)
