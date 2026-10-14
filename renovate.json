@@ -68,7 +68,7 @@
       "versioning": "semver"
     },
     {
-      "description": "exclude-newer in pixi.toml and in each python/*/pyproject.toml already applies the release-age cooldown to every package pixi lock and uv lock pick. Lock file maintenance has no release date for Renovate to check, so its own gate would never pass. Cargo has no such cutoff, so Cargo.lock maintenance keeps the gate",
+      "description": "exclude-newer in pixi.toml and in each python/*/pyproject.toml already applies the release-age cooldown to every package pixi lock and uv lock pick. Lock file maintenance has no release date for Renovate to check, so its own gate would never pass. Cargo has no such cutoff, so Cargo.lock maintenance is left out: its never-passing check at least marks that no crate age was checked",
       "matchManagers": ["pixi", "pep621"],
       "matchUpdateTypes": ["lockFileMaintenance"],
       "minimumReleaseAge": null
