@@ -36,6 +36,46 @@ it; the committed exceptions and the reasoning behind each are documented per
 language in `README.md`. If you change a generation script, check whether its
 output is committed before assuming a regeneration is needed.
 
+### Dependency Cooldown
+
+`pixi.toml` sets `exclude-newer = "14d"` and each `python/*/pyproject.toml` sets
+`[tool.uv] exclude-newer = "14 days"`, so `pixi lock` and `uv lock` ignore
+packages published in the last 14 days. A compromised or broken upload therefore
+has two weeks to be noticed before it can reach `pixi.lock` or a `uv.lock` — see
+[Pixi's security guide](https://pixi.prefix.dev/latest/security/) for the
+reasoning. Both cutoffs are relative durations evaluated at solve time, so the
+window slides on its own and needs no maintenance. (For conda packages the
+cutoff is compared against the build timestamp in the channel's repodata, which
+predates the upload, so the effective hold is a little shorter than 14 days.)
+Cargo has no equivalent setting, so `Cargo.lock` is only held back by Renovate.
+
+Keep these windows in step with `minimumReleaseAge` in `renovate.json`. If
+Renovate proposes a version newer than the cutoff, the `pixi lock` or `uv lock`
+step in its own pull request cannot resolve that version.
+
+To take a security fix that is younger than the window, add a per-package
+override rather than lowering the cutoff:
+
+```toml
+# pixi.toml, conda packages
+[exclude-newer]
+openssl = "0d"
+
+# pixi.toml, PyPI packages
+[pypi-exclude-newer]
+urllib3 = "0d"
+```
+
+```toml
+# python/*/pyproject.toml
+[tool.uv]
+exclude-newer-package = { urllib3 = "0 days" }
+```
+
+Then run `pixi update openssl` or `uv lock --upgrade-package urllib3` to pull the
+fix into the lock file. Drop the override again once the fix has aged past the
+window.
+
 ## Continuous Integration
 
 The `ci_<language>.yml` workflows run on pull requests and validate the packaging

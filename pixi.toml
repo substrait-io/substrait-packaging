@@ -2,6 +2,10 @@
 name = "substrait-packaging"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "linux-aarch64"]
+# Ignore conda and PyPI packages published in the last 14 days when solving, so
+# a compromised or broken upload has time to be noticed before it can reach a
+# build. See CONTRIBUTING.md for how to bypass this for an urgent security fix.
+exclude-newer = "14d"
 
 [tasks]
 python-generate-antlr = { cmd = "cd python/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR Python parsers" }
@@ -33,7 +37,9 @@ antlr = "==4.13.2"
 buf = ">=1.62.1,<2"
 datamodel-code-generator = ">=0.83,<0.84"
 ruff = ">=0.16.9,<0.17"
-uv = ">=0.9.25,<1"
+# 0.11.8 is the first release that writes a relative exclude-newer into uv.lock
+# without a solve timestamp, so the lock does not change on every re-lock.
+uv = ">=0.11.8,<1"
 # Required to run the forked ANTLR JAR for the Rust parser generation, and to
 # satisfy the Java build's Gradle toolchain (Java 21).
 openjdk = ">=21,<26"
