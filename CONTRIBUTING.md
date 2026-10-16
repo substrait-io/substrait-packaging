@@ -48,7 +48,8 @@ window slides on its own and needs no maintenance. (For conda packages the
 cutoff is compared against the build timestamp in the channel's repodata, which
 predates the upload, so the effective hold is a little shorter than 14 days.)
 The pixi cutoff needs pixi 0.67.0 or later, which `requires-pixi` enforces, and
-the uv one uv 0.11.8 or later, the minimum `uv` version in `pixi.toml`.
+the uv one uv 0.11.8 or later, which `required-version` in each `[tool.uv]`
+enforces.
 Cargo has no equivalent setting, so nothing holds new crates back from
 `Cargo.lock` maintenance: Renovate has no release date to check for a lock file
 refresh, so the `renovate/stability-days` check on that pull request stays

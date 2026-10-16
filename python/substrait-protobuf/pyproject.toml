@@ -34,6 +34,7 @@ namespaces = true
 # Ignore PyPI packages published in the last 14 days when locking, matching the
 # exclude-newer cutoff in /pixi.toml. See CONTRIBUTING.md.
 [tool.uv]
+required-version = ">=0.11.8"
 exclude-newer = "14 days"
 
 [build-system]
