@@ -3,7 +3,7 @@
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/substrait-io/substrait-packaging
-    REF b58f6c71bca702a0e71c291e679c4cfea4d9944a) # cpp/substrait-protobuf/v0.106.0
+    REF 910e06b43638f3d0d5ce655e2b5b3d5c494eff43) # cpp/substrait-protobuf/v0.107.0
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}/cpp/substrait-protobuf"
