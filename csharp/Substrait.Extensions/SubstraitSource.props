@@ -1,0 +1,7 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Generated with the vendored specification sources. Do not edit. -->
+<Project>
+  <PropertyGroup>
+    <SubstraitGitHash>edb8d48cb855d785656bf797ab7a226803534705</SubstraitGitHash>
+  </PropertyGroup>
+</Project>
