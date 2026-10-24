@@ -32,7 +32,7 @@ csharp-build = { cmd = "cd csharp && dotnet test Substrait.slnx", description = 
 antlr = "==4.13.2"
 buf = ">=1.62.1,<2"
 datamodel-code-generator = ">=0.83,<0.84"
-ruff = ">=0.16.9,<0.17"
+ruff = ">=0.17,<0.18"
 uv = ">=0.9.25,<1"
 # Required to run the forked ANTLR JAR for the Rust parser generation, and to
 # satisfy the Java build's Gradle toolchain (Java 21).
