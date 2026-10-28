@@ -77,9 +77,9 @@ jobs:
           persist-credentials: false
 
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.10.2
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          pixi-version: v0.81.0
+          pixi-version: v0.82.0
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
 
@@ -127,9 +127,9 @@ jobs:
           ref: ${{ env.TAG_NAME }}
           fetch-depth: 0
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.10.2
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          pixi-version: v0.81.0
+          pixi-version: v0.82.0
       - name: Build
         run: pixi run uv build
       - name: Smoke Test (wheel)

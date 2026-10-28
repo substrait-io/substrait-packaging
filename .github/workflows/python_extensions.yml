@@ -77,9 +77,9 @@ jobs:
           persist-credentials: false
 
       - name: Install pixi
-        uses: prefix-dev/setup-pixi@v0.10.2
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          pixi-version: v0.81.0
+          pixi-version: v0.82.0
 
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
@@ -132,10 +132,10 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.2.0
+        uses: astral-sh/setup-uv@v10.3.0
         with:
           # Pin uv version
-          version: "0.12.22"
+          version: "0.13.1"
       - name: Build
         run: uv build
       - name: Smoke Test (wheel)
