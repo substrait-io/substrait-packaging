@@ -1,0 +1,13 @@
+# The pinned commitlint toolchain's node_modules/ is third-party and not ours to lint.
+ignore: |
+  node_modules/
+
+rules:
+  line-length:
+    max: 120
+  brackets:
+    forbid: false
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+    min-spaces-inside-empty: 0
+    max-spaces-inside-empty: 0
