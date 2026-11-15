@@ -5,7 +5,7 @@
 use substrait_extensions::examples::EXAMPLES;
 use substrait_extensions::extensions::{EXTENSIONS, FUNCTIONS_ARITHMETIC, SIMPLE_EXTENSIONS};
 use substrait_extensions::testcases::TESTCASES;
-use substrait_extensions::text::simple_extensions::SimpleExtensions;
+use substrait_extensions::text::simple_extensions::{SimpleExtensions, Type};
 use substrait_extensions::text::SIMPLE_EXTENSIONS_SCHEMA;
 
 #[test]
@@ -17,6 +17,20 @@ fn arithmetic_extension_is_embedded_and_parses() {
     let parsed: SimpleExtensions =
         serde_yaml::from_str(FUNCTIONS_ARITHMETIC).expect("functions_arithmetic.yaml parses");
     assert!(parsed.scalar_functions.iter().any(|f| f.name == "add"));
+}
+
+#[test]
+fn named_struct_field_order_is_preserved() {
+    // Field order determines struct ordinals, so it must not be alphabetized.
+    let source = "z: i32\na: string\nm: boolean\n";
+    let parsed: Type = serde_yaml::from_str(source).expect("named struct parses");
+    let Type::Object(fields) = &parsed else {
+        panic!("expected a named struct");
+    };
+    assert_eq!(
+        fields.keys().map(String::as_str).collect::<Vec<_>>(),
+        ["z", "a", "m"]
+    );
 }
 
 #[test]
