@@ -42,8 +42,8 @@ openjdk = ">=21,<26"
 # by the substrait-protobuf package. The ANTLR C++ runtime is built
 # hermetically by the substrait-antlr package via FetchContent (no conda runtime
 # dep, so it builds identically on every platform and for downstream consumers).
-cmake = ">=3.24,<4"
-cxx-compiler = ">=1.7,<2"
+cmake = ">=4.4,<5"
+cxx-compiler = ">=2,<3"
 libprotobuf = ">=5"
 # C# packaging: build, test and pack the NuGet packages. The SDK also supplies
 # protoc and the C# protobuf plugin via the Grpc.Tools NuGet package, so no
