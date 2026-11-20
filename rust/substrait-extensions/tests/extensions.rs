@@ -15,7 +15,7 @@ fn arithmetic_extension_is_embedded_and_parses() {
 
     // ...and parses into the generated `SimpleExtensions` type.
     let parsed: SimpleExtensions =
-        serde_yaml::from_str(FUNCTIONS_ARITHMETIC).expect("functions_arithmetic.yaml parses");
+        yaml_serde::from_str(FUNCTIONS_ARITHMETIC).expect("functions_arithmetic.yaml parses");
     assert!(parsed.scalar_functions.iter().any(|f| f.name == "add"));
 }
 
@@ -23,7 +23,7 @@ fn arithmetic_extension_is_embedded_and_parses() {
 fn named_struct_field_order_is_preserved() {
     // Field order determines struct ordinals, so it must not be alphabetized.
     let source = "z: i32\na: string\nm: boolean\n";
-    let parsed: Type = serde_yaml::from_str(source).expect("named struct parses");
+    let parsed: Type = yaml_serde::from_str(source).expect("named struct parses");
     let Type::Object(fields) = &parsed else {
         panic!("expected a named struct");
     };
@@ -58,7 +58,7 @@ fn simple_extensions_slice_is_keyed_by_urn() {
     // source parses into the generated type.
     for (urn, yaml) in SIMPLE_EXTENSIONS {
         let parsed: SimpleExtensions =
-            serde_yaml::from_str(yaml).expect("bundled extension parses");
+            yaml_serde::from_str(yaml).expect("bundled extension parses");
         assert_eq!(&parsed.urn, urn);
     }
     let _ = urn;
@@ -69,8 +69,8 @@ fn simple_extensions_schema_is_exposed() {
     // The raw JSON schema source is available for consumers that validate raw
     // YAML against it (rather than using the generated types).
     assert!(SIMPLE_EXTENSIONS_SCHEMA.contains("urn"));
-    let _: serde_yaml::Value =
-        serde_yaml::from_str(SIMPLE_EXTENSIONS_SCHEMA).expect("schema is valid YAML");
+    let _: yaml_serde::Value =
+        yaml_serde::from_str(SIMPLE_EXTENSIONS_SCHEMA).expect("schema is valid YAML");
 }
 
 #[test]
@@ -100,7 +100,7 @@ fn examples_are_embedded_and_parse() {
     // usable as parser fixtures.
     for file in yamls {
         let source = file.contents_utf8().expect("example is UTF-8");
-        let _: SimpleExtensions = serde_yaml::from_str(source)
+        let _: SimpleExtensions = yaml_serde::from_str(source)
             .unwrap_or_else(|e| panic!("{} parses: {e}", file.path().display()));
     }
 }
