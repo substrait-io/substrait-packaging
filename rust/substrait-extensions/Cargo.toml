@@ -36,7 +36,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 # downstream build with no way to opt out. Insertion order is preserved where it
 # matters by generating `IndexMap` instead (see `build.rs`).
 serde_json = "1.0.145"
-serde_yaml = "0.9.34"
+yaml_serde = "0.10.7"
 
 [build-dependencies]
 heck = "0.5.0"
@@ -45,7 +45,7 @@ prettyplease = "0.3.0"
 # feeds schemars types straight into typify, so this must track typify's
 # schemars, not the latest release. Bumping to 1.x breaks the build.
 schemars = "0.8.22"
-serde_yaml = "0.9.34"
+yaml_serde = "0.10.7"
 syn = "3.0.2"
 typify = "0.8.0"
 walkdir = "2.5.0"

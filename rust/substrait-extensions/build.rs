@@ -40,7 +40,7 @@ fn text(out_dir: &Path) -> Result<(), Box<dyn Error>> {
             println!("cargo:rerun-if-changed={}", entry.display());
         })
     {
-        let schema = serde_yaml::from_reader::<_, RootSchema>(File::open(&schema_path)?)?;
+        let schema = yaml_serde::from_reader::<_, RootSchema>(File::open(&schema_path)?)?;
         let metadata = schema.schema.metadata.as_ref();
         let id = metadata
             .and_then(|metadata| metadata.id.as_ref())
@@ -223,10 +223,10 @@ pub const {var_name}: &str = include_str!({:?});
 
         // Extract the top-level `urn` field (a required property of every
         // extension file) so the file can be looked up by its identifier.
-        let value = serde_yaml::from_str::<serde_yaml::Value>(&fs::read_to_string(extension)?)?;
+        let value = yaml_serde::from_str::<yaml_serde::Value>(&fs::read_to_string(extension)?)?;
         let urn = value
             .get("urn")
-            .and_then(serde_yaml::Value::as_str)
+            .and_then(yaml_serde::Value::as_str)
             .unwrap_or_else(|| panic!("`urn` missing in `{}`", extension.display()))
             .to_string();
         urns.push((urn, var_name.clone()));
@@ -249,7 +249,7 @@ pub static EXTENSIONS: LazyLock<HashMap<&'static str, SimpleExtensions>> = LazyL
     for (name, var_name) in map {
         output.push_str(&format!(
             r#"
-    map.insert("{name}", serde_yaml::from_str({var_name}).expect("a valid core extension"));"#
+    map.insert("{name}", yaml_serde::from_str({var_name}).expect("a valid core extension"));"#
         ));
     }
     output.push_str(
