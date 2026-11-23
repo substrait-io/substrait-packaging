@@ -20,6 +20,11 @@ on:
         type: string
 
 jobs:
+  publish-go-artifacts:
+    uses: ./.github/workflows/go_publish.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
   publish-python-artifacts:
     uses: ./.github/workflows/python_publish.yml
     secrets: inherit

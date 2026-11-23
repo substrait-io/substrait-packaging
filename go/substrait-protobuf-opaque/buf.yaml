@@ -1,0 +1,5 @@
+version: v2
+# The Substrait protos are copied into tmp/proto by generate_protobuf.sh so that
+# import paths like `substrait/algebra.proto` resolve against this module root.
+modules:
+  - path: tmp/proto

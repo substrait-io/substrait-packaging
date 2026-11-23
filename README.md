@@ -9,6 +9,9 @@ Machinery for releasing Substrait code artifacts based on specification releases
 Artifacts are generated and published using a hierarchy of GitHub Actions:
 
 * publish_artifacts.yml: For releasing artifacts across all languages
+  * go_publish.yml: For releasing Go protobuf modules
+    * go_protobuf.yml
+    * go_protobuf_opaque.yml
   * java_publish.yml: For releasing Java specific artifacts
     * java_antlr.yml
     * java_protobuf.yml
@@ -34,7 +37,7 @@ Each of these workflows consumes a required substrait_version input. They are in
 
 The spec_released.yml workflow is a thin-wrapper around publish_artifacts.yml which is designed to be invoked whenever a new version of [substrait](https://github.com/substrait-io/substrait) specification is released.
 
-The ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml and ci_csharp.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
+The ci_go.yml, ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml and ci_csharp.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
 
 Re-usable scripts for use across these workflows can be found in `/scripts`.
 
@@ -46,6 +49,31 @@ Re-usable scripts for use across these workflows can be found in `/scripts`.
 # Install dependencies and update pixi.lock
 pixi install
 ```
+
+## Go Code Generation
+
+Go packaging currently provides two protobuf modules. ANTLR parsers and embedded
+specification data will be added separately.
+
+```sh
+# Generate bindings with the Open (struct) API
+pixi run go-generate-protobuf
+
+# Generate bindings with the Opaque (builder) API
+pixi run go-generate-protobuf-opaque
+```
+
+Set `SUBSTRAIT_HOME` to a local specification checkout when generating locally.
+Generated code is committed only on release tags, not on `main`. Each module is
+published by pushing its own `go/<package>/vX.Y.Z` tag. The two APIs have distinct
+Go types; consumers should choose one rather than importing both into the same
+binary.
+
+Go publishing defaults to alpha prereleases for integration testing. Run
+`go_publish.yml` with `alpha: false` for a stable release. The `substrait_version`
+input can select an older spec release, so backfilling does not require upgrading
+to the latest spec. Go CI validates both the latest spec and v0.85.0, the protobuf
+version currently used by substrait-go's encoding module.
 
 ## Python Code Generation
 
