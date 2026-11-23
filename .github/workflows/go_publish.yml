@@ -70,6 +70,6 @@ jobs:
       - name: Commit and Publish Tag
         run: |
           git add "go/$MODULE"
-          git commit -m "Generate $MODULE for Substrait $SUBSTRAIT_VERSION"
+          git commit -m "Generated protobuf code for Substrait version $SUBSTRAIT_VERSION"
           git tag -a "$TAG" -m "$TAG"
           git push origin "refs/tags/$TAG"
