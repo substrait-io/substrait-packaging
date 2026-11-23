@@ -62,7 +62,7 @@ jobs:
           for MODULE in substrait-protobuf substrait-protobuf-opaque; do
             (
               cd "go/$MODULE"
-              pixi run buf generate ../../substrait/proto
+              pixi run ./generate_protobuf.sh
               go mod tidy
               go build ./...
               go test ./...

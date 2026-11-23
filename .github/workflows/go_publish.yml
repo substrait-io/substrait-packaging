@@ -60,10 +60,10 @@ jobs:
         run: |
           ./scripts/attach_subtree.sh
           cd "go/$MODULE"
-          pixi run buf generate ../../substrait/proto
+          pixi run ./generate_protobuf.sh
       - name: Build and Test
-        working-directory: go/${{ matrix.module }}
         run: |
+          cd "go/$MODULE"
           go mod tidy
           go build ./...
           go test ./...
