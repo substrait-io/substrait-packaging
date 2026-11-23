@@ -25,12 +25,7 @@ concurrency:
 
 jobs:
   go:
-    name: go (${{ matrix.substrait_version }})
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        substrait_version: ["${{ inputs.substrait_version || 'latest' }}", "v0.85.0"]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -39,9 +34,9 @@ jobs:
       - name: Resolve Substrait Version
         env:
           GH_TOKEN: ${{ github.token }}
-          OVERRIDE: ${{ matrix.substrait_version }}
+          OVERRIDE: ${{ inputs.substrait_version }}
         run: |
-          if [ "$OVERRIDE" != "latest" ]; then
+          if [ -n "$OVERRIDE" ]; then
             VERSION="$OVERRIDE"
           else
             VERSION=$(./scripts/latest_release.sh)

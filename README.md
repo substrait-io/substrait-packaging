@@ -70,9 +70,7 @@ bindings, causes duplicate protobuf descriptor registration conflicts.
 
 Go module versions match the specification version. Run `go_publish.yml` with
 `substrait_version: v0.85.0` to publish both modules at `v0.85.0`. Older spec
-releases can be backfilled without upgrading to the latest spec. Go CI validates
-both the latest spec and v0.85.0, the protobuf version currently used by
-substrait-go's encoding module.
+releases can be backfilled without upgrading to the latest spec.
 
 ## Python Code Generation
 
