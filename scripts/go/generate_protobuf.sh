@@ -8,15 +8,9 @@ case "$MODULE" in
 esac
 
 cd "$(dirname "$0")/../../go/$MODULE"
-PROTO_DIR="${SUBSTRAIT_HOME:-../../substrait}/proto/substrait"
+PROTO_DIR="${SUBSTRAIT_HOME:-../../substrait}/proto"
 echo "Generating $MODULE from $PROTO_DIR"
-
-# Buf resolves imports rooted at substrait/ from this temporary module.
-trap 'rm -rf tmp' EXIT
-rm -rf tmp
-mkdir -p tmp/proto
-cp -R "$PROTO_DIR" tmp/proto/
-buf generate
+buf generate "$PROTO_DIR"
 
 find substraitpb -name '*.go' | while IFS= read -r file; do
   if ! head -n 1 "$file" | grep -q 'SPDX-License-Identifier'; then
