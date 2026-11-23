@@ -9,7 +9,6 @@ on:
       - go/**
       - .github/workflows/ci_go.yml
       - .github/workflows/go_*.yml
-      - .github/actions/setup-release-git/**
   push:
     branches: [main]
     paths: *paths

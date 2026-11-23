@@ -38,8 +38,6 @@ The spec_released.yml workflow is a thin-wrapper around publish_artifacts.yml wh
 The ci_go.yml, ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml and ci_csharp.yml workflows run on pull requests and pushes to `main`. They validate the packaging machinery against the most recent substrait spec release by running the same generate + build + test steps as the publish workflows, but without versioning, committing, tagging or publishing. This catches changes that would break a real release before they are merged. Each only runs when its language's relevant paths change (via a `paths` filter), and a specific spec version can be validated on demand via the `workflow_dispatch` `substrait_version` input.
 
 Re-usable scripts for use across these workflows can be found in `/scripts`.
-Java protobuf and Go publishing share `.github/actions/setup-release-git` for
-packaging bot authentication and Git identity.
 
 # Development
 

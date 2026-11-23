@@ -18,8 +18,6 @@ on:
       - pixi.lock
       - java/**
       - .github/workflows/ci_java.yml
-      - .github/workflows/java_protobuf.yml
-      - .github/actions/setup-release-git/**
   push:
     branches: [main]
     paths: *paths
