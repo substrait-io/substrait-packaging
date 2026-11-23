@@ -60,9 +60,9 @@ jobs:
       - name: Generate, Build and Test Both APIs
         run: |
           for MODULE in substrait-protobuf substrait-protobuf-opaque; do
-            pixi run ./scripts/go/generate_protobuf.sh "$MODULE"
             (
               cd "go/$MODULE"
+              pixi run buf generate ../../substrait/proto
               go mod tidy
               go build ./...
               go test ./...

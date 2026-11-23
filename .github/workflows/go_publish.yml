@@ -59,7 +59,8 @@ jobs:
       - name: Attach Specification and Generate Bindings
         run: |
           ./scripts/attach_subtree.sh
-          pixi run ./scripts/go/generate_protobuf.sh "$MODULE"
+          cd "go/$MODULE"
+          pixi run buf generate ../../substrait/proto
       - name: Build and Test
         working-directory: go/${{ matrix.module }}
         run: |
