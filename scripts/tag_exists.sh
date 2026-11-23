@@ -10,14 +10,15 @@ TAG_NAME="$1"
 
 # Extract version from tag name (format: <language>/<repo>/vx.y.z)
 # Requires exactly 2 path components before the version
-VERSION=$(echo "$TAG_NAME" | sed -nE 's|^[^/]+/[^/]+/(v.*)$|\1|p')
+VERSION=$(echo "$TAG_NAME" | sed -n 's|^\([^/]\+\)/\([^/]\+\)/\(v.*\)$|\3|p')
 
+# Check if version was extracted and matches vx.y.z format
 if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-  echo "Error: tag name must follow format <language>/<repo>/vx.y.z, received: $TAG_NAME" >&2
+  echo "Error: tag name must follow format <language>/<repo>/vx.y.z, received: $TAG_NAME"
   exit 2
 fi
 
-if git show-ref --verify --quiet "refs/tags/$TAG_NAME"; then
+if git show-ref --quiet $TAG_NAME; then
     echo true
 else
     echo false

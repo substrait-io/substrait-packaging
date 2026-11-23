@@ -39,8 +39,7 @@ The ci_go.yml, ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml and ci_csharp
 
 Re-usable scripts for use across these workflows can be found in `/scripts`.
 Java protobuf and Go publishing share `.github/actions/setup-release-git` for
-packaging bot authentication and Git identity. Both use `scripts/tag_exists.sh`
-and `scripts/push_tag.sh` for release tags.
+packaging bot authentication and Git identity.
 
 # Development
 

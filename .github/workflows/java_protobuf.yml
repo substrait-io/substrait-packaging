@@ -78,7 +78,9 @@ jobs:
       # Generated code is produced at build time and is intentionally not committed.
       - name: Tag and Push
         if: needs.java-protobuf-prechecks.outputs.tag_exists == 'false'
-        run: ./scripts/push_tag.sh "$TAG_NAME"
+        run: |
+          git tag -a "$TAG_NAME" -m "$TAG_NAME"
+          git push origin "refs/tags/$TAG_NAME"
 
   java-protobuf-publish:
     runs-on: ubuntu-latest

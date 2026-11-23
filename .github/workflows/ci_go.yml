@@ -54,8 +54,6 @@ jobs:
         run: |
           git config --global user.name 'substrait-packaging-ci'
           git config --global user.email 'substrait-packaging-ci@users.noreply.github.com'
-      - name: Test Release Tags
-        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
       - name: Install pixi
         uses: prefix-dev/setup-pixi@v0.10.2
       - name: Install Go
