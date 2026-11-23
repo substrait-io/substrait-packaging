@@ -50,31 +50,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: java-protobuf-prechecks
     steps:
-      - name: Generate GitHub App Token for Pushing Tags
-        uses: actions/create-github-app-token@v3
-        id: app-token
-        with:
-          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
-          private-key: ${{ secrets.PACKAGER_KEY }}
-
-      - name: Get GitHub App User ID
-        id: get-user-id
-        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-      - name: Configure GitHub User
-        run: |
-          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
-          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
-
       - name: Checkout substrait-packaging
         uses: actions/checkout@v7
         with:
-          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
           persist-credentials: false
+
+      - uses: ./.github/actions/setup-release-git
+        with:
+          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
+          private-key: ${{ secrets.PACKAGER_KEY }}
 
       - name: Attach and Commit substrait Repo
         run: ./scripts/attach_subtree.sh
@@ -93,9 +78,7 @@ jobs:
       # Generated code is produced at build time and is intentionally not committed.
       - name: Tag and Push
         if: needs.java-protobuf-prechecks.outputs.tag_exists == 'false'
-        run: |
-          git tag -a "$TAG_NAME" -m "$TAG_NAME"
-          git push origin "$TAG_NAME"
+        run: ./scripts/push_tag.sh "$TAG_NAME"
 
   java-protobuf-publish:
     runs-on: ubuntu-latest

@@ -41,14 +41,8 @@ jobs:
       MODULE: ${{ matrix.module }}
       MODULE_PATH: github.com/substrait-io/substrait-packaging/go/${{ matrix.module }}
     steps:
-      - uses: actions/create-github-app-token@v3
-        id: app-token
-        with:
-          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
-          private-key: ${{ secrets.PACKAGER_KEY }}
       - uses: actions/checkout@v6
         with:
-          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
           persist-credentials: false
       - name: Resolve Release
@@ -65,24 +59,16 @@ jobs:
             VERSION=$(./scripts/go/next_alpha_version.sh "$MODULE" "$SUBSTRAIT_VERSION")
           fi
           TAG="go/$MODULE/v$VERSION"
-          EXISTS=false
-          if git show-ref --verify --quiet "refs/tags/$TAG"; then
-            EXISTS=true
-          fi
+          EXISTS=$(./scripts/tag_exists.sh "$TAG")
           PUBLISHED=$(./scripts/go/module_exists.sh "$MODULE_PATH" "$VERSION")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
           echo "published=$PUBLISHED" >> "$GITHUB_OUTPUT"
-      - name: Configure Git Identity and Authentication
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-        run: |
-          USER_ID=$(gh api "/users/$APP_SLUG[bot]" --jq .id)
-          git config --global user.name "$APP_SLUG[bot]"
-          git config --global user.email "$USER_ID+$APP_SLUG[bot]@users.noreply.github.com"
-          git config --global url."https://x-access-token:$GH_TOKEN@github.com/".insteadOf https://github.com/
+      - uses: ./.github/actions/setup-release-git
+        with:
+          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
+          private-key: ${{ secrets.PACKAGER_KEY }}
       - name: Reuse Existing Release
         if: steps.release.outputs.exists == 'true'
         env:
@@ -112,8 +98,7 @@ jobs:
         run: |
           git add "go/$MODULE"
           git commit -m "Generate $MODULE for Substrait $SUBSTRAIT_VERSION"
-          git tag -a "$TAG" -m "$TAG"
-          git push origin "$TAG"
+          ./scripts/push_tag.sh "$TAG"
       - name: Warm Go Module Proxy
         if: steps.release.outputs.published == 'false'
         env:

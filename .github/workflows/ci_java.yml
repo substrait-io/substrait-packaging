@@ -18,6 +18,8 @@ on:
       - pixi.lock
       - java/**
       - .github/workflows/ci_java.yml
+      - .github/workflows/java_protobuf.yml
+      - .github/actions/setup-release-git/**
   push:
     branches: [main]
     paths: *paths
@@ -40,6 +42,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Test Release Tags
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
       - name: Resolve Substrait Version
         env:
           GH_TOKEN: ${{ github.token }}
