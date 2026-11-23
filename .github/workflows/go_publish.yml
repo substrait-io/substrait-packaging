@@ -31,7 +31,6 @@ jobs:
         module: [substrait-protobuf, substrait-protobuf-opaque]
     env:
       MODULE: ${{ matrix.module }}
-      MODULE_PATH: github.com/substrait-io/substrait-packaging/go/${{ matrix.module }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -44,14 +43,10 @@ jobs:
             echo "Error: substrait_version must follow the format vx.y.z" >&2
             exit 1
           fi
-          VERSION="${SUBSTRAIT_VERSION#v}"
           TAG="go/$MODULE/$SUBSTRAIT_VERSION"
           EXISTS=$(./scripts/tag_exists.sh "$TAG")
-          PUBLISHED=$(./scripts/go/module_exists.sh "$MODULE_PATH" "$VERSION")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
-          echo "published=$PUBLISHED" >> "$GITHUB_OUTPUT"
       - uses: ./.github/actions/setup-release-git
         with:
           client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
@@ -86,10 +81,3 @@ jobs:
           git add "go/$MODULE"
           git commit -m "Generate $MODULE for Substrait $SUBSTRAIT_VERSION"
           ./scripts/push_tag.sh "$TAG"
-      - name: Warm Go Module Proxy
-        if: steps.release.outputs.published == 'false'
-        env:
-          VERSION: ${{ steps.release.outputs.version }}
-        run: |
-          curl --fail --silent --show-error --retry 5 --retry-all-errors \
-            "https://proxy.golang.org/$MODULE_PATH/@v/v$VERSION.info"
