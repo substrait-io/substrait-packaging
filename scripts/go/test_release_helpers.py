@@ -1,4 +1,4 @@
-"""Exercise release version selection and Go proxy failure handling."""
+"""Exercise Go proxy presence checks and failure handling."""
 
 import os
 from pathlib import Path
@@ -56,36 +56,6 @@ class ReleaseHelpersTest(unittest.TestCase):
         result = self.run_script("module_exists.sh", "example.com/module", "0.85.0")
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn("false", result.stdout)
-
-    def test_alpha_versions_follow_only_matching_module_tags(self):
-        def git(*arguments):
-            subprocess.run(
-                ["git", "-c", "tag.gpgSign=false", "-c", "commit.gpgSign=false", *arguments],
-                cwd=self.directory,
-                check=True,
-                capture_output=True,
-            )
-
-        git("init")
-        git("-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "--allow-empty", "-m", "Initial")
-        for expected, tag in [
-            ("0.85.0-alpha", "go/substrait-protobuf/v0.85.0-alpha"),
-            ("0.85.0-alpha.1", "go/substrait-protobuf/v0.85.0-alpha.9"),
-            ("0.85.0-alpha.10", "go/substrait-protobuf/v0.85.0-alpha.beta"),
-        ]:
-            result = self.run_script("next_alpha_version.sh", "substrait-protobuf", "v0.85.0")
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(result.stdout.strip(), expected)
-            git("tag", tag)
-        git("tag", "go/substrait-protobuf-opaque/v0.85.0-alpha.99")
-        git("tag", "go/substrait-protobuf/v0.86.0-alpha.99")
-        result = self.run_script("next_alpha_version.sh", "substrait-protobuf", "0.85.0")
-        self.assertEqual(result.stdout.strip(), "0.85.0-alpha.10")
-
-    def test_invalid_spec_version_is_rejected(self):
-        result = self.run_script("next_alpha_version.sh", "substrait-protobuf", "main")
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("version must follow", result.stderr)
 
 
 if __name__ == "__main__":

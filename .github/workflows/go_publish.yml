@@ -12,20 +12,12 @@ on:
         description: Substrait version to generate bindings for
         required: true
         type: string
-      alpha:
-        description: Publish an auto-incrementing alpha prerelease
-        default: true
-        type: boolean
   workflow_dispatch:
     inputs:
       substrait_version:
         description: Substrait version to generate bindings for
         required: true
         type: string
-      alpha:
-        description: Publish an auto-incrementing alpha prerelease
-        default: true
-        type: boolean
 
 env:
   SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
@@ -47,18 +39,13 @@ jobs:
           persist-credentials: false
       - name: Resolve Release
         id: release
-        env:
-          ALPHA: ${{ inputs.alpha }}
         run: |
           if ! printf '%s\n' "$SUBSTRAIT_VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "Error: substrait_version must follow the format vx.y.z" >&2
             exit 1
           fi
           VERSION="${SUBSTRAIT_VERSION#v}"
-          if [ "$ALPHA" = "true" ]; then
-            VERSION=$(./scripts/go/next_alpha_version.sh "$MODULE" "$SUBSTRAIT_VERSION")
-          fi
-          TAG="go/$MODULE/v$VERSION"
+          TAG="go/$MODULE/$SUBSTRAIT_VERSION"
           EXISTS=$(./scripts/tag_exists.sh "$TAG")
           PUBLISHED=$(./scripts/go/module_exists.sh "$MODULE_PATH" "$VERSION")
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"

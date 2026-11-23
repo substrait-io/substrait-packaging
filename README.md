@@ -40,7 +40,7 @@ The ci_go.yml, ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml and ci_csharp
 Re-usable scripts for use across these workflows can be found in `/scripts`.
 Java protobuf and Go publishing share `.github/actions/setup-release-git` for
 packaging bot authentication and Git identity. Both use `scripts/tag_exists.sh`
-and `scripts/push_tag.sh` for stable and prerelease tags.
+and `scripts/push_tag.sh` for release tags.
 
 # Development
 
@@ -71,11 +71,11 @@ published by pushing its own `go/<package>/vX.Y.Z` tag. Choose one API per binar
 Linking both modules, or linking either with the legacy `substrait-protobuf/go`
 bindings, causes duplicate protobuf descriptor registration conflicts.
 
-Go publishing defaults to alpha prereleases for integration testing. Run
-`go_publish.yml` with `alpha: false` for a stable release. The `substrait_version`
-input can select an older spec release, so backfilling does not require upgrading
-to the latest spec. Go CI validates both the latest spec and v0.85.0, the protobuf
-version currently used by substrait-go's encoding module.
+Go module versions match the specification version. Run `go_publish.yml` with
+`substrait_version: v0.85.0` to publish both modules at `v0.85.0`. Older spec
+releases can be backfilled without upgrading to the latest spec. Go CI validates
+both the latest spec and v0.85.0, the protobuf version currently used by
+substrait-go's encoding module.
 
 ## Python Code Generation
 

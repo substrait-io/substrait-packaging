@@ -12,11 +12,11 @@ import (
 )
 ```
 
-Module versions follow the specification version. For example, `v0.85.0-alpha`
+Module versions follow the specification version. For example, `v0.85.0`
 contains bindings generated from spec `v0.85.0`.
 
 ```sh
-go get github.com/substrait-io/substrait-packaging/go/substrait-protobuf-opaque@v0.85.0-alpha
+go get github.com/substrait-io/substrait-packaging/go/substrait-protobuf-opaque@v0.85.0
 ```
 
 See [Go code generation](../../README.md#go-code-generation) for local generation,

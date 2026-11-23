@@ -40,8 +40,12 @@ class ReleaseTagsTest(unittest.TestCase):
             capture_output=True, text=True,
         )
 
-    def test_publish_stable_and_prerelease_tags(self):
-        for tag in ["java/protobuf/v0.85.0", "go/substrait-protobuf/v0.85.0-alpha.1"]:
+    def test_publish_release_tags(self):
+        for tag in [
+            "java/protobuf/v0.85.0",
+            "go/substrait-protobuf/v0.85.0",
+            "go/substrait-protobuf-opaque/v0.85.0",
+        ]:
             with self.subTest(tag=tag):
                 self.assertEqual(self.script("tag_exists.sh", tag).stdout.strip(), "false")
                 result = self.script("push_tag.sh", tag)
@@ -59,7 +63,7 @@ class ReleaseTagsTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_invalid_versions_do_not_create_tags(self):
-        for tag in ["java/protobuf/main", "v0.85.0", "go/module/v0.85.0-alpha..1"]:
+        for tag in ["java/protobuf/main", "v0.85.0", "go/module/v0.85.0-rc.1"]:
             with self.subTest(tag=tag):
                 self.assertNotEqual(self.script("push_tag.sh", tag).returncode, 0)
         self.assertEqual(self.git("tag", "--list"), "")
