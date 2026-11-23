@@ -1,0 +1,27 @@
+name: Set up release Git access
+description: Authenticate as the packaging GitHub App and configure Git for release commits and tags.
+inputs:
+  client-id:
+    description: Packaging GitHub App client ID
+    required: true
+  private-key:
+    description: Packaging GitHub App private key
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/create-github-app-token@v3
+      id: app-token
+      with:
+        client-id: ${{ inputs.client-id }}
+        private-key: ${{ inputs.private-key }}
+    - name: Configure Git identity and authentication
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+      run: |
+        USER_ID=$(gh api "/users/$APP_SLUG[bot]" --jq .id)
+        git config --global user.name "$APP_SLUG[bot]"
+        git config --global user.email "$USER_ID+$APP_SLUG[bot]@users.noreply.github.com"
+        git config --global url."https://x-access-token:$GH_TOKEN@github.com/".insteadOf https://github.com/
