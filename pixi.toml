@@ -4,8 +4,8 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64", "linux-aarch64"]
 
 [tasks]
-go-generate-protobuf = { cmd = "cd go/substrait-protobuf && ./generate_protobuf.sh", description = "Generate protobuf Go code" }
-go-generate-protobuf-opaque = { cmd = "cd go/substrait-protobuf-opaque && ./generate_protobuf.sh", description = "Generate protobuf Go code (Opaque API)" }
+go-generate-protobuf = { cmd = "./scripts/go/generate_protobuf.sh substrait-protobuf", description = "Generate protobuf Go code" }
+go-generate-protobuf-opaque = { cmd = "./scripts/go/generate_protobuf.sh substrait-protobuf-opaque", description = "Generate protobuf Go code (Opaque API)" }
 python-generate-antlr = { cmd = "cd python/substrait-antlr && ./generate_antlr.sh", description = "Generate ANTLR Python parsers" }
 python-generate-protobuf = { cmd = "cd python/substrait-protobuf && ./generate_protobuf.sh", description = "Generate protobuf Python code" }
 python-generate-extensions = { cmd = "cd python/substrait-extensions && ./generate_extensions.sh", description = "Package Substrait extensions files" }

@@ -9,9 +9,7 @@ Machinery for releasing Substrait code artifacts based on specification releases
 Artifacts are generated and published using a hierarchy of GitHub Actions:
 
 * publish_artifacts.yml: For releasing artifacts across all languages
-  * go_publish.yml: For releasing Go protobuf modules
-    * go_protobuf.yml
-    * go_protobuf_opaque.yml
+  * go_publish.yml: For releasing Go protobuf modules (Open and Opaque APIs)
   * java_publish.yml: For releasing Java specific artifacts
     * java_antlr.yml
     * java_protobuf.yml
@@ -63,11 +61,12 @@ pixi run go-generate-protobuf
 pixi run go-generate-protobuf-opaque
 ```
 
-Set `SUBSTRAIT_HOME` to a local specification checkout when generating locally.
+Set `SUBSTRAIT_HOME` to the absolute path of a local specification checkout
+(defaults to this repository's `substrait/` directory).
 Generated code is committed only on release tags, not on `main`. Each module is
-published by pushing its own `go/<package>/vX.Y.Z` tag. The two APIs have distinct
-Go types; consumers should choose one rather than importing both into the same
-binary.
+published by pushing its own `go/<package>/vX.Y.Z` tag. Choose one API per binary.
+Linking both modules, or linking either with the legacy `substrait-protobuf/go`
+bindings, causes duplicate protobuf descriptor registration conflicts.
 
 Go publishing defaults to alpha prereleases for integration testing. Run
 `go_publish.yml` with `alpha: false` for a stable release. The `substrait_version`

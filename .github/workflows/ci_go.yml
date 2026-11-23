@@ -1,11 +1,5 @@
 name: CI (Go)
 
-# Validates the Go packaging machinery against the most recent substrait spec
-# release. Attaches the released spec subtree and runs the same generate + build
-# + test steps as the Go publish workflows, but stops short of committing,
-# tagging and publishing — so a change that would break a real release fails
-# here first. Python and Rust are validated by ci_python.yml and ci_rust.yml.
-
 on:
   pull_request:
     paths: &paths
@@ -70,19 +64,14 @@ jobs:
           cache: false
       - name: Attach substrait Spec Subtree
         run: ./scripts/attach_subtree.sh
-      - name: Generate substrait-protobuf
-        run: pixi run go-generate-protobuf
-      - name: Build and Test substrait-protobuf
-        working-directory: go/substrait-protobuf
+      - name: Generate, Build and Test Both APIs
         run: |
-          go mod tidy
-          go build ./...
-          go test ./...
-      - name: Generate substrait-protobuf-opaque
-        run: pixi run go-generate-protobuf-opaque
-      - name: Build and Test substrait-protobuf-opaque
-        working-directory: go/substrait-protobuf-opaque
-        run: |
-          go mod tidy
-          go build ./...
-          go test ./...
+          for MODULE in substrait-protobuf substrait-protobuf-opaque; do
+            pixi run ./scripts/go/generate_protobuf.sh "$MODULE"
+            (
+              cd "go/$MODULE"
+              go mod tidy
+              go build ./...
+              go test ./...
+            )
+          done
