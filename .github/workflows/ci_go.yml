@@ -71,7 +71,7 @@ jobs:
         working-directory: go/substrait-protobuf
         # Hybrid API: also build and test the Opaque-only variant.
         run: |
-          go mod tidy
+          go mod tidy -diff
           go build ./...
           go test ./...
           go build -tags protoopaque ./...
@@ -81,7 +81,7 @@ jobs:
       - name: Build and Test substrait-antlr
         working-directory: go/substrait-antlr
         run: |
-          go mod tidy
+          go mod tidy -diff
           go build ./...
           go test ./...
       - name: Package substrait-extensions
@@ -89,6 +89,6 @@ jobs:
       - name: Build and Test substrait-extensions
         working-directory: go/substrait-extensions
         run: |
-          go mod tidy
+          go mod tidy -diff
           go build ./...
           go test ./...

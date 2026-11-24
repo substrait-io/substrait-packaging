@@ -107,7 +107,7 @@ jobs:
       - name: Build and Test
         working-directory: go/substrait-extensions
         run: |
-          go mod tidy
+          go mod tidy -diff
           go build ./...
           go test ./...
 
