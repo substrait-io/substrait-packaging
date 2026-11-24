@@ -37,7 +37,13 @@ The examples returned by `GetSubstraitExamplesFS` are **not** catalog entries: t
 
 Code generation and publishing is handled in the [substrait-packaging](https://github.com/substrait-io/substrait-packaging) repository.
 
-When a new version of the Substrait specification is released, automation vendors the data files for that version, commits them, and pushes a tag formatted like `go/substrait-extensions/vx.y.z`. Because Go modules are distributed directly from version-control tags, pushing the tag publishes the module — the workflow then warms `proxy.golang.org` so `pkg.go.dev` indexes it promptly.
+When a new version of the Substrait specification is released, automation vendors the data files for that version, commits them, and pushes the commit to a pre-release branch named like `go/substrait-extensions/x.y.z`. No versions of this module are released yet: the branch exists so the module can be tried out, e.g. from [substrait-go](https://github.com/substrait-io/substrait-go), before releases begin. Reference it by branch name, which Go records as a pseudo-version:
+
+```sh
+go get github.com/substrait-io/substrait-packaging/go/substrait-extensions@go/substrait-extensions/x.y.z
+```
+
+Pre-release branches are force-pushed when regenerated and will be deleted once releases begin. Releases will be tags formatted like `go/substrait-extensions/vx.y.z`.
 
 The data files are committed only on release tags; on the default branch only `.gitkeep` placeholders are tracked. As a result the package compiles only after the data has been vendored (`//go:embed` requires matching files) — run the generation step first.
 
