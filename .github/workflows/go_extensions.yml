@@ -41,7 +41,6 @@ jobs:
       publish_version: ${{ steps.resolve.outputs.version }}
       tag_name: ${{ steps.resolve.outputs.tag_name }}
       tag_exists: ${{ steps.check-tag.outputs.exists }}
-      module_exists: ${{ steps.check-module.outputs.exists }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -61,11 +60,6 @@ jobs:
         id: check-tag
         run: |
           EXISTS=$(./scripts/tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
-          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
-      - name: Check Module Existence on the Go Proxy
-        id: check-module
-        run: |
-          EXISTS=$(./scripts/go/module_exists.sh "$MODULE_PATH" "${{ steps.resolve.outputs.version }}")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
   # For Go there is no registry upload: pushing the version tag publishes the
@@ -139,8 +133,8 @@ jobs:
 
       - name: Warm the Go Module Proxy
         # Triggers proxy.golang.org to fetch and cache the new version, which in
-        # turn makes it discoverable on pkg.go.dev. Skipped if already published.
-        if: needs.go-extensions-prechecks.outputs.module_exists == 'false'
+        # turn makes it discoverable on pkg.go.dev. Idempotent: if the proxy
+        # already has the version it returns the cached metadata.
         env:
           VERSION: ${{ needs.go-extensions-prechecks.outputs.publish_version }}
         run: |
