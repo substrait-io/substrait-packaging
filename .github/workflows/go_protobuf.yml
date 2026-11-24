@@ -30,7 +30,6 @@ jobs:
     outputs:
       publish_version: ${{ steps.resolve.outputs.version }}
       tag_name: ${{ steps.resolve.outputs.tag_name }}
-      branch_name: ${{ steps.resolve.outputs.branch_name }}
       tag_exists: ${{ steps.check-tag.outputs.exists }}
     steps:
       - uses: actions/checkout@v7
@@ -43,21 +42,15 @@ jobs:
           VERSION="${SUBSTRAIT_VERSION#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag_name=go/substrait-protobuf/v$VERSION" >> "$GITHUB_OUTPUT"
-          # No leading 'v', so the branch name never matches a release tag.
-          echo "branch_name=go/substrait-protobuf/$VERSION" >> "$GITHUB_OUTPUT"
       - name: Check Tag Existence
         id: check-tag
         run: |
           EXISTS=$(./scripts/tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
-  # For Go there is no registry upload: a pushed ref is enough for consumers to
-  # depend on the module. Until the Go modules are released, this job pushes the
-  # generated code to a pre-release branch (go/substrait-protobuf/x.y.z), which
-  # substrait-go can reference by name. Re-running force-pushes the branch.
-  #
-  # To release: delete the pre-release branches, and replace the branch push
-  # with the commented-out tag push and proxy warm-up steps below.
+  # For Go there is no registry upload: pushing the version tag publishes the
+  # module. This job generates the code, commits it, and pushes the tag, then
+  # warms the module proxy so pkg.go.dev indexes the release promptly.
   go-protobuf-publish:
     runs-on: ubuntu-latest
     needs: go-protobuf-prechecks
@@ -119,27 +112,20 @@ jobs:
           git add go/substrait-protobuf
           git commit -m "Generated Go protobuf code for Substrait version $SUBSTRAIT_VERSION"
 
-      - name: Push Pre-release Branch
+      - name: Tag and Push Generated Code
+        if: needs.go-protobuf-prechecks.outputs.tag_exists == 'false'
         env:
-          BRANCH_NAME: ${{ needs.go-protobuf-prechecks.outputs.branch_name }}
-        run: git push --force origin "HEAD:refs/heads/$BRANCH_NAME"
+          TAG_NAME: ${{ needs.go-protobuf-prechecks.outputs.tag_name }}
+        run: |
+          git tag -a "$TAG_NAME" -m "$TAG_NAME"
+          git push origin "$TAG_NAME"
 
-      # Release steps, disabled until the Go modules are released.
-      #
-      # - name: Tag and Push Generated Code
-      #   if: needs.go-protobuf-prechecks.outputs.tag_exists == 'false'
-      #   env:
-      #     TAG_NAME: ${{ needs.go-protobuf-prechecks.outputs.tag_name }}
-      #   run: |
-      #     git tag -a "$TAG_NAME" -m "$TAG_NAME"
-      #     git push origin "$TAG_NAME"
-      #
-      # - name: Warm the Go Module Proxy
-      #   # Triggers proxy.golang.org to fetch and cache the new version, which in
-      #   # turn makes it discoverable on pkg.go.dev. Idempotent: if the proxy
-      #   # already has the version it returns the cached metadata.
-      #   env:
-      #     VERSION: ${{ needs.go-protobuf-prechecks.outputs.publish_version }}
-      #   run: |
-      #     curl --fail --silent --show-error --retry 5 --retry-all-errors \
-      #       "https://proxy.golang.org/$MODULE_PATH/@v/v$VERSION.info"
+      - name: Warm the Go Module Proxy
+        # Triggers proxy.golang.org to fetch and cache the new version, which in
+        # turn makes it discoverable on pkg.go.dev. Idempotent: if the proxy
+        # already has the version it returns the cached metadata.
+        env:
+          VERSION: ${{ needs.go-protobuf-prechecks.outputs.publish_version }}
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-all-errors \
+            "https://proxy.golang.org/$MODULE_PATH/@v/v$VERSION.info"

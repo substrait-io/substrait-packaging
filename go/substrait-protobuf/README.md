@@ -27,13 +27,7 @@ go get github.com/substrait-io/substrait-packaging/go/substrait-protobuf@vx.y.z
 
 Code generation and publishing is handled in the [substrait-packaging](https://github.com/substrait-io/substrait-packaging) repository.
 
-When a new version of the Substrait specification is released, automation generates protobuf bindings for that version, commits them, and pushes the commit to a pre-release branch named like `go/substrait-protobuf/x.y.z`. No versions of this module are released yet: the branch exists so the module can be tried out, e.g. from [substrait-go](https://github.com/substrait-io/substrait-go), before releases begin. Reference it by branch name, which Go records as a pseudo-version:
-
-```sh
-go get github.com/substrait-io/substrait-packaging/go/substrait-protobuf@go/substrait-protobuf/x.y.z
-```
-
-Pre-release branches are force-pushed when regenerated and will be deleted once releases begin. Releases will be tags formatted like `go/substrait-protobuf/vx.y.z`.
+The `go_publish.yml` workflow generates protobuf bindings for a given Substrait version, commits them, and pushes a tag formatted like `go/substrait-protobuf/vx.y.z`. Because Go modules are distributed directly from version-control tags, pushing the tag publishes the module — the workflow then warms `proxy.golang.org` so `pkg.go.dev` indexes it promptly. The workflow is run manually; it is not yet triggered by Substrait releases.
 
 ### Local Generation
 

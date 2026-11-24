@@ -32,7 +32,7 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
 
 Each of these workflows consumes a required substrait_version input. They are intended to be invoked by their parent workflow, but can be also be invoked directly to release specific artifacts.
 
-The Go workflows are not yet part of publish_artifacts.yml. go_publish.yml (which invokes go_protobuf.yml) pushes pre-release branches rather than releasing, and is run manually.
+The Go workflows are not yet part of publish_artifacts.yml. go_publish.yml (which invokes go_protobuf.yml) is run manually.
 
 The spec_released.yml workflow is a thin-wrapper around publish_artifacts.yml which is designed to be invoked whenever a new version of [substrait](https://github.com/substrait-io/substrait) specification is released.
 
