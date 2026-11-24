@@ -5,7 +5,7 @@ set -eu
 SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 PROTO_DIR="$SUBSTRAIT_HOME/proto/substrait"
 
-echo "Generating Go protobuf files from $PROTO_DIR"
+echo "Generating Go protobuf files (Hybrid API) from $PROTO_DIR"
 
 # Copy the Substrait protos into tmp so Buf's module path can reference them
 # locally (see buf.yaml). The import paths in the protos are rooted at
@@ -15,8 +15,9 @@ mkdir -p tmp/proto
 cp -r "$PROTO_DIR" tmp/proto
 
 # buf.gen.yaml writes the generated Go into ./substraitpb (and the AdvancedExtension
-# message into ./substraitpb/extensions). Remote plugin execution means no local
-# protoc or protoc-gen-go is required.
+# message into ./substraitpb/extensions) using the Hybrid API
+# (default_api_level=API_HYBRID). Remote plugin execution means no local protoc
+# or protoc-gen-go is required.
 buf generate
 
 # Prepend an SPDX license header to every generated file. protoc-gen-go emits its

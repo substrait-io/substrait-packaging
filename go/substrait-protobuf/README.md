@@ -2,6 +2,8 @@
 
 Generated Go protobuf bindings for the [Substrait](https://substrait.io/) specification.
 
+The code is generated with the protobuf-go [Hybrid API](https://protobuf.dev/reference/go/opaque-migration/): messages expose both the Open API (exported struct fields) and the Opaque API (`Get*`/`Set*`/`Has*`/`Clear*` accessors and `Builder` types). Consumers can use either style, and migrate from struct fields to accessors incrementally.
+
 The protobuf definitions from which the code is generated can be found [here](https://github.com/substrait-io/substrait/tree/main/proto/substrait).
 
 Versions of this module correspond to Substrait [releases](https://github.com/substrait-io/substrait/releases). `vx.y.z` of this module contains code generated from `vx.y.z` of the [substrait repository](https://github.com/substrait-io/substrait).
