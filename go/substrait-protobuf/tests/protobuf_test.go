@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-// Tests for the generated Substrait protobuf bindings.
+// Tests for generated Substrait protobuf bindings.
 //
 // The module is generated with the Hybrid API, which also ships an Opaque-only
 // build behind the `protoopaque` build tag. The tests in this file only use the

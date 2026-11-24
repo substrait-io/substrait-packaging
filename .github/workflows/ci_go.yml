@@ -69,7 +69,6 @@ jobs:
         run: pixi run go-generate-protobuf
       - name: Build and Test substrait-protobuf
         working-directory: go/substrait-protobuf
-        # Hybrid API: also build and test the Opaque-only variant.
         run: |
           go mod tidy -diff
           go build ./...

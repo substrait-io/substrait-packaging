@@ -40,6 +40,11 @@ The ci_java.yml, ci_python.yml, ci_rust.yml, ci_cpp.yml, ci_csharp.yml and ci_go
 
 Re-usable scripts for use across these workflows can be found in `/scripts`.
 
+## Golang
+
+The Go workflows are not yet part of publish_artifacts.yml as they are under development.
+
+
 # Development
 
 [Pixi](https://pixi.sh) is used to manage codegen tooling, both locally and in CI. Install it via the [official instructions](https://pixi.sh/latest/#installation).

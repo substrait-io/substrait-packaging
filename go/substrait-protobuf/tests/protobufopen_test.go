@@ -13,11 +13,13 @@ import (
 	"github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb"
 )
 
-// The default (Hybrid) build also exposes the Open API: exported struct fields
+// Tests for generated Substrait protobuf bindings.
+//
+// The Hybrid build also exposes the old Open Struct API: exported struct fields
 // and oneof wrapper types. These are absent under the `protoopaque` build tag,
 // hence the build constraint on this file.
 
-func TestOpenAPIMatchesBuilders(t *testing.T) {
+func TestOpenStructAPIMatchesBuilders(t *testing.T) {
 	open := &substraitpb.Plan{
 		Version: &substraitpb.Version{MinorNumber: 99, Producer: "substrait-packaging"},
 	}
@@ -33,7 +35,7 @@ func TestOpenAPIMatchesBuilders(t *testing.T) {
 	}
 }
 
-func TestOpenAPIExternalMessage(t *testing.T) {
+func TestOpenStructAPIExternalMessage(t *testing.T) {
 	em := &testprotos.ExternalMessage{
 		Literal: &substraitpb.Expression_Literal{
 			LiteralType: &substraitpb.Expression_Literal_I64{I64: 42},

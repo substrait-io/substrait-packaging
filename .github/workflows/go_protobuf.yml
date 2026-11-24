@@ -48,9 +48,6 @@ jobs:
           EXISTS=$(./scripts/tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
-  # For Go there is no registry upload: pushing the version tag publishes the
-  # module. This job generates the code, commits it, and pushes the tag, then
-  # warms the module proxy so pkg.go.dev indexes the release promptly.
   go-protobuf-publish:
     runs-on: ubuntu-latest
     needs: go-protobuf-prechecks
@@ -99,7 +96,6 @@ jobs:
 
       - name: Build and Test
         working-directory: go/substrait-protobuf
-        # Hybrid API: also build and test the Opaque-only variant.
         run: |
           go mod tidy -diff
           go build ./...
@@ -122,8 +118,7 @@ jobs:
 
       - name: Warm the Go Module Proxy
         # Triggers proxy.golang.org to fetch and cache the new version, which in
-        # turn makes it discoverable on pkg.go.dev. Idempotent: if the proxy
-        # already has the version it returns the cached metadata.
+        # turn makes it discoverable on pkg.go.dev.
         env:
           VERSION: ${{ needs.go-protobuf-prechecks.outputs.publish_version }}
         run: |

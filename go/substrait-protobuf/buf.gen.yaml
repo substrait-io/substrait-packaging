@@ -23,7 +23,7 @@ plugins:
     out: substraitpb
     opt:
       - module=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
-      # Hybrid API: exported struct fields (Open API) alongside Get/Set/Has/Clear
+      # Hybrid API: exported struct fields (Open Struct API) alongside Get/Set/Has/Clear
       # accessors and Builder types (Opaque API), so consumers can migrate
       # incrementally. See https://protobuf.dev/reference/go/opaque-migration/.
       - default_api_level=API_HYBRID
