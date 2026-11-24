@@ -46,6 +46,10 @@ The `.proto` files are shipped in the package under `proto/` so they can be fed
 to other tooling (or another protobuf implementation) without needing a second
 copy of the specification.
 
+The assembly's `AssemblyMetadataAttribute` with key `SubstraitGitHash` records
+the exact specification commit used to generate the bindings. This is distinct
+from the packaging-repository commit in NuGet's repository metadata.
+
 ## Generation and Publishing
 
 Code generation and publishing is handled in the
@@ -66,5 +70,7 @@ and no `protoc` needs to be installed to build this project.
 ### Local Generation
 
 The `generate_protobuf.sh` script can be executed locally to vendor the protobuf
-definitions. Set `SUBSTRAIT_HOME` to a directory containing the Substrait
-specification (defaults to `../../substrait`).
+definitions and their `SubstraitSource.props` provenance stamp. Set
+`SUBSTRAIT_HOME` to a clean standalone Git checkout of the Substrait
+specification, or use the imported specification subtree (defaults to
+`../../substrait`).

@@ -24,7 +24,7 @@ use substrait_extensions::testcases::TESTCASES;
 use substrait_extensions::examples::EXAMPLES;
 
 // Parse a bundled extension file into the generated type.
-let arithmetic: SimpleExtensions = serde_yaml::from_str(FUNCTIONS_ARITHMETIC).unwrap();
+let arithmetic: SimpleExtensions = yaml_serde::from_str(FUNCTIONS_ARITHMETIC).unwrap();
 
 // Or look it up by file stem in the prebuilt map.
 let arithmetic = &EXTENSIONS["functions_arithmetic"];

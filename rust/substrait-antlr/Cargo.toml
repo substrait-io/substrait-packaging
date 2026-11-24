@@ -19,7 +19,7 @@ include = [
 ]
 
 [dependencies]
-antlr4rust = "0.5.2"
+antlr4rust = "0.6.0"
 
 [package.metadata.docs.rs]
 all-features = true

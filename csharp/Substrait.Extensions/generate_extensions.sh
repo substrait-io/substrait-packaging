@@ -24,6 +24,10 @@ TEXT_DIR="$SUBSTRAIT_HOME/text"
 TESTCASES_DIR="$SUBSTRAIT_HOME/tests/cases"
 DIALECT_TESTS_DIR="$SUBSTRAIT_HOME/dialects/tests"
 EXAMPLES_DIR="$SUBSTRAIT_HOME/site/examples"
+SOURCE_METADATA=$(sh ../../scripts/csharp/source_metadata.sh "$SUBSTRAIT_HOME" \
+  'extensions/*.yaml' 'text/*.yaml' tests/cases dialects/tests \
+  site/examples/extensions site/examples/types)
+rm -f SubstraitSource.props
 
 echo "Packaging Substrait extension files from $SUBSTRAIT_HOME"
 
@@ -59,3 +63,5 @@ rm -rf examples
 mkdir -p examples
 cp -r "$EXAMPLES_DIR/extensions" examples/
 cp -r "$EXAMPLES_DIR/types" examples/
+
+printf '%s\n' "$SOURCE_METADATA" > SubstraitSource.props

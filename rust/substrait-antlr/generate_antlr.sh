@@ -13,8 +13,8 @@ GRAMMAR_DIR="$SUBSTRAIT_HOME/grammar"
 JAVA="${JAVA:-java}"
 
 # The Rust bindings for ANTLR are not official, so we use a forked ANTLR build.
-ANTLR_URL="https://github.com/antlr4rust/antlr4/releases/download/v0.5.0/antlr4-4.13.3-SNAPSHOT-complete.jar"
-ANTLR_SHA256="8227a91d45625aec824e31cc7792ecb8b22b973da71f2396e81542b88d897d8f"
+ANTLR_URL="https://github.com/antlr4rust/antlr4/releases/download/v0.6.0/antlr4-4.13.3-SNAPSHOT-complete.jar"
+ANTLR_SHA256="391e77311794f7c8fed2bc6d291f54b04725e37456d79e1981edfd3fc919b677"
 ANTLR_JAR="antlr/antlr.jar"
 
 TYPE_TARGET="src/substrait_type"

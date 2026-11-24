@@ -53,6 +53,10 @@ The package has no dependencies and targets `netstandard2.0` and `net10.0`, so i
 is usable from .NET Framework 4.6.2+, Mono/Unity and modern .NET alike — anything
 older than .NET 10 resolves the `netstandard2.0` asset.
 
+The assembly's `AssemblyMetadataAttribute` with key `SubstraitGitHash` records
+the exact specification commit supplying its embedded files. This is distinct
+from the packaging-repository commit in NuGet's repository metadata.
+
 ## No generated type layer
 
 Unlike the Rust crate (`typify`) and the Python package
@@ -83,5 +87,7 @@ publishes the package to
 ### Local Generation
 
 The `generate_extensions.sh` script can be executed locally to vendor the
-specification files. Set `SUBSTRAIT_HOME` to a directory containing the Substrait
-specification (defaults to `../../substrait`).
+specification files and their `SubstraitSource.props` provenance stamp. Set
+`SUBSTRAIT_HOME` to a clean standalone Git checkout of the Substrait
+specification, or use the imported specification subtree (defaults to
+`../../substrait`).

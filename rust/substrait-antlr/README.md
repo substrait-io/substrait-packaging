@@ -15,8 +15,8 @@ Versions of this crate correspond to Substrait
 ## Usage
 
 ```rust
-use antlr4rust::common_token_stream::CommonTokenStream;
-use antlr4rust::InputStream;
+use substrait_antlr::antlr4rust::common_token_stream::CommonTokenStream;
+use substrait_antlr::antlr4rust::InputStream;
 use substrait_antlr::substrait_type::{SubstraitTypeLexer, SubstraitTypeParser};
 
 let lexer = SubstraitTypeLexer::new(InputStream::new("list?<i32>"));
@@ -29,6 +29,11 @@ let tree = parser.startRule().unwrap();
   (`SubstraitType.g4`).
 - `func_test_case` — lexer/parser/listeners for the function test case grammar
   (`FuncTestCaseParser.g4`).
+
+The generated code only works with the exact `antlr4rust` version it was
+generated for, so this crate re-exports that runtime as
+`substrait_antlr::antlr4rust`. Use it through the re-export rather than
+depending on `antlr4rust` directly, so that the two can never drift apart.
 
 ## Generation and Publishing
 

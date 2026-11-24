@@ -40,6 +40,10 @@ The package targets `netstandard2.0` and `net10.0`, so it is usable from .NET
 Framework 4.6.2+, Mono/Unity and modern .NET alike — anything older than .NET 10
 resolves the `netstandard2.0` asset.
 
+The assembly's `AssemblyMetadataAttribute` with key `SubstraitGitHash` records
+the exact specification commit used to generate the parsers. This is distinct
+from the packaging-repository commit in NuGet's repository metadata.
+
 ## Generation and Publishing
 
 Code generation and publishing is handled in the
@@ -61,8 +65,10 @@ C++ ANTLR artifacts.
 
 The `generate_antlr.sh` script can be executed locally to regenerate the parsers.
 It needs the ANTLR tool and a JRE on the `PATH`; `pixi run csharp-generate-antlr`
-from the repository root supplies both. Set `SUBSTRAIT_HOME` to a directory
-containing the Substrait specification (defaults to `../../substrait`).
+from the repository root supplies both. Set `SUBSTRAIT_HOME` to a clean
+standalone Git checkout of the Substrait specification, or use the imported
+specification subtree (defaults to `../../substrait`). Generation also writes
+the `SubstraitSource.props` provenance stamp alongside the parsers.
 
 ### Runtime version coupling
 
