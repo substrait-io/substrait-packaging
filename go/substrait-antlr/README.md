@@ -16,7 +16,7 @@ import (
 ```
 
 - `substraittype` — lexer, parser, listeners and visitors for the Substrait type grammar (`SubstraitType.g4`).
-- `functestcase` — lexer, parser and visitors for the function test case grammar (`FuncTestCaseParser.g4`).
+- `functestcase` — lexer, parser, listeners and visitors for the function test case grammar (`FuncTestCaseParser.g4`).
 
 Add the dependency with:
 

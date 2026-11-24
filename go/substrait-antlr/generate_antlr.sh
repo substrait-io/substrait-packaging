@@ -21,10 +21,9 @@ rm -rf tmp
 mkdir -p tmp
 cp "$GRAMMAR_DIR"/*.g4 tmp
 
-# Generate the parsers. The type grammar keeps its listener; the test case
-# grammar is visitor-only (matching how substrait-go consumes them).
+# Generate the parsers, with both listeners and visitors.
 (cd tmp && antlr4 -Dlanguage=Go -visitor -package substraittype SubstraitLexer.g4 SubstraitType.g4)
-(cd tmp && antlr4 -Dlanguage=Go -visitor -no-listener -package functestcase FuncTestCaseLexer.g4 FuncTestCaseParser.g4)
+(cd tmp && antlr4 -Dlanguage=Go -visitor -package functestcase FuncTestCaseLexer.g4 FuncTestCaseParser.g4)
 
 # Reset target package directories.
 rm -rf "$TYPE_TARGET" "$FTEST_TARGET"

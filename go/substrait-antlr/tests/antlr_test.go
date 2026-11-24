@@ -13,12 +13,12 @@ import (
 	"github.com/substrait-io/substrait-packaging/go/substrait-antlr/substraittype"
 )
 
-// The type grammar is generated with a listener and a visitor; the test case
-// grammar with a visitor only.
+// Both grammars are generated with a listener and a visitor.
 var (
-	_ substraittype.SubstraitTypeListener    = &substraittype.BaseSubstraitTypeListener{}
-	_ substraittype.SubstraitTypeVisitor     = &substraittype.BaseSubstraitTypeVisitor{}
-	_ functestcase.FuncTestCaseParserVisitor = &functestcase.BaseFuncTestCaseParserVisitor{}
+	_ substraittype.SubstraitTypeListener     = &substraittype.BaseSubstraitTypeListener{}
+	_ substraittype.SubstraitTypeVisitor      = &substraittype.BaseSubstraitTypeVisitor{}
+	_ functestcase.FuncTestCaseParserListener = &functestcase.BaseFuncTestCaseParserListener{}
+	_ functestcase.FuncTestCaseParserVisitor  = &functestcase.BaseFuncTestCaseParserVisitor{}
 )
 
 func typeParser(input string) *substraittype.SubstraitTypeParser {
