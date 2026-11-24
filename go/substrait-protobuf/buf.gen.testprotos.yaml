@@ -1,0 +1,28 @@
+version: v2
+# Generates the repository's fake "external" protos (../../testprotos.proto) into
+# internal/testprotos for the tests under tests/. They check that a downstream
+# schema can import `substrait/*.proto` and have its generated Go types line up
+# with the ones this module ships. Kept separate from buf.gen.yaml because protoc-gen-go's `module=`
+# option only strips a single import-path prefix per output directory.
+clean: true
+managed:
+  enabled: true
+  override:
+    # Must match buf.gen.yaml so imports of the Substrait types resolve to the
+    # packages this module publishes.
+    - file_option: go_package
+      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+    - file_option: go_package
+      path: substrait/extensions/extensions.proto
+      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb/extensions
+    - file_option: go_package
+      path: testprotos
+      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/internal/testprotos
+
+plugins:
+  # Keep aligned with buf.gen.yaml.
+  - remote: buf.build/protocolbuffers/go:v1.36.6
+    out: internal/testprotos
+    opt:
+      - module=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/internal/testprotos
+      - default_api_level=API_HYBRID

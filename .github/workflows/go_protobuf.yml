@@ -113,10 +113,13 @@ jobs:
 
       - name: Build and Test
         working-directory: go/substrait-protobuf
+        # Hybrid API: also build and test the Opaque-only variant.
         run: |
           go mod tidy
           go build ./...
           go test ./...
+          go build -tags protoopaque ./...
+          go test -tags protoopaque ./...
 
       - name: Commit Generated Code
         run: |
