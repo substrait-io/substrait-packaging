@@ -25,13 +25,3 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
-  publish-go-antlr:
-    uses: ./.github/workflows/go_antlr.yml
-    secrets: inherit
-    with:
-      substrait_version: ${{ inputs.substrait_version }}
-  publish-go-extensions:
-    uses: ./.github/workflows/go_extensions.yml
-    secrets: inherit
-    with:
-      substrait_version: ${{ inputs.substrait_version }}
