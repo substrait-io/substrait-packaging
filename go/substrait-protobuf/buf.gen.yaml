@@ -14,9 +14,10 @@ managed:
       value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb/extensions
 
 plugins:
-  # Remote plugin execution: no local protoc/protoc-gen-go needed. Keep this
-  # version aligned with the google.golang.org/protobuf runtime in go.mod.
-  - remote: buf.build/protocolbuffers/go:v1.36.6
+  # protoc-gen-go ships in google.golang.org/protobuf, so `go run` from the module
+  # root builds it at the version go.mod requires: the generator and the runtime
+  # cannot drift apart. No protoc is needed; buf compiles the protos itself.
+  - local: ["go", "run", "google.golang.org/protobuf/cmd/protoc-gen-go"]
     out: substraitpb
     opt:
       - module=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb

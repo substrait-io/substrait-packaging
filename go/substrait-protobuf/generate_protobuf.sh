@@ -18,8 +18,8 @@ cp ../../testprotos.proto tmp/proto/testprotos
 
 # buf.gen.yaml writes the generated Go into ./substraitpb (and the AdvancedExtension
 # message into ./substraitpb/extensions) using the Hybrid API
-# (default_api_level=API_HYBRID). Remote plugin execution means no local protoc
-# or protoc-gen-go is required.
+# (default_api_level=API_HYBRID). protoc-gen-go is run with `go run` at the
+# google.golang.org/protobuf version in go.mod (see buf.gen.yaml).
 buf generate --exclude-path tmp/proto/testprotos
 
 # buf.gen.testprotos.yaml writes the test protos into ./internal/testprotos, used

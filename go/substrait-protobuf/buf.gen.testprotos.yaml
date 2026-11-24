@@ -20,8 +20,8 @@ managed:
       value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/internal/testprotos
 
 plugins:
-  # Keep aligned with buf.gen.yaml.
-  - remote: buf.build/protocolbuffers/go:v1.36.6
+  # Same generator as buf.gen.yaml: protoc-gen-go at the version go.mod requires.
+  - local: ["go", "run", "google.golang.org/protobuf/cmd/protoc-gen-go"]
     out: internal/testprotos
     opt:
       - module=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/internal/testprotos
