@@ -2,16 +2,18 @@ version: v2
 # Remove previously generated files before regenerating so deletions in the spec
 # are reflected in the published module.
 clean: true
-managed:
-  enabled: true
-  override:
-    # Pin the Go import path to this module so the generated code is importable as
-    # github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb.
-    - file_option: go_package
-      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
-    - file_option: go_package
-      path: substrait/extensions/extensions.proto
-      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb/extensions
+# Managed mode is deliberately left off. Besides go_package it rewrites every
+# other file option it knows about (java_package, csharp_namespace, objc/php/ruby
+# options, ...), and those rewritten options end up in the raw descriptors
+# embedded in the generated code, so reflection would see options that differ
+# from the specification. Instead, the Go import paths are set with protoc-gen-go
+# `M` mappings below, which only affect code generation and leave the embedded
+# descriptors exactly as written in the spec.
+#
+# Every Substrait .proto file needs an `M` entry. A file without one falls back
+# to the spec's own go_package (the legacy substrait-protobuf module path), which
+# protoc-gen-go then rejects because it lacks the `module=` prefix, so a new file
+# in the spec fails generation loudly rather than being placed silently.
 
 plugins:
   # protoc-gen-go ships in google.golang.org/protobuf, so `go run` from the module
@@ -25,3 +27,10 @@ plugins:
       # accessors and Builder types (Opaque API), so consumers can migrate
       # incrementally. See https://protobuf.dev/reference/go/opaque-migration/.
       - default_api_level=API_HYBRID
+      # Go import paths for the Substrait protos (keep in sync with
+      # buf.gen.testprotos.yaml).
+      - Msubstrait/algebra.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/extended_expression.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/plan.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/type.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/extensions/extensions.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb/extensions

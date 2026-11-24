@@ -5,19 +5,9 @@ version: v2
 # with the ones this module ships. Kept separate from buf.gen.yaml because protoc-gen-go's `module=`
 # option only strips a single import-path prefix per output directory.
 clean: true
-managed:
-  enabled: true
-  override:
-    # Must match buf.gen.yaml so imports of the Substrait types resolve to the
-    # packages this module publishes.
-    - file_option: go_package
-      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
-    - file_option: go_package
-      path: substrait/extensions/extensions.proto
-      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb/extensions
-    - file_option: go_package
-      path: testprotos
-      value: github.com/substrait-io/substrait-packaging/go/substrait-protobuf/internal/testprotos
+# Managed mode is left off for the same reason as in buf.gen.yaml: Go import
+# paths are set with protoc-gen-go `M` mappings so the embedded descriptors are
+# not rewritten.
 
 plugins:
   # Same generator as buf.gen.yaml: protoc-gen-go at the version go.mod requires.
@@ -26,3 +16,11 @@ plugins:
     opt:
       - module=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/internal/testprotos
       - default_api_level=API_HYBRID
+      - Mtestprotos/testprotos.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/internal/testprotos
+      # Must match buf.gen.yaml so imports of the Substrait types resolve to the
+      # packages this module publishes.
+      - Msubstrait/algebra.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/extended_expression.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/plan.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/type.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - Msubstrait/extensions/extensions.proto=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb/extensions
