@@ -94,7 +94,7 @@ jobs:
           pixi-version: v0.84.1
 
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go/substrait-antlr/go.mod
 
