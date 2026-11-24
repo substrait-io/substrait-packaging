@@ -13,7 +13,7 @@ echo "Vendoring Substrait extension files from $SUBSTRAIT_HOME"
 
 # Vendor the data embedded by embed.go. No code is generated — the typed
 # parsing lives downstream (e.g. in substrait-go); this module ships the raw
-# spec data only, mirroring the Java extensions artifact.
+# spec data only.
 
 # Extension definition YAML files (embedded via //go:embed extensions).
 rm -rf extensions

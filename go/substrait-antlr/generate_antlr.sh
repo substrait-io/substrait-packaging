@@ -4,10 +4,9 @@ set -eu
 
 # Regenerates the committed Go ANTLR parsers from the Substrait grammar.
 #
-# Like the other ANTLR targets, the generated parsers are committed to the
-# repository (Go modules are served as source from version-control tags, so
-# there is no build-time generation step). Uses the stock ANTLR Go target — no
-# fork is required, unlike the Rust crate.
+# The generated parsers are committed to the release tag: Go modules are served
+# as source from version-control tags, so there is no build-time generation
+# step. Uses the stock ANTLR Go target.
 
 SUBSTRAIT_HOME="${SUBSTRAIT_HOME:-../../substrait}"
 GRAMMAR_DIR="$SUBSTRAIT_HOME/grammar"

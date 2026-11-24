@@ -2,7 +2,7 @@
 
 Go access to the [Substrait](https://substrait.io/) specification's extension definitions, text schemas, function test cases, dialect test fixtures and documentation examples, bundled via [`embed.FS`](https://pkg.go.dev/embed).
 
-This module ships the raw spec **data only** — it does not generate Go types from the extension schema. Unlike the Python and Rust extensions packages (which generate types with datamodel-code-generator and typify), Go has no canonical JSON-schema code generator, and the extension schema's polymorphic function definitions do not map cleanly onto Go's type system. The typed parsing therefore lives downstream (e.g. in [substrait-go](https://github.com/substrait-io/substrait-go)). This mirrors the Java extensions artifact, which also bundles the data as resources without generating types.
+This module ships the raw spec **data only** — it does not generate Go types from the extension schema. Go has no canonical JSON-schema code generator, and the extension schema's polymorphic function definitions do not map cleanly onto Go's type system. The typed parsing therefore lives downstream (e.g. in [substrait-go](https://github.com/substrait-io/substrait-go)).
 
 It is a drop-in replacement for the legacy `embed.FS` module that lived at the root of the substrait specification repository (`github.com/substrait-io/substrait`): the package is named `substrait` and exposes the same accessors, so consumers only change the import path.
 

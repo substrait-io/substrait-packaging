@@ -4,7 +4,7 @@ name: CI (Go)
 # release. Attaches the released spec subtree and runs the same generate + build
 # + test steps as the Go publish workflows, but stops short of committing,
 # tagging and publishing — so a change that would break a real release fails
-# here first. Python and Rust are validated by ci_python.yml and ci_rust.yml.
+# here first.
 
 on:
   pull_request:
