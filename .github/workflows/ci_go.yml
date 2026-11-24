@@ -15,6 +15,7 @@ on:
       - go/**
       - testprotos.proto
       - .github/workflows/ci_go.yml
+      - .github/workflows/go_*.yml
   push:
     branches: [main]
     paths: *paths
