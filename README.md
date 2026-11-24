@@ -10,6 +10,7 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
 
 * publish_artifacts.yml: For releasing artifacts across all languages
   * go_publish.yml: For releasing Go modules
+    * go_protobuf.yml
   * java_publish.yml: For releasing Java specific artifacts
     * java_antlr.yml
     * java_protobuf.yml

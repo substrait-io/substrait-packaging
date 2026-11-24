@@ -9,64 +9,19 @@ on:
   workflow_call:
     inputs:
       substrait_version:
-        description: Substrait version to generate bindings for
+        description: Substrait version to publish artifacts for
         required: true
         type: string
   workflow_dispatch:
     inputs:
       substrait_version:
-        description: Substrait version to generate bindings for
+        description: Substrait version to publish artifacts for
         required: true
         type: string
 
-env:
-  SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
-
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    env:
-      TAG: go/substrait-protobuf/${{ inputs.substrait_version }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/create-github-app-token@v3
-        id: app-token
-        with:
-          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
-          private-key: ${{ secrets.PACKAGER_KEY }}
-      - name: Configure Git identity and authentication
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-        run: |
-          USER_ID=$(gh api "/users/$APP_SLUG[bot]" --jq .id)
-          git config --global user.name "$APP_SLUG[bot]"
-          git config --global user.email "$USER_ID+$APP_SLUG[bot]@users.noreply.github.com"
-          git config --global url."https://x-access-token:$GH_TOKEN@github.com/".insteadOf https://github.com/
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go/substrait-protobuf/go.mod
-          cache: false
-      - uses: prefix-dev/setup-pixi@v0.10.2
-      - name: Attach Specification and Generate Bindings
-        run: |
-          ./scripts/attach_subtree.sh
-          cd go/substrait-protobuf
-          pixi run ./generate_protobuf.sh
-      - name: Build and Test
-        run: |
-          cd go/substrait-protobuf
-          go mod tidy
-          go build ./...
-          go test ./...
-          go build -tags=protoopaque ./...
-          go test -tags=protoopaque ./...
-      - name: Commit and Publish Tag
-        run: |
-          git add go/substrait-protobuf
-          git commit -m "Generated protobuf code for Substrait version $SUBSTRAIT_VERSION"
-          git tag -a "$TAG" -m "$TAG"
-          git push origin "refs/tags/$TAG"
+  publish-go-protobuf:
+    uses: ./.github/workflows/go_protobuf.yml
+    secrets: inherit
+    with:
+      substrait_version: ${{ inputs.substrait_version }}
