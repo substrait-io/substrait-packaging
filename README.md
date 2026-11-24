@@ -44,6 +44,8 @@ Re-usable scripts for use across these workflows can be found in `/scripts`.
 
 The Go workflows are not yet part of publish_artifacts.yml as they are under development.
 
+Go modules are currently published as pre-releases, tagged `go/<module>/vx.y.z-alpha.N`. The `alpha.N` suffix is hardcoded in the publish workflow (starting at `alpha.0`) and bumped by hand if a spec version needs to be re-published.
+
 
 # Development
 

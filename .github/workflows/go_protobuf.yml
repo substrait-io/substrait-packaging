@@ -38,14 +38,19 @@ jobs:
           persist-credentials: false
       - name: Resolve Publish Version
         id: resolve
+        env:
+          # Initial versions are published as pre-releases. To re-publish a spec
+          # version, bump this by hand (alpha.1, alpha.2, ...). Remove the suffix
+          # once the module is considered stable.
+          PRERELEASE: alpha.0
         run: |
-          VERSION="${SUBSTRAIT_VERSION#v}"
+          VERSION="${SUBSTRAIT_VERSION#v}-$PRERELEASE"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag_name=go/substrait-protobuf/v$VERSION" >> "$GITHUB_OUTPUT"
       - name: Check Tag Existence
         id: check-tag
         run: |
-          EXISTS=$(./scripts/tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
+          EXISTS=$(./scripts/go/alpha_tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
           echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
 
   go-protobuf-publish:
