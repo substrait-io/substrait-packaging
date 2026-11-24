@@ -45,8 +45,3 @@ jobs:
     secrets: inherit
     with:
       substrait_version: ${{ inputs.substrait_version }}
-  publish-go-artifacts:
-    uses: ./.github/workflows/go_publish.yml
-    secrets: inherit
-    with:
-      substrait_version: ${{ inputs.substrait_version }}

@@ -29,12 +29,10 @@ Artifacts are generated and published using a hierarchy of GitHub Actions:
     * csharp_antlr.yml
     * csharp_protobuf.yml
     * csharp_extensions.yml
-  * go_publish.yml: For releasing Go specific artifacts
-    * go_antlr.yml
-    * go_protobuf.yml
-    * go_extensions.yml
 
 Each of these workflows consumes a required substrait_version input. They are intended to be invoked by their parent workflow, but can be also be invoked directly to release specific artifacts.
+
+The Go workflows are not yet part of publish_artifacts.yml. go_publish.yml (which invokes go_antlr.yml, go_protobuf.yml and go_extensions.yml) pushes pre-release branches rather than releasing, and is run manually.
 
 The spec_released.yml workflow is a thin-wrapper around publish_artifacts.yml which is designed to be invoked whenever a new version of [substrait](https://github.com/substrait-io/substrait) specification is released.
 
