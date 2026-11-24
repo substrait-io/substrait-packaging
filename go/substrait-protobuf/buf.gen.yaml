@@ -15,3 +15,4 @@ plugins:
     out: substraitpb
     opt:
       - module=github.com/substrait-io/substrait-packaging/go/substrait-protobuf/substraitpb
+      - default_api_level=API_HYBRID

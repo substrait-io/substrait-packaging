@@ -1,5 +1,5 @@
-name: Publish Go Protobuf Modules
-run-name: Publish Go Protobuf Modules for Version ${{ inputs.substrait_version }}
+name: Publish Go Modules
+run-name: Publish Go Modules for Version ${{ inputs.substrait_version }}
 
 concurrency:
   group: go-publish
@@ -25,13 +25,8 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        module: [substrait-protobuf, substrait-protobuf-opaque]
     env:
-      MODULE: ${{ matrix.module }}
-      TAG: go/${{ matrix.module }}/${{ inputs.substrait_version }}
+      TAG: go/substrait-protobuf/${{ inputs.substrait_version }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -53,23 +48,25 @@ jobs:
           git config --global url."https://x-access-token:$GH_TOKEN@github.com/".insteadOf https://github.com/
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go/${{ matrix.module }}/go.mod
+          go-version-file: go/substrait-protobuf/go.mod
           cache: false
       - uses: prefix-dev/setup-pixi@v0.10.2
       - name: Attach Specification and Generate Bindings
         run: |
           ./scripts/attach_subtree.sh
-          cd "go/$MODULE"
+          cd go/substrait-protobuf
           pixi run ./generate_protobuf.sh
       - name: Build and Test
         run: |
-          cd "go/$MODULE"
+          cd go/substrait-protobuf
           go mod tidy
           go build ./...
           go test ./...
+          go build -tags=protoopaque ./...
+          go test -tags=protoopaque ./...
       - name: Commit and Publish Tag
         run: |
-          git add "go/$MODULE"
+          git add go/substrait-protobuf
           git commit -m "Generated protobuf code for Substrait version $SUBSTRAIT_VERSION"
           git tag -a "$TAG" -m "$TAG"
           git push origin "refs/tags/$TAG"

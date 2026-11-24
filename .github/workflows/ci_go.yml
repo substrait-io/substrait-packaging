@@ -59,12 +59,10 @@ jobs:
         run: ./scripts/attach_subtree.sh
       - name: Generate, Build and Test Both APIs
         run: |
-          for MODULE in substrait-protobuf substrait-protobuf-opaque; do
-            (
-              cd "go/$MODULE"
-              pixi run ./generate_protobuf.sh
-              go mod tidy
-              go build ./...
-              go test ./...
-            )
-          done
+          cd go/substrait-protobuf
+          pixi run ./generate_protobuf.sh
+          go mod tidy
+          go build ./...
+          go test ./...
+          go build -tags=protoopaque ./...
+          go test -tags=protoopaque ./...

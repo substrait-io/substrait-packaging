@@ -9,7 +9,7 @@ Machinery for releasing Substrait code artifacts based on specification releases
 Artifacts are generated and published using a hierarchy of GitHub Actions:
 
 * publish_artifacts.yml: For releasing artifacts across all languages
-  * go_publish.yml: For releasing Go protobuf modules (Open and Opaque APIs)
+  * go_publish.yml: For releasing Go modules
   * java_publish.yml: For releasing Java specific artifacts
     * java_antlr.yml
     * java_protobuf.yml
@@ -50,26 +50,30 @@ pixi install
 
 ## Go Code Generation
 
-Go packaging currently provides two protobuf modules. ANTLR parsers and embedded
-specification data will be added separately.
+Go packaging currently provides one protobuf module with both
+[Hybrid and Opaque APIs](https://go.dev/blog/protobuf-opaque#publishing).
+ANTLR parsers and embedded specification data will be added separately.
 
 ```sh
-# Generate bindings with the Open (struct) API
+# Generate both API variants in the same module
 pixi run go-generate-protobuf
-
-# Generate bindings with the Opaque (builder) API
-pixi run go-generate-protobuf-opaque
 ```
+
+The default Hybrid API supports direct struct field access as well as builders
+and accessors. Build with `go build -tags=protoopaque ./...` to select the Opaque
+API at the same import paths. All callers, including dependencies, must use
+builders and accessors before enabling this tag.
 
 Set `SUBSTRAIT_HOME` to the absolute path of a local specification checkout
 (defaults to this repository's `substrait/` directory).
-Generated code is committed only on release tags, not on `main`. Each module is
-published by pushing its own `go/<package>/vX.Y.Z` tag. Choose one API per binary.
-Linking both modules, or linking either with the legacy `substrait-protobuf/go`
-bindings, causes duplicate protobuf descriptor registration conflicts.
+Generated code is committed only on release tags, not on `main`. Both API
+variants are published together on a `go/substrait-protobuf/vX.Y.Z` tag; the build
+tag selects which variant is compiled. Linking this module with the legacy
+`substrait-protobuf/go` bindings still causes duplicate protobuf descriptor
+registration conflicts.
 
 Go module versions match the specification version. Run `go_publish.yml` with
-`substrait_version: v0.85.0` to publish both modules at `v0.85.0`. Older spec
+`substrait_version: v0.85.0` to publish the module at `v0.85.0`. Older spec
 releases can be backfilled without upgrading to the latest spec.
 
 ## Python Code Generation
