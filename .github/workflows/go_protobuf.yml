@@ -56,6 +56,7 @@ jobs:
   go-protobuf-publish:
     runs-on: ubuntu-latest
     needs: go-protobuf-prechecks
+    if: needs.go-protobuf-prechecks.outputs.tag_exists == 'false'
     steps:
       - name: Generate GitHub App Token for Pushing Tags
         uses: actions/create-github-app-token@v3
@@ -114,7 +115,6 @@ jobs:
           git commit -m "Generated Go protobuf code for Substrait version $SUBSTRAIT_VERSION"
 
       - name: Tag and Push Generated Code
-        if: needs.go-protobuf-prechecks.outputs.tag_exists == 'false'
         env:
           TAG_NAME: ${{ needs.go-protobuf-prechecks.outputs.tag_name }}
         run: |
