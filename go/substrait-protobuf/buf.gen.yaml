@@ -1,6 +1,4 @@
 version: v2
-# Remove previously generated files before regenerating so deletions in the spec
-# are reflected in the published module.
 clean: true
 # Managed mode is deliberately left off. Besides go_package it rewrites every
 # other file option it knows about (java_package, csharp_namespace, objc/php/ruby
