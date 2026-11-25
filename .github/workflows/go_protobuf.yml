@@ -124,8 +124,9 @@ jobs:
       - name: Warm the Go Module Proxy
         # Triggers proxy.golang.org to fetch and cache the new version, which in
         # turn makes it discoverable on pkg.go.dev.
+        # Best-effort: the tag push is the publish, and the proxy will fetch the
+        # version on first use anyway.
+        continue-on-error: true
         env:
           VERSION: ${{ needs.go-protobuf-prechecks.outputs.publish_version }}
-        run: |
-          curl --fail --silent --show-error --retry 5 --retry-all-errors \
-            "https://proxy.golang.org/$MODULE_PATH/@v/v$VERSION.info"
+        run: GOPROXY=proxy.golang.org go list -m "$MODULE_PATH@v$VERSION"
