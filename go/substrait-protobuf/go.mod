@@ -3,4 +3,4 @@ module github.com/substrait-io/substrait-packaging/go/substrait-protobuf
 
 go 1.23.0
 
-require google.golang.org/protobuf v1.36.6
+require google.golang.org/protobuf v1.36.12
