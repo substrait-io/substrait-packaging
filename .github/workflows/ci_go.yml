@@ -1,0 +1,77 @@
+name: CI (Go)
+
+# Validates the Go packaging machinery against the most recent substrait spec
+# release. Attaches the released spec subtree and runs the same generate + build
+# + test steps as the Go publish workflows, but stops short of committing,
+# tagging and publishing — so a change that would break a real release fails
+# here first.
+
+on:
+  pull_request:
+    paths: &paths
+      - scripts/**
+      - pixi.toml
+      - pixi.lock
+      - go/**
+      - testprotos.proto
+      - .github/workflows/ci_go.yml
+      - .github/workflows/go_*.yml
+  push:
+    branches: [main]
+    paths: *paths
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait spec version to validate against (defaults to the latest release)
+        required: false
+        type: string
+
+concurrency:
+  group: ci-go-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Substrait Version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OVERRIDE: ${{ inputs.substrait_version }}
+        run: |
+          if [ -n "$OVERRIDE" ]; then
+            VERSION="$OVERRIDE"
+          else
+            VERSION=$(./scripts/latest_release.sh)
+          fi
+          echo "Validating against substrait version: $VERSION"
+          echo "SUBSTRAIT_VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Configure Git Identity
+        # attach_subtree.sh creates a squash commit, which needs an identity.
+        run: |
+          git config --global user.name 'substrait-packaging-ci'
+          git config --global user.email 'substrait-packaging-ci@users.noreply.github.com'
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          pixi-version: v0.84.1
+      - name: Install Go
+        uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go/substrait-protobuf/go.mod
+      - name: Attach substrait Spec Subtree
+        run: ./scripts/attach_subtree.sh
+      - name: Generate substrait-protobuf
+        run: pixi run go-generate-protobuf
+      - name: Build and Test substrait-protobuf
+        working-directory: go/substrait-protobuf
+        run: |
+          go mod tidy -diff
+          go build ./...
+          go test ./...
+          go build -tags protoopaque ./...
+          go test -tags protoopaque ./...

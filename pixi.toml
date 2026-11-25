@@ -20,6 +20,7 @@ csharp-generate-protobuf = { cmd = "cd csharp/Substrait.Protobuf && ./generate_p
 csharp-generate-antlr = { cmd = "cd csharp/Substrait.Antlr && ./generate_antlr.sh", description = "Generate ANTLR C# parsers" }
 csharp-generate-extensions = { cmd = "cd csharp/Substrait.Extensions && ./generate_extensions.sh", description = "Package Substrait extensions files for C#" }
 csharp-build = { cmd = "cd csharp && dotnet test Substrait.slnx", description = "Build and test all C# artifacts" }
+go-generate-protobuf = { cmd = "cd go/substrait-protobuf && ./generate_protobuf.sh", description = "Generate protobuf Go code" }
 
 [dependencies]
 # Note for the C# target: Antlr4.Runtime.Standard trails the tool (4.13.1 is the
@@ -49,3 +50,6 @@ libprotobuf = ">=5"
 # protoc and the C# protobuf plugin via the Grpc.Tools NuGet package, so no
 # separate protoc dependency is needed for the C# target.
 dotnet-sdk = ">=10,<11"
+# Go packaging: runs protoc-gen-go (via `go run`, at the version in
+# go/substrait-protobuf/go.mod) during protobuf generation.
+go = ">=1.27,<2"

@@ -1,0 +1,132 @@
+name: Publish Go Protobuf Module
+run-name: Publish Go Protobuf Module for Version ${{ inputs.substrait_version }}
+
+concurrency:
+  group: go-protobuf
+  cancel-in-progress: false
+
+on:
+  workflow_call:
+    inputs:
+      substrait_version:
+        description: Substrait version to generate protobuf for
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      substrait_version:
+        description: Substrait version to generate protobuf for
+        required: true
+        type: string
+
+env:
+  SUBSTRAIT_VERSION: ${{ inputs.substrait_version }}
+  MODULE_PATH: github.com/substrait-io/substrait-packaging/go/substrait-protobuf
+
+jobs:
+
+  go-protobuf-prechecks:
+    runs-on: ubuntu-latest
+    outputs:
+      publish_version: ${{ steps.resolve.outputs.version }}
+      tag_name: ${{ steps.resolve.outputs.tag_name }}
+      tag_exists: ${{ steps.check-tag.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve Publish Version
+        id: resolve
+        env:
+          # Initial versions are published as pre-releases. To re-publish a spec
+          # version, bump this by hand (alpha.1, alpha.2, ...). Remove the suffix
+          # once the module is considered stable.
+          PRERELEASE: alpha.0
+        run: |
+          VERSION="${SUBSTRAIT_VERSION#v}-$PRERELEASE"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag_name=go/substrait-protobuf/v$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Check Tag Existence
+        id: check-tag
+        run: |
+          EXISTS=$(./scripts/go/alpha_tag_exists.sh "${{ steps.resolve.outputs.tag_name }}")
+          echo "exists=$EXISTS" >> "$GITHUB_OUTPUT"
+
+  go-protobuf-publish:
+    runs-on: ubuntu-latest
+    needs: go-protobuf-prechecks
+    if: needs.go-protobuf-prechecks.outputs.tag_exists == 'false'
+    steps:
+      - name: Generate GitHub App Token for Pushing Tags
+        uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.PACKAGER_CLIENT_ID }}
+          private-key: ${{ secrets.PACKAGER_KEY }}
+
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure GitHub User
+        run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf https://github.com/
+
+      - name: Checkout substrait-packaging
+        uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install pixi
+        uses: prefix-dev/setup-pixi@v0.11.3
+        with:
+          pixi-version: v0.84.1
+
+      - name: Install Go
+        uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go/substrait-protobuf/go.mod
+
+      - name: Attach and Commit substrait Repo
+        run: ./scripts/attach_subtree.sh
+
+      - name: Generate Protobuf Code
+        run: pixi run go-generate-protobuf
+
+      - name: Build and Test
+        working-directory: go/substrait-protobuf
+        run: |
+          go mod tidy -diff
+          go build ./...
+          go test ./...
+          go build -tags protoopaque ./...
+          go test -tags protoopaque ./...
+
+      - name: Commit Generated Code
+        run: |
+          git add go/substrait-protobuf
+          git commit -m "Generated Go protobuf code for Substrait version $SUBSTRAIT_VERSION"
+
+      - name: Tag and Push Generated Code
+        env:
+          TAG_NAME: ${{ needs.go-protobuf-prechecks.outputs.tag_name }}
+        run: |
+          git tag -a "$TAG_NAME" -m "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: Warm the Go Module Proxy
+        # Triggers proxy.golang.org to fetch and cache the new version, which in
+        # turn makes it discoverable on pkg.go.dev.
+        # Best-effort: the tag push is the publish, and the proxy will fetch the
+        # version on first use anyway.
+        continue-on-error: true
+        env:
+          VERSION: ${{ needs.go-protobuf-prechecks.outputs.publish_version }}
+        run: GOPROXY=proxy.golang.org go list -m "$MODULE_PATH@v$VERSION"
