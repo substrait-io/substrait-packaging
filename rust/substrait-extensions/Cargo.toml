@@ -3,7 +3,7 @@
 name = "substrait-extensions"
 version = "0.0.0"
 edition = "2021"
-rust-version = "1.85.1"
+rust-version = "1.88"
 description = "Packaged Substrait Extension Files"
 documentation = "https://docs.rs/substrait-extensions"
 readme = "README.md"
@@ -41,13 +41,13 @@ yaml_serde = "0.10.7"
 [build-dependencies]
 heck = "0.5.0"
 prettyplease = "0.3.0"
-# Pinned to 0.8 to match the schemars version used by typify (0.7): build.rs
+# Pinned to 0.8 to match the schemars version used by typify (0.10): build.rs
 # feeds schemars types straight into typify, so this must track typify's
 # schemars, not the latest release. Bumping to 1.x breaks the build.
 schemars = "0.8.22"
 yaml_serde = "0.10.7"
 syn = "3.0.2"
-typify = "0.8.0"
+typify = "0.10.2"
 walkdir = "2.5.0"
 
 [package.metadata.docs.rs]
