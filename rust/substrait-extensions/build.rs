@@ -19,7 +19,10 @@ const TEXT_ROOT: &str = "text";
 fn text(out_dir: &Path) -> Result<(), Box<dyn Error>> {
     use heck::ToSnakeCase;
     use schemars::schema::{RootSchema, Schema};
-    use typify::{TypeSpace, TypeSpaceSettings};
+    use typify::{
+        typespace::{settings::ContainerType, TypespaceTrait},
+        TypeSpace, TypeSpaceSettings,
+    };
 
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?);
     let mut out_file = File::create(out_dir.join("substrait_text").with_extension("rs"))?;
@@ -60,14 +63,16 @@ fn text(out_dir: &Path) -> Result<(), Box<dyn Error>> {
                     schema_path.display()
                 )
             });
-        let mut type_space = TypeSpace::new(
-            TypeSpaceSettings::default()
-                // Preserve field order in YAML objects (see Substrait #915) so
-                // struct field ordinals remain stable across parsers.
-                .with_map_type("::indexmap::IndexMap")
-                .with_struct_builder(true)
-                .with_derive("PartialEq".to_string()),
-        );
+        let mut type_space = TypeSpace::new(TypeSpaceSettings::default().map_typespace_settings(
+            |settings| {
+                settings
+                    // Preserve field order in YAML objects (see Substrait #915)
+                    // so struct field ordinals remain stable across parsers.
+                    .with_map_type(ContainerType::hash_map().with_path("::indexmap::IndexMap"))
+                    .with_struct_builder(true)
+                    .with_required_trait(TypespaceTrait::PartialEq)
+            },
+        ));
         type_space.add_ref_types(schema.definitions)?;
         type_space.add_type(&Schema::Object(schema.schema))?;
         out_file.write_fmt(format_args!(
@@ -78,7 +83,7 @@ pub mod {title} {{
 }}"#,
             {
                 let generated =
-                    prettyplease::unparse(&syn::parse2::<syn::File>(type_space.to_stream())?);
+                    prettyplease::unparse(&syn::parse2::<syn::File>(type_space.to_stream()?)?);
                 rewrite_type_object_map(generated, &schema_path)
             },
         ))?;

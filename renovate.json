@@ -53,7 +53,7 @@
       "allowedVersions": "<4.14"
     },
     {
-      "description": "Keep schemars on 0.8 in /rust/substrait-extensions to match the schemars version used by typify (0.7). build.rs feeds schemars types straight into typify, so this must track typify's schemars, not the latest release. Cargo treats a 0.x minor bump as breaking, so 0.9 is blocked as well, not just 1.x",
+      "description": "Keep schemars on 0.8 in /rust/substrait-extensions to match the schemars version used by typify (0.10). build.rs feeds schemars types straight into typify, so this must track typify's schemars, not the latest release. Cargo treats a 0.x minor bump as breaking, so 0.9 is blocked as well, not just 1.x",
       "matchPackageNames": ["schemars"],
       "allowedVersions": "<0.9"
     },
