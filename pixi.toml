@@ -32,7 +32,7 @@ go-generate-protobuf = { cmd = "cd go/substrait-protobuf && ./generate_protobuf.
 # both together.
 antlr = "==4.13.2"
 buf = ">=1.62.1,<2"
-datamodel-code-generator = ">=0.90,<0.91"
+datamodel-code-generator = ">=0.96,<0.97"
 ruff = ">=0.17.4,<0.18"
 uv = ">=0.9.25,<1"
 # Required to run the forked ANTLR JAR for the Rust parser generation, and to
